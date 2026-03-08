@@ -39,13 +39,14 @@ services:
     ports:
       - "8000:8000"
     depends_on:
-      - db
-      - redis
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
     volumes:
       - ./back/src:/app/src
       - ./back/scripts:/app/scripts
       - ./back/tests:/app/tests
-      - ./.env.dev:/app/.env
       - ./resources:/app/resources
       - ./resources/local_models:/opt/models
     networks:
@@ -67,6 +68,12 @@ services:
       - agora_pg_data:/var/lib/postgresql/data
     networks:
       - agora_net
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
 
   # --- Cache & Session Store (Redis) ---
   redis:
@@ -78,6 +85,12 @@ services:
       - agora_redis_data:/data
     networks:
       - agora_net
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
 
 volumes:
   agora_pg_data:
