@@ -1,0 +1,12 @@
+# Normalize line endings on checkout for all text files.
+* text=auto
+
+# Shell scripts MUST have LF line endings or Linux containers will fail
+# with "no such file or directory" on the shebang line.
+*.sh text eol=lf
+
+# Docker files
+Dockerfile text eol=lf
+Dockerfile.* text eol=lf
+docker-entrypoint* text eol=lf
+

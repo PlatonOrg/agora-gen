@@ -1,0 +1,651 @@
+<div class="exc-root">
+
+  @if (showResetExerciseConfirm()) {
+    <app-confirm-dialog
+      [options]="resetExerciseDialogOptions"
+      (confirmed)="doConfirmResetExercise()"
+      (cancelled)="doCancelResetExercise()"
+    />
+  }
+
+  <!-- Identity - OUTSIDE scroll container (never scrolls) -->
+  <div class="exc-identity">
+    <textarea class="exc-name"
+              [ngModel]="nameSignal()"
+              (ngModelChange)="onNameChange($event)"
+              placeholder="Nom de l'exercice"
+              autocomplete="off"
+              rows="1"
+              [disabled]="!isEditable()"
+              #titleTextarea></textarea>
+    <textarea class="exc-description"
+              [ngModel]="descriptionSignal()"
+              (ngModelChange)="onDescriptionChange($event)"
+              placeholder="Description de l'exercice…"
+              autocomplete="off"
+              rows="2"
+              [disabled]="!isEditable()"
+              #descriptionTextarea></textarea>
+  </div>
+
+  <!-- Tabs - OUTSIDE scroll container (never scrolls) -->
+  <div class="exc-tabs">
+    @if (!isTemplate()) {
+      <button class="exc-tab" [class.exc-tab--active]="activeTab() === 'content'"    (click)="setTab('content')">Contenu</button>
+      <button class="exc-tab" [class.exc-tab--active]="activeTab() === 'components'" (click)="setTab('components')">Composants</button>
+      <button class="exc-tab" [class.exc-tab--active]="activeTab() === 'optional'"   (click)="setTab('optional')">Aide</button>
+      <button class="exc-tab" [class.exc-tab--active]="activeTab() === 'technical'"  (click)="setTab('technical')">Scripts</button>
+      <button class="exc-tab" [class.exc-tab--active]="activeTab() === 'metadata'"   (click)="setTab('metadata')">Métadonnées</button>
+    }
+    @if (isTemplate()) {
+      <button class="exc-tab" [class.exc-tab--active]="activeTab() === 'params'"    (click)="setTab('params')">Paramètres</button>
+      <button class="exc-tab" [class.exc-tab--active]="activeTab() === 'metadata'"  (click)="setTab('metadata')">Métadonnées</button>
+    }
+  </div>
+
+  @if (activeTab() !== 'components' && activeTab() !== 'metadata') {
+    <div class="exc-dnd-hint-bar">
+      <div class="exc-dnd-hint" role="note">
+        <span class="exc-dnd-hint__text">
+          Glissez l'icône
+          <svg class="exc-dnd-hint__inline-icon" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+            <circle cx="9" cy="5" r="2"/><circle cx="15" cy="5" r="2"/>
+            <circle cx="9" cy="12" r="2"/><circle cx="15" cy="12" r="2"/>
+            <circle cx="9" cy="19" r="2"/><circle cx="15" cy="19" r="2"/>
+          </svg>
+          d'un champ vers la discussion à gauche pour demander la modification de cette variable uniquement.
+        </span>
+      </div>
+    </div>
+  }
+
+  <!-- Content Scroll Container - ONLY content scrolls here -->
+  <div class="exc-content-scroll">
+
+    <!-- ─── TAB: Contenu ─── -->
+    @if (activeTab() === 'content') {
+      <div class="exc-panel">
+
+        <!-- Titre -->
+        <div class="exc-field">
+          <div class="exc-field-label">
+          <span class="exc-field-name">
+            <span *ngIf="!isTemplate()" class="exc-drag-handle" draggable="true"
+                  (dragstart)="onFieldDragStart($event, 'titre')" (dragend)="onFieldDragEnd($event)"
+                  aria-label="Déplacer le champ titre"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><circle cx="9" cy="5" r="2"/><circle cx="15" cy="5" r="2"/><circle cx="9" cy="12" r="2"/><circle cx="15" cy="12" r="2"/><circle cx="9" cy="19" r="2"/><circle cx="15" cy="19" r="2"/></svg></span>
+            Titre
+          </span>
+            <button class="exc-info-btn" (click)="showFieldInfo($event, 'titre')" title="Info">
+              <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="8" stroke-width="3" stroke-linecap="round"/><line x1="12" y1="12" x2="12" y2="16"/></svg>
+            </button>
+          </div>
+          <input type="text" class="exc-input"
+                 [ngModel]="currentExerciseData().titre"
+                 (ngModelChange)="onTitreChange($event)"
+                 placeholder="Titre affiché à l'étudiant"
+                 [disabled]="!isEditable() || isTemplate()">
+        </div>
+
+        <!-- Énoncé -->
+        <div class="exc-field">
+          <div class="exc-field-label">
+          <span class="exc-field-name">
+            <span *ngIf="!isTemplate()" class="exc-drag-handle" draggable="true"
+                  (dragstart)="onFieldDragStart($event, 'enonce')" (dragend)="onFieldDragEnd($event)"
+                  aria-label="Déplacer le champ énoncé"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><circle cx="9" cy="5" r="2"/><circle cx="15" cy="5" r="2"/><circle cx="9" cy="12" r="2"/><circle cx="15" cy="12" r="2"/><circle cx="9" cy="19" r="2"/><circle cx="15" cy="19" r="2"/></svg></span>
+            Énoncé
+          </span>
+            <button class="exc-info-btn" (click)="showFieldInfo($event, 'enonce')" title="Info">
+              <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="8" stroke-width="3" stroke-linecap="round"/><line x1="12" y1="12" x2="12" y2="16"/></svg>
+            </button>
+            <span class="exc-field-hint">Markdown</span>
+          </div>
+          <textarea class="exc-textarea exc-textarea--md"
+                    [ngModel]="currentExerciseData().enonce"
+                    (ngModelChange)="onEnonceChange($event)"
+                    placeholder="Texte de l'exercice (Markdown supporté)…"
+                    rows="5"
+                    [disabled]="!isEditable() || isTemplate()"></textarea>
+        </div>
+
+        <!-- Forme -->
+        <div class="exc-field">
+          <div class="exc-field-label">
+          <span class="exc-field-name">
+            <span *ngIf="!isTemplate()" class="exc-drag-handle" draggable="true"
+                  (dragstart)="onFieldDragStart($event, 'forme')" (dragend)="onFieldDragEnd($event)"
+                  aria-label="Déplacer le champ forme"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><circle cx="9" cy="5" r="2"/><circle cx="15" cy="5" r="2"/><circle cx="9" cy="12" r="2"/><circle cx="15" cy="12" r="2"/><circle cx="9" cy="19" r="2"/><circle cx="15" cy="19" r="2"/></svg></span>
+            Forme
+          </span>
+            <button class="exc-info-btn" (click)="showFieldInfo($event, 'forme')" title="Info">
+              <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="8" stroke-width="3" stroke-linecap="round"/><line x1="12" y1="12" x2="12" y2="16"/></svg>
+            </button>
+            <span class="exc-field-hint">Markdown</span>
+          </div>
+          <textarea class="exc-textarea exc-textarea--md"
+                    [ngModel]="currentExerciseData().forme"
+                    (ngModelChange)="onFormeChange($event)"
+                    placeholder="Disposition du formulaire de réponse…"
+                    rows="3"
+                    [disabled]="!isEditable() || isTemplate()"></textarea>
+        </div>
+
+        <!-- Solution -->
+        <div class="exc-field"
+             [class.exc-field--drag-over]="isComponentsDropZone() && isEditable() && !isTemplate()">
+          <div class="exc-field-label">
+          <span class="exc-field-name">
+            <span *ngIf="!isTemplate()" class="exc-drag-handle" draggable="true"
+                  (dragstart)="onFieldDragStart($event, 'solution')" (dragend)="onFieldDragEnd($event)"
+                  aria-label="Déplacer le champ solution"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><circle cx="9" cy="5" r="2"/><circle cx="15" cy="5" r="2"/><circle cx="9" cy="12" r="2"/><circle cx="15" cy="12" r="2"/><circle cx="9" cy="19" r="2"/><circle cx="15" cy="19" r="2"/></svg></span>
+            Solution
+          </span>
+            <button class="exc-info-btn" (click)="showFieldInfo($event, 'solution')" title="Info">
+              <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="8" stroke-width="3" stroke-linecap="round"/><line x1="12" y1="12" x2="12" y2="16"/></svg>
+            </button>
+            <span class="exc-field-hint">Markdown</span>
+          </div>
+          <textarea class="exc-textarea exc-textarea--md"
+                    [ngModel]="currentExerciseData().solution"
+                    (ngModelChange)="onSolutionFieldChange($event)"
+                    placeholder="Affichage de la solution corrigée…"
+                    rows="2"
+                    [disabled]="!isEditable() || isTemplate()"></textarea>
+        </div>
+
+      </div>
+    }
+
+    <!-- ─── TAB: Composants ─── -->
+    @if (activeTab() === 'components') {
+      <div class="exc-panel exc-panel--components"
+           [class.exc-panel--drag-over]="isComponentsDropZone() && isEditable() && !isTemplate()"
+           (dragover)="isEditable() && !isTemplate() ? onComponentsDragOver($event) : $event.preventDefault()"
+           (dragleave)="isEditable() && !isTemplate() ? onComponentsDragLeave($event) : null"
+           (drop)="isEditable() && !isTemplate() ? onComponentsDrop($event) : $event.preventDefault()">
+        <div class="exc-field exc-field--components">
+          <div class="exc-field-label">
+            <span class="exc-field-name">Composants</span>
+            <button class="exc-info-btn" (click)="showFieldInfo($event, 'composants')" title="Info">
+              <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="8" stroke-width="3" stroke-linecap="round"/><line x1="12" y1="12" x2="12" y2="16"/></svg>
+            </button>
+            @if ((currentExerciseData().component_instances || []).length > 0) {
+              <span class="exc-badge">{{ (currentExerciseData().component_instances || []).length }}</span>
+            }
+          </div>
+          <div class="exc-components">
+            @for (instance of (currentExerciseData().component_instances || []); track instance.id) {
+              <div class="exc-comp" [class.exc-comp--form]="instance.category === 'Formulaire'" [class.exc-comp--widget]="instance.category === 'Widget'">
+                <div class="exc-comp-header" (click)="toggleComponentCollapse(instance.id)">
+                  <div class="exc-comp-title">
+                    <span class="exc-comp-category-dot" [class.dot--form]="instance.category === 'Formulaire'" [class.dot--widget]="instance.category === 'Widget'"></span>
+                    <span class="exc-comp-name">{{ instance.componentName }}</span>
+                    <span class="exc-comp-var">{{ instance.instanceName }}</span>
+                  </div>
+                  <div class="exc-comp-actions">
+                    <svg class="exc-comp-chevron" [class.rotated]="instance.collapsed === false" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+                    <button class="exc-comp-remove" (click)="removeComponentInstance(instance.id); $event.stopPropagation()" [disabled]="!isEditable() || isTemplate()" title="Supprimer">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                    </button>
+                  </div>
+                </div>
+                @if (instance.collapsed === false) {
+                  <div class="exc-comp-body">
+                    <div class="exc-prop">
+                      <label class="exc-prop-key">name</label>
+                      <input type="text" class="exc-prop-val" [(ngModel)]="instance.instanceName" (ngModelChange)="onComponentInstanceChange()" [disabled]="!isEditable() || isTemplate()" placeholder="Nom de variable">
+                    </div>
+                    @for (propEntry of getComponentProperties(instance); track propEntry.key) {
+                      <div class="exc-prop">
+                        <label class="exc-prop-key">
+                          {{ propEntry.key }}<span *ngIf="propEntry.required" class="exc-prop-required">*</span>
+                          <button class="exc-info-btn exc-info-btn--sm" (click)="showPropertyInfo($event, instance.id, propEntry.key, propEntry.description || '')" *ngIf="propEntry.description">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="8" stroke-width="3" stroke-linecap="round"/><line x1="12" y1="12" x2="12" y2="16"/></svg>
+                          </button>
+                        </label>
+                        @if (propEntry.type === 'boolean') {
+                          <select class="exc-prop-val exc-select" [(ngModel)]="instance.properties[propEntry.key]" (ngModelChange)="onComponentInstanceChange()" [disabled]="!isEditable() || isTemplate()">
+                            <option [ngValue]="undefined" *ngIf="!propEntry.required">—</option>
+                            <option [ngValue]="true">true</option>
+                            <option [ngValue]="false">false</option>
+                          </select>
+                        } @else if (propEntry.enumValues) {
+                          <select class="exc-prop-val exc-select" [(ngModel)]="instance.properties[propEntry.key]" (ngModelChange)="onComponentInstanceChange()" [disabled]="!isEditable() || isTemplate()">
+                            <option [ngValue]="undefined" *ngIf="!propEntry.required">—</option>
+                            @for (val of propEntry.enumValues; track val) { <option [ngValue]="val">{{ val }}</option> }
+                          </select>
+                        } @else if (propEntry.type === 'number') {
+                          <input type="number" class="exc-prop-val" [(ngModel)]="instance.properties[propEntry.key]" (ngModelChange)="onComponentInstanceChange()" [disabled]="!isEditable() || isTemplate()" [placeholder]="propEntry.defaultValue !== null ? propEntry.defaultValue : ''">
+                        } @else if (propEntry.isArrayOfStrings) {
+                          <div class="exc-arr-editor">
+                            <div class="exc-arr-items">
+                              @for (item of getArrayStringItems(instance, propEntry.key); track $index) {
+                                <div class="exc-arr-item">
+                                  <input type="text" class="exc-arr-input" [value]="item" (input)="updateArrayStringItem(instance, propEntry.key, $index, $any($event.target).value)" [disabled]="!isEditable() || isTemplate()" placeholder="Item {{ $index + 1 }}">
+                                  <button class="exc-arr-remove" (click)="removeArrayStringItem(instance, propEntry.key, $index)" [disabled]="!isEditable() || isTemplate()">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                                  </button>
+                                </div>
+                              }
+                              @if (getArrayStringItems(instance, propEntry.key).length === 0) {
+                                <span class="exc-empty-hint">Aucun élément</span>
+                              }
+                            </div>
+                            <button class="exc-add-btn" (click)="addArrayStringItem(instance, propEntry.key)" [disabled]="!isEditable() || isTemplate()">+ Ajouter</button>
+                          </div>
+                        } @else if (propEntry.type === 'array' || propEntry.type === 'object') {
+                          <div class="exc-json-wrap">
+                            <textarea class="exc-prop-val exc-prop-json" [class.exc-prop-json--error]="hasJsonError(instance.id, propEntry.key)" [ngModel]="getPropertyDisplayValue(instance, propEntry.key)" (ngModelChange)="setPropertyFromString(instance, propEntry.key, $event, propEntry.type)" [disabled]="!isEditable() || isTemplate()" [placeholder]="propEntry.defaultValue !== null ? (propEntry.defaultValue | json) : ('JSON (' + propEntry.type + ')')" rows="2"></textarea>
+                            @if (hasJsonError(instance.id, propEntry.key)) {
+                              <span class="exc-json-err" title="JSON invalide">
+                              <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+                            </span>
+                            }
+                          </div>
+                        } @else {
+                          <input type="text" class="exc-prop-val" [(ngModel)]="instance.properties[propEntry.key]" (ngModelChange)="onComponentInstanceChange()" [disabled]="!isEditable() || isTemplate()" [placeholder]="propEntry.defaultValue !== null ? ('' + propEntry.defaultValue) : ''">
+                        }
+                      </div>
+                    }
+                  </div>
+                }
+              </div>
+            }
+          </div>
+        </div>
+
+        @if (isEditable() && !isTemplate()) {
+          <div class="exc-drop-footer"
+               [class.exc-drop-footer--active]="isComponentsDropZone()">
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+            <span>{{ (currentExerciseData().component_instances || []).length === 0 ? 'Glissez un composant depuis le panneau de droite pour l\'ajouter à l\'exercice' : 'Glissez un autre composant ici pour l\'ajouter' }}</span>
+          </div>
+        }
+        @if (!isEditable() && (currentExerciseData().component_instances || []).length === 0) {
+          <div class="exc-drop-footer exc-drop-footer--readonly">
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+            <span>Aucun composant</span>
+          </div>
+        }
+
+      </div>
+    }
+
+    <!-- ─── TAB: Optionnel ─── -->
+    @if (activeTab() === 'optional') {
+      <div class="exc-panel">
+
+        <!-- Indications -->
+        <div class="exc-field">
+          <div class="exc-field-label">
+          <span class="exc-field-name">
+            <span *ngIf="!isTemplate()" class="exc-drag-handle" draggable="true"
+                  (dragstart)="onFieldDragStart($event, 'indications')" (dragend)="onFieldDragEnd($event)"
+                  aria-label="Déplacer le champ indications"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><circle cx="9" cy="5" r="2"/><circle cx="15" cy="5" r="2"/><circle cx="9" cy="12" r="2"/><circle cx="15" cy="12" r="2"/><circle cx="9" cy="19" r="2"/><circle cx="15" cy="19" r="2"/></svg></span>
+            Indications
+          </span>
+            <button class="exc-info-btn" (click)="showFieldInfo($event, 'indications')" title="Info">
+              <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="8" stroke-width="3" stroke-linecap="round"/><line x1="12" y1="12" x2="12" y2="16"/></svg>
+            </button>
+            <button class="exc-add-inline-btn" title="Ajouter" (click)="doAddIndication()" [disabled]="!isEditable() || isTemplate()">
+              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            </button>
+          </div>
+          <div class="exc-list">
+            @for (_ of (currentExerciseData().indications || []); track $index) {
+              <div class="exc-list-item">
+                <span class="exc-list-bullet">{{ $index + 1 }}</span>
+                <textarea class="exc-textarea exc-textarea--sm"
+                          draggable="false"
+                          placeholder="Indication…"
+                          rows="1"
+                          [ngModel]="(currentExerciseData().indications || [])[$index]"
+                          (ngModelChange)="onIndicationChange($index, $event)"
+                          [disabled]="!isEditable() || isTemplate()"></textarea>
+                <button class="exc-list-remove" (click)="doRemoveIndication($index)" [disabled]="!isEditable() || isTemplate()">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                </button>
+              </div>
+            }
+            @if ((currentExerciseData().indications || []).length === 0) {
+              <span class="exc-empty-hint">Aucune indication — cliquez sur + pour en ajouter une</span>
+            }
+          </div>
+        </div>
+
+        <!-- Théories -->
+        <div class="exc-field">
+          <div class="exc-field-label">
+          <span class="exc-field-name">
+            <span *ngIf="!isTemplate()" class="exc-drag-handle" draggable="true"
+                  (dragstart)="onFieldDragStart($event, 'theories')" (dragend)="onFieldDragEnd($event)"
+                  aria-label="Déplacer le champ théories"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><circle cx="9" cy="5" r="2"/><circle cx="15" cy="5" r="2"/><circle cx="9" cy="12" r="2"/><circle cx="15" cy="12" r="2"/><circle cx="9" cy="19" r="2"/><circle cx="15" cy="19" r="2"/></svg></span>
+            Théories
+          </span>
+            <button class="exc-info-btn" (click)="showFieldInfo($event, 'theories')" title="Info">
+              <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="8" stroke-width="3" stroke-linecap="round"/><line x1="12" y1="12" x2="12" y2="16"/></svg>
+            </button>
+            <button class="exc-add-inline-btn" title="Ajouter" (click)="doAddTheory()" [disabled]="!isEditable() || isTemplate()">
+              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            </button>
+          </div>
+          <div class="exc-list exc-list--theories">
+            @for (_ of (currentExerciseData().theories || []); track $index) {
+              <div class="exc-theory">
+                <div class="exc-theory-fields">
+                  <input draggable="false" type="text" class="exc-input exc-input--sm" placeholder="Titre" [ngModel]="(currentExerciseData().theories || [])[$index].title" (ngModelChange)="onTheoryTitleChange($index, $event)" [disabled]="!isEditable() || isTemplate()">
+                  <div class="exc-theory-url-row">
+                    <input draggable="false" type="url" class="exc-input exc-input--sm" placeholder="URL" [ngModel]="(currentExerciseData().theories || [])[$index].url" (ngModelChange)="onTheoryUrlChange($index, $event)" [disabled]="!isEditable() || isTemplate()">
+                    @if ((currentExerciseData().theories || [])[$index].url) {
+                      <a class="exc-ext-link" [href]="(currentExerciseData().theories || [])[$index].url" target="_blank" rel="noopener noreferrer" title="Ouvrir">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15,3 21,3 21,9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+                      </a>
+                    }
+                  </div>
+                </div>
+                <button class="exc-list-remove" (click)="doRemoveTheory($index)" [disabled]="!isEditable() || isTemplate()">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                </button>
+              </div>
+            }
+            @if ((currentExerciseData().theories || []).length === 0) {
+              <span class="exc-empty-hint">Aucune ressource théorique — cliquez sur + pour en ajouter une</span>
+            }
+          </div>
+        </div>
+
+      </div>
+    }
+
+    <!-- ─── TAB: Technique ─── -->
+    @if (activeTab() === 'technical') {
+      <div class="exc-panel">
+
+        <!-- Sandbox -->
+        <div class="exc-field exc-field--row">
+          <div class="exc-field-label exc-field-label--inline">
+          <span class="exc-field-name">
+            <span *ngIf="!isTemplate()" class="exc-drag-handle" draggable="true"
+                  (dragstart)="onFieldDragStart($event, 'sandbox')" (dragend)="onFieldDragEnd($event)"
+                  aria-label="Déplacer le champ sandbox"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><circle cx="9" cy="5" r="2"/><circle cx="15" cy="5" r="2"/><circle cx="9" cy="12" r="2"/><circle cx="15" cy="12" r="2"/><circle cx="9" cy="19" r="2"/><circle cx="15" cy="19" r="2"/></svg></span>
+            Sandbox
+          </span>
+            <button class="exc-info-btn" (click)="showFieldInfo($event, 'sandbox')" title="Info">
+              <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="8" stroke-width="3" stroke-linecap="round"/><line x1="12" y1="12" x2="12" y2="16"/></svg>
+            </button>
+          </div>
+          <select draggable="false" class="exc-select exc-select--inline" [ngModel]="currentExerciseData().sandbox" (ngModelChange)="onSandboxSelectChange($event)" [disabled]="!isEditable() || isTemplate()">
+            <option value="python">Python</option>
+            <option value="node">Node.js</option>
+          </select>
+        </div>
+
+        <!-- Construction -->
+        <div class="exc-field exc-field--code">
+          <div class="exc-field-label">
+          <span class="exc-field-name">
+            <span *ngIf="!isTemplate()" class="exc-drag-handle" draggable="true"
+                  (dragstart)="onFieldDragStart($event, 'construction')" (dragend)="onFieldDragEnd($event)"
+                  aria-label="Déplacer le champ construction"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><circle cx="9" cy="5" r="2"/><circle cx="15" cy="5" r="2"/><circle cx="9" cy="12" r="2"/><circle cx="15" cy="12" r="2"/><circle cx="9" cy="19" r="2"/><circle cx="15" cy="19" r="2"/></svg></span>
+            Construction (builder)
+          </span>
+            <button class="exc-info-btn" (click)="showFieldInfo($event, 'construction')" title="Info">
+              <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="8" stroke-width="3" stroke-linecap="round"/><line x1="12" y1="12" x2="12" y2="16"/></svg>
+            </button>
+            <span class="exc-field-hint">{{ currentExerciseData().sandbox === 'node' ? 'Node.js' : 'Python' }}</span>
+          </div>
+          <div class="exc-monaco-wrap" draggable="false">
+            <ngx-monaco-editor *ngIf="isBrowser" class="exc-monaco" [options]="constructionEditorOptions" [ngModel]="currentExerciseData().construction" (ngModelChange)="onConstructionChange($event)"></ngx-monaco-editor>
+          </div>
+        </div>
+
+        <!-- Évaluation -->
+        <div class="exc-field exc-field--code">
+          <div class="exc-field-label">
+          <span class="exc-field-name">
+            <span *ngIf="!isTemplate()" class="exc-drag-handle" draggable="true"
+                  (dragstart)="onFieldDragStart($event, 'evaluation')" (dragend)="onFieldDragEnd($event)"
+                  aria-label="Déplacer le champ évaluation"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><circle cx="9" cy="5" r="2"/><circle cx="15" cy="5" r="2"/><circle cx="9" cy="12" r="2"/><circle cx="15" cy="12" r="2"/><circle cx="9" cy="19" r="2"/><circle cx="15" cy="19" r="2"/></svg></span>
+            Évaluation (grader)
+          </span>
+            <button class="exc-info-btn" (click)="showFieldInfo($event, 'evaluation')" title="Info">
+              <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="8" stroke-width="3" stroke-linecap="round"/><line x1="12" y1="12" x2="12" y2="16"/></svg>
+            </button>
+            <span class="exc-field-hint">{{ currentExerciseData().sandbox === 'node' ? 'Node.js' : 'Python' }}</span>
+          </div>
+          <div class="exc-monaco-wrap" draggable="false">
+            <ngx-monaco-editor *ngIf="isBrowser" class="exc-monaco" [options]="evaluationEditorOptions" [ngModel]="currentExerciseData().evaluation" (ngModelChange)="onEvaluationChange($event)"></ngx-monaco-editor>
+          </div>
+        </div>
+
+        <!-- Variables sandbox -->
+        <div class="exc-field">
+          <div class="exc-field-label">
+          <span class="exc-field-name">
+            <span *ngIf="!isTemplate()" class="exc-drag-handle" draggable="true"
+                  (dragstart)="onFieldDragStart($event, 'sandbox_variables')" (dragend)="onFieldDragEnd($event)"
+                  aria-label="Déplacer le champ variables de sandbox"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><circle cx="9" cy="5" r="2"/><circle cx="15" cy="5" r="2"/><circle cx="9" cy="12" r="2"/><circle cx="15" cy="12" r="2"/><circle cx="9" cy="19" r="2"/><circle cx="15" cy="19" r="2"/></svg></span>
+            Variables de sandbox
+          </span>
+            <button class="exc-info-btn" (click)="showFieldInfo($event, 'sandbox_variables')" title="Info">
+              <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="8" stroke-width="3" stroke-linecap="round"/><line x1="12" y1="12" x2="12" y2="16"/></svg>
+            </button>
+            <button class="exc-add-inline-btn" title="Ajouter" (click)="addSandboxVariable()" [disabled]="!isEditable() || isTemplate()">
+              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            </button>
+          </div>
+          <div class="exc-vars">
+            @for (varEntry of getSandboxVariablesList(); track $index) {
+              <div class="exc-var-row">
+                <input draggable="false" type="text" class="exc-var-key" [value]="varEntry.key" (input)="onSandboxVariableKeyChange($index, $any($event.target).value)" [disabled]="!isEditable() || isTemplate()" placeholder="nom">
+                <span class="exc-var-eq">=</span>
+                <textarea draggable="false" class="exc-var-val" [value]="varEntry.value" (input)="onSandboxVariableValueChange($index, $any($event.target).value)" [disabled]="!isEditable() || isTemplate()" placeholder="valeur" rows="1"></textarea>
+                <button class="exc-list-remove" (click)="removeSandboxVariable($index)" [disabled]="!isEditable() || isTemplate()">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                </button>
+              </div>
+            }
+            @if (getSandboxVariablesList().length === 0) {
+              <span class="exc-empty-hint">Aucune variable</span>
+            }
+          </div>
+        </div>
+
+      </div>
+    }
+
+    <!-- ─── TAB: Métadonnées ─── -->
+    @if (activeTab() === 'metadata') {
+      <div class="exc-panel">
+
+        <!-- Readme -->
+        <div class="exc-field exc-field--code">
+          <div class="exc-field-label">
+            <span class="exc-field-name">Readme</span>
+            <button class="exc-info-btn" (click)="showFieldInfo($event, 'readme')" title="Info">
+              <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="8" stroke-width="3" stroke-linecap="round"/><line x1="12" y1="12" x2="12" y2="16"/></svg>
+            </button>
+            <span class="exc-field-hint">Markdown</span>
+          </div>
+          <div class="exc-readme-editor">
+            <ngx-monaco-editor
+              *ngIf="isBrowser"
+              class="exc-monaco exc-monaco--readme"
+              [options]="readmeEditorOptions"
+              [ngModel]="readmeSignal()"
+              (ngModelChange)="onReadmeChange($event)"
+            ></ngx-monaco-editor>
+          </div>
+        </div>
+
+        <!-- Topics -->
+        <div class="exc-field">
+          <div class="exc-field-label">
+            <span class="exc-field-name">Sujets</span>
+            <button class="exc-info-btn" (click)="showFieldInfo($event, 'topics')" title="Info">
+              <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="8" stroke-width="3" stroke-linecap="round"/><line x1="12" y1="12" x2="12" y2="16"/></svg>
+            </button>
+          </div>
+          <div class="exc-token-field exc-token-field--topic">
+            @for (topic of currentExerciseData().metadata.topics; track $index) {
+              <span class="exc-token exc-token--topic">
+              {{ topic }}
+                <button class="exc-token__remove" (click)="removeTopic($index)" [disabled]="!isEditable()" title="Supprimer">
+                <svg xmlns="http://www.w3.org/2000/svg" width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+              </button>
+            </span>
+            }
+            @if (isEditable()) {
+              <div class="exc-token-input-wrap">
+                <input
+                  type="text"
+                  class="exc-token-input"
+                  [placeholder]="currentExerciseData().metadata.topics.length ? '' : 'Ajouter un sujet…'"
+                  [ngModel]="newTopicInput()"
+                  (ngModelChange)="newTopicInput.set($event); topicDropdownOpen.set(true)"
+                  (keydown)="onTopicInputKeydown($event)"
+                  (focus)="topicDropdownOpen.set(true); levelDropdownOpen.set(false)"
+                  (blur)="topicDropdownOpen.set(false)"
+                />
+                @if (topicDropdownOpen() && getTopicSuggestions().length > 0) {
+                  <div class="exc-token-dropdown">
+                    @for (suggestion of getTopicSuggestions(); track suggestion.id) {
+                      <button class="exc-token-dropdown__item" type="button" (mousedown)="addTopic(suggestion.name)">
+                        {{ suggestion.name }}
+                      </button>
+                    }
+                  </div>
+                }
+              </div>
+            }
+          </div>
+        </div>
+
+        <!-- Levels -->
+        <div class="exc-field">
+          <div class="exc-field-label">
+            <span class="exc-field-name">Niveaux</span>
+            <button class="exc-info-btn" (click)="showFieldInfo($event, 'levels')" title="Info">
+              <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="8" stroke-width="3" stroke-linecap="round"/><line x1="12" y1="12" x2="12" y2="16"/></svg>
+            </button>
+          </div>
+          <div class="exc-token-field exc-token-field--level">
+            @for (level of currentExerciseData().metadata.levels; track $index) {
+              <span class="exc-token exc-token--level">
+              {{ level }}
+                <button class="exc-token__remove" (click)="removeLevel($index)" [disabled]="!isEditable()" title="Supprimer">
+                <svg xmlns="http://www.w3.org/2000/svg" width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+              </button>
+            </span>
+            }
+            @if (isEditable()) {
+              <div class="exc-token-input-wrap">
+                <input
+                  type="text"
+                  class="exc-token-input"
+                  [placeholder]="currentExerciseData().metadata.levels.length ? '' : 'Ajouter un niveau…'"
+                  [ngModel]="newLevelInput()"
+                  (ngModelChange)="newLevelInput.set($event); levelDropdownOpen.set(true)"
+                  (keydown)="onLevelInputKeydown($event)"
+                  (focus)="levelDropdownOpen.set(true); topicDropdownOpen.set(false)"
+                  (blur)="levelDropdownOpen.set(false)"
+                />
+                @if (levelDropdownOpen() && getLevelSuggestions().length > 0) {
+                  <div class="exc-token-dropdown">
+                    @for (suggestion of getLevelSuggestions(); track suggestion.id) {
+                      <button class="exc-token-dropdown__item" type="button" (mousedown)="addLevel(suggestion.name)">
+                        {{ suggestion.name }}
+                      </button>
+                    }
+                  </div>
+                }
+              </div>
+            }
+          </div>
+        </div>
+
+      </div>
+    }
+
+
+    <!-- ─── TAB: Paramètres ─── -->
+    @if (activeTab() === 'params' && isTemplate()) {
+      <app-template-parameters
+        [parameters]="getTemplateParameters()"
+        [isEditable]="isEditable()"
+        [isDraggable]="true"
+        (parameterChange)="onTemplateParameterChange($event)">
+      </app-template-parameters>
+    }
+
+  </div>
+  <!-- End of Content Scroll Container -->
+
+  <!-- PLE Popup -->
+  <div class="exc-ple-overlay" *ngIf="isPlePopupVisible()" (click)="closePlePopup()">
+    <div class="exc-ple-dialog" (click)="$event.stopPropagation()">
+      <div class="exc-ple-header">
+        <span class="exc-ple-title">Code PLE</span>
+        <button class="exc-ple-close" (click)="closePlePopup()">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+      </div>
+      <div class="exc-ple-body">
+        <ngx-monaco-editor *ngIf="isBrowser" class="exc-monaco exc-monaco--ple" [options]="pleEditorOptions" [(ngModel)]="pleContent"></ngx-monaco-editor>
+      </div>
+    </div>
+  </div>
+
+  <!-- Field info tooltip -->
+  @if (fieldInfoOpen() && fieldInfoPosition()) {
+    <div class="exc-tooltip-overlay" (click)="fieldInfoOpen.set(null); fieldInfoPosition.set(null)">
+      <div class="exc-tooltip" [style.top.px]="fieldInfoPosition()!.top" [style.left.px]="fieldInfoPosition()!.left" (click)="$event.stopPropagation()">
+        {{ fieldDescriptions[fieldInfoOpen()!] }}
+      </div>
+    </div>
+  }
+  @if (propertyInfoOpen() && propertyInfoPosition()) {
+    <div class="exc-tooltip-overlay" (click)="propertyInfoOpen.set(null); propertyInfoPosition.set(null); propertyInfoDescription.set('')">
+      <div class="exc-tooltip" [style.top.px]="propertyInfoPosition()!.top" [style.left.px]="propertyInfoPosition()!.left" (click)="$event.stopPropagation()">
+        {{ propertyInfoDescription() }}
+      </div>
+    </div>
+  }
+
+  <!-- Publish Dialog -->
+  @if (showPublishDialog()) {
+    <app-publish-dialog
+      [exerciseName]="currentExerciseData().name"
+      [exerciseDescription]="currentExerciseData().description"
+      [exerciseTemplateId]="currentExerciseData().template_id"
+      (publishRequest)="onPublishRequest($event)"
+      (cancelRequest)="closePublishDialog()">
+    </app-publish-dialog>
+  }
+
+  <!-- Publish Feedback Toast -->
+  @if (publishFeedback()) {
+    <div
+      class="publish-toast"
+      [class.publish-toast--success]="publishFeedback()!.type === 'success'"
+      [class.publish-toast--error]="publishFeedback()!.type === 'error'"
+      role="status"
+      aria-live="polite"
+    >
+      <span class="publish-toast__icon" aria-hidden="true">
+        @if (publishFeedback()!.type === 'success') {
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="20 6 9 17 4 12"/>
+          </svg>
+        } @else {
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
+            <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+          </svg>
+        }
+      </span>
+      <span class="publish-toast__message">{{ publishFeedback()!.message }}</span>
+    </div>
+  }
+
+</div>
+

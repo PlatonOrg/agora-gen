@@ -1,0 +1,54 @@
+## Composant wc-presenter
+
+La propriété principale est `template` qui contient le contenu de la présentation au format HTML/Markdown compatible avec Reveal.js
+
+## Syntaxe
+
+```
+<section data-markdown>
+  <textarea data-template>
+    ## Première diapositive
+    Contenu principal
+
+    ---
+    ## Seconde diapositive
+    Nouveau contenu après transition horizontale
+
+    --
+    ## Sous-diapositive
+    Contenu accessible par transition verticale
+  </textarea>
+</section>
+```
+
+- Le contenu peut être écrit en Markdown pour plus de simplicité:
+
+```
+## Titre de la diapositive
+
+- Point 1
+- Point 2
+
+> Citation importante
+```
+
+- Code avec surlignage syntaxique
+
+La syntaxe `[1-2|3|4]` permet de révéler progressivement les lignes de code lors de la présentation.
+
+```javascript [1-2|3|4]
+function exemple() {
+  const a = 1;
+  const b = a + 1;
+  return b * 2;
+}
+```
+
+### Formules mathématiques
+
+```markdown
+$$
+f(x) = \int_{-\infty}^{\infty} \hat{f}(\xi) e^{2 \pi i \xi x} d\xi
+$$
+
+- Il ne faut pas encombrer les slides avec un long contenu et répartir sur plusieurs slides.

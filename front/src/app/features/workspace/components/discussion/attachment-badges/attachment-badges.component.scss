@@ -1,0 +1,76 @@
+:host {
+  display: block;
+}
+
+.badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3rem;
+}
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.22rem 0.5rem;
+  border-radius: 5px;
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  max-width: 200px;
+  flex-shrink: 0;
+}
+
+.badge svg {
+  flex-shrink: 0;
+}
+
+.badge__label {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  min-width: 0;
+}
+
+.badge__remove {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  border: none;
+  background: rgba(255, 255, 255, 0.22);
+  color: inherit;
+  font-size: 0.8rem;
+  line-height: 1;
+  cursor: pointer;
+  padding: 0;
+  flex-shrink: 0;
+  transition: background 0.12s;
+
+  &:hover { background: rgba(255, 255, 255, 0.4); }
+}
+
+.badge--component {
+  background: var(--brand-color-primary);
+  color: #fff;
+}
+
+.badge--field {
+  background: #0d9488;
+  color: #fff;
+}
+
+.badge--parameter {
+  background: #c2850a;
+  color: #fff;
+}
+
+.badge--file {
+  background: #4338ca;
+  color: #fff;
+  max-width: 200px;
+}
+
+

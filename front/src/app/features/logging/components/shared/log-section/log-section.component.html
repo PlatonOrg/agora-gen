@@ -1,0 +1,19 @@
+<section class="log-section">
+  <div class="log-section__header" (click)="collapsed.set(!collapsed())">
+    @if (icon()) {
+      <span class="log-section__icon" [innerHTML]="safe(icon())"></span>
+    }
+    <span class="log-section__title">{{ title() }}</span>
+    <svg class="log-section__chevron" [class.log-section__chevron--open]="!collapsed()"
+      xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24"
+      fill="none" stroke="currentColor" stroke-width="2.5">
+      <polyline points="6 9 12 15 18 9"/>
+    </svg>
+  </div>
+  @if (!collapsed()) {
+    <div class="log-section__body">
+      <ng-content />
+    </div>
+  }
+</section>
+

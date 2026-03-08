@@ -1,0 +1,4 @@
+Élève : Je pense que la réponse est 42.
+Professeur : C'est intéressant. Peux-tu m'expliquer comment tu as trouvé ce résultat ?
+Élève : J'ai additionné les deux chiffres.
+Professeur : Regarde bien l'opération, c'est une multiplication, pas une addition.s

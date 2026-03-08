@@ -1,0 +1,164 @@
+[
+  {
+    "request": "Crée un exercice de réécriture créative pour des étudiants en littérature anglaise. Voici le texte de base (neutre) : 'The man walked into the room. He looked at the table. He saw a letter.' La consigne pour l'étudiant doit être de réécrire ce passage en adoptant le point de vue d'un narrateur non fiable (unreliable narrator) qui est paranoïaque. Fournis ensuite une proposition de correction illustrant ce style.",
+    "langue": "français",
+    "domaine": "Langue et littérature anglaise",
+    "difficulté": "difficile",
+    "détail": "détaillé",
+    "fichiers": "non",
+    "type": "first request"
+  },
+  {
+    "request": "Génère un exercice de traduction ciblée sur les classificateurs chinois (量词). Voici une liste de noms en français : 'Un livre, Deux chaises, Trois chemises, Un ordinateur, Cinq poissons'. L'étudiant doit traduire ces groupes nominaux en utilisant le classificateur approprié pour chaque objet (ex: 本, 把, 件, etc.). Fournis la correction avec le Pinyin.",
+    "langue": "français",
+    "domaine": "Langue et littérature Chinoise",
+    "difficulté": "moyen",
+    "détail": "détaillé",
+    "fichiers": "non",
+    "type": "first request"
+  },
+  {
+    "request": "Conçois un exercice à trous focalisé sur la concordance des temps au passé (Imparfait vs Passé Simple). Voici le texte de l'exercice : 'Ce jour-là, il ___ (faire) beau. Soudain, le téléphone ___ (sonner). Marie ___ (se lever) et ___ (répondre).' Demande à l'élève de conjuguer les verbes entre parenthèses et fournis le corrigé expliqué.",
+    "langue": "français",
+    "domaine": "Langue et littérature Espagnole",
+    "difficulté": "moyen",
+    "détail": "détaillé",
+    "fichiers": "non",
+    "type": "first request"
+  },
+  {
+    "request": "Propose un exercice d'argumentation. Voici la thèse à défendre : 'La lecture numérique modifie notre rapport au savoir'. L'élève doit rédiger un paragraphe de 10 lignes utilisant obligatoirement trois connecteurs logiques : 'Toutefois', 'En effet', 'Par conséquent'. Fournis un exemple de paragraphe modèle respectant ces contraintes.",
+    "langue": "français",
+    "domaine": "Langue et littérature française",
+    "difficulté": "moyen",
+    "détail": "détaillé",
+    "fichiers": "non",
+    "type": "first request"
+  },
+  {
+    "request": "Crée un exercice d'analyse grammaticale sur la phrase latine suivante : 'Gallia est omnis divisa in partes tres'. L'étudiant doit identifier le cas, le genre et la fonction de 'Gallia', 'omnis' et 'partes'. Fournis un tableau de correction précis.",
+    "langue": "français",
+    "domaine": "Langues et littératures anciennes",
+    "difficulté": "facile",
+    "détail": "détaillé",
+    "fichiers": "non",
+    "type": "first request"
+  },
+  {
+    "request": "Génère un exercice de diagonalisation de matrice. Soit la matrice A = [[1, 2], [2, 1]]. La consigne est : 1) Calculer le polynôme caractéristique. 2) Trouver les valeurs propres. 3) Donner un vecteur propre associé à chaque valeur propre. Fournis le développement mathématique complet pour le corrigé.",
+    "langue": "français",
+    "domaine": "Algèbre",
+    "difficulté": "moyen",
+    "détail": "détaillé",
+    "fichiers": "non",
+    "type": "first request"
+  },
+  {
+    "request": "Élabore un exercice d'étude de fonction logarithmique. Soit f(x) = x - ln(x) définie sur ]0; +infini[. L'élève doit : 1) Calculer la dérivée f'(x). 2) Étudier le signe de la dérivée. 3) En déduire les variations de f. Génère le corrigé avec le tableau de signes et de variations.",
+    "langue": "français",
+    "domaine": "Analyse",
+    "difficulté": "moyen",
+    "détail": "détaillé",
+    "fichiers": "non",
+    "type": "first request"
+  },
+  {
+    "request": "Crée un exercice de géométrie analytique. On donne les points A(2, 3) et B(5, 7). L'exercice consiste à : 1) Calculer les coordonnées du milieu M du segment [AB]. 2) Calculer la longueur du segment AB. 3) Déterminer l'équation de la médiatrice de [AB]. Fournis les calculs détaillés.",
+    "langue": "français",
+    "domaine": "Géométrie",
+    "difficulté": "moyen",
+    "détail": "détaillé",
+    "fichiers": "non",
+    "type": "first request"
+  },
+  {
+    "request": "Conçois un exercice de logique formelle. Soit la proposition P : 'Si je travaille, alors je réussis'. Demande à l'étudiant de : 1) Formuler la contraposée de P. 2) Formuler la réciproque de P. 3) Formuler la négation de P. Fournis les réponses exactes.",
+    "langue": "français",
+    "domaine": "Logique",
+    "difficulté": "facile",
+    "détail": "détaillé",
+    "fichiers": "non",
+    "type": "first request"
+  },
+  {
+    "request": "Génère un problème de probabilités conditionnelles. Énoncé : 'Dans une classe de 30 élèves, 20 font de l'anglais, 15 font de l'espagnol, et 10 font les deux'. On interroge un élève au hasard. Calculer la probabilité qu'il fasse de l'espagnol sachant qu'il fait de l'anglais. Détaille le calcul avec la formule de Bayes ou des cardinaux.",
+    "langue": "français",
+    "domaine": "Probabilités",
+    "difficulté": "moyen",
+    "détail": "détaillé",
+    "fichiers": "non",
+    "type": "first request"
+  },
+  {
+    "request": "Prépare un exercice de statistiques descriptives. Voici la série des notes d'un groupe : [8, 10, 10, 12, 14, 15, 15, 15, 18, 20]. L'élève doit calculer : la moyenne, la médiane et l'étendue de la série. Fournis les résultats numériques.",
+    "langue": "français",
+    "domaine": "Statistiques",
+    "difficulté": "facile",
+    "détail": "détaillé",
+    "fichiers": "non",
+    "type": "first request"
+  },
+  {
+    "request": "Crée un exercice de convolution discrète (Traitement du signal). Soit le signal d'entrée x = [1, 2, 3] et la réponse impulsionnelle h = [1, 1]. Demande de calculer le signal de sortie y = x * h à la main. Fournis le détail du calcul pour chaque échantillon de sortie.",
+    "langue": "français",
+    "domaine": "Traitement du signal",
+    "difficulté": "moyen",
+    "détail": "détaillé",
+    "fichiers": "non",
+    "type": "first request"
+  },
+  {
+    "request": "Rédige une consigne pour un exercice de dissertation philosophique. Le sujet est : 'La liberté est-elle l'absence de contraintes ?'. L'exercice demande à l'élève de rédiger uniquement l'introduction, qui doit contenir : une accroche, la définition des termes, la problématisation et l'annonce du plan. Fournis un exemple d'introduction rédigée.",
+    "langue": "français",
+    "domaine": "Philosophie",
+    "difficulté": "difficile",
+    "détail": "détaillé",
+    "fichiers": "non",
+    "type": "first request"
+  },
+  {
+    "request": "Génère un exercice de cinématique (Physique). Énoncé : 'Une voiture part de l'arrêt et accélère uniformément à 2 m/s² pendant 10 secondes'. L'élève doit calculer : 1) La vitesse finale atteinte. 2) La distance totale parcourue. Fournis les formules utilisées et le résultat.",
+    "langue": "français",
+    "domaine": "Physique",
+    "difficulté": "facile",
+    "détail": "détaillé",
+    "fichiers": "non",
+    "type": "first request"
+  },
+  {
+    "request": "Propose un exercice de comparaison politique. L'élève doit remplir un tableau comparatif entre 'Le régime présidentiel américain' et 'Le régime parlementaire britannique' sur 3 critères : le chef de l'État, la séparation des pouvoirs, la dissolution du parlement. Fournis le tableau complété pour la correction.",
+    "langue": "français",
+    "domaine": "Sciences politique",
+    "difficulté": "moyen",
+    "détail": "détaillé",
+    "fichiers": "non",
+    "type": "first request"
+  },
+  {
+    "request": "Crée un exercice de calcul de seuil de rentabilité. Données : Charges fixes = 20 000 €, Prix de vente unitaire = 50 €, Coût variable unitaire = 30 €. L'élève doit calculer le nombre d'unités à vendre pour commencer à faire du bénéfice. Affiche le calcul détaillé.",
+    "langue": "français",
+    "domaine": "Sciences de gestion",
+    "difficulté": "moyen",
+    "détail": "détaillé",
+    "fichiers": "non",
+    "type": "first request"
+  },
+  {
+    "request": "Génère une étude de cas pédagogique. Situation : 'Lucas, 10 ans, perturbe la classe en faisant le clown dès qu'il rencontre une difficulté'. L'exercice demande à l'étudiant (futur prof) de proposer 2 réactions immédiates et 1 action de fond pour remédier à la situation. Propose 3 pistes de solutions pertinentes.",
+    "langue": "français",
+    "domaine": "Sciences de l'éducation",
+    "difficulté": "moyen",
+    "détail": "détaillé",
+    "fichiers": "non",
+    "type": "first request"
+  },
+  {
+    "request": "Conçois un exercice sur l'élasticité-prix. Énoncé : 'Quand le prix d'un smartphone passe de 500€ à 450€, la demande passe de 1000 à 1200 unités'. L'élève doit calculer l'élasticité-prix de la demande et interpréter si la demande est élastique ou inélastique. Fournis le calcul.",
+    "langue": "français",
+    "domaine": "Sciences économique",
+    "difficulté": "moyen",
+    "détail": "détaillé",
+    "fichiers": "non",
+    "type": "first request"
+  }
+]

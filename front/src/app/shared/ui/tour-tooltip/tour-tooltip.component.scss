@@ -1,0 +1,199 @@
+.tour-spotlight {
+  position: fixed;
+  inset: 0;
+  z-index: 1200;
+  cursor: pointer;
+  pointer-events: all;
+  animation: tour-fade-in 0.25s ease;
+
+  &__border {
+    pointer-events: none;
+  }
+}
+
+.tour-card {
+  position: fixed;
+  z-index: 1201;
+  width: 340px;
+  max-width: calc(100vw - 32px);
+  background: var(--brand-background-dialog, #fafafa);
+  border: 1px solid var(--brand-border-color);
+  border-radius: 12px;
+  box-shadow:
+    0 12px 40px rgba(0, 0, 0, 0.22),
+    0 2px 8px rgba(0, 0, 0, 0.12);
+  padding: 1.1rem 1.15rem 1rem;
+  animation: tour-card-in 0.26s cubic-bezier(0.34, 1.56, 0.64, 1);
+  pointer-events: all;
+
+  &::before {
+    content: '';
+    position: absolute;
+    width: 10px;
+    height: 10px;
+    background: var(--brand-background-dialog, #fafafa);
+    border: 1px solid var(--brand-border-color);
+    transform: rotate(45deg);
+    z-index: -1;
+  }
+
+  &.arrow-top::before {
+    top: -6px;
+    left: 50%;
+    transform: translateX(-50%) rotate(45deg);
+    border-bottom: none;
+    border-right: none;
+  }
+
+  &.arrow-bottom::before {
+    bottom: -6px;
+    left: 50%;
+    transform: translateX(-50%) rotate(45deg);
+    border-top: none;
+    border-left: none;
+  }
+
+  &.arrow-left::before {
+    left: -6px;
+    top: 40%;
+    transform: translateY(-50%) rotate(45deg);
+    border-right: none;
+    border-top: none;
+  }
+
+  &.arrow-right::before {
+    right: -6px;
+    top: 40%;
+    transform: translateY(-50%) rotate(45deg);
+    border-left: none;
+    border-bottom: none;
+  }
+
+  &__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 0.6rem;
+  }
+
+  &__step-badge {
+    font-size: 0.63rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--brand-color-primary);
+    font-family: var(--brand-font);
+    background: rgba(var(--brand-color-primary-rgb), 0.09);
+    padding: 2px 8px;
+    border-radius: 20px;
+    border: 1px solid rgba(var(--brand-color-primary-rgb), 0.15);
+  }
+
+  &__close {
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: var(--brand-text-tertiary);
+    padding: 4px;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: color 0.15s, background-color 0.15s;
+    line-height: 0;
+
+    &:hover {
+      color: var(--brand-text-primary);
+      background: var(--brand-background-hover);
+    }
+  }
+
+  &__title {
+    font-size: 0.9375rem;
+    font-weight: 700;
+    color: var(--brand-text-primary);
+    margin: 0 0 0.45rem 0;
+    font-family: var(--brand-font);
+    line-height: 1.3;
+  }
+
+  &__body {
+    font-size: 0.8125rem;
+    color: var(--brand-text-secondary);
+    margin: 0 0 0.85rem 0;
+    line-height: 1.65;
+    font-family: var(--brand-font);
+
+    strong {
+      color: var(--brand-text-primary);
+      font-weight: 600;
+    }
+  }
+
+  &__progress {
+    height: 3px;
+    background: var(--brand-border-color);
+    border-radius: 3px;
+    overflow: hidden;
+    margin-bottom: 0.85rem;
+  }
+
+  &__progress-bar {
+    height: 100%;
+    background: var(--brand-color-primary);
+    border-radius: 3px;
+    transition: width 0.3s ease;
+  }
+
+  &__footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+  }
+
+  &__btn {
+    font-size: 0.8rem;
+    font-weight: 600;
+    font-family: var(--brand-font);
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    padding: 7px 16px;
+    transition: background-color 0.15s, opacity 0.15s;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    line-height: 1;
+
+    &--skip {
+      background: none;
+      color: var(--brand-text-tertiary);
+
+      &:hover {
+        color: var(--brand-text-secondary);
+        background: var(--brand-background-hover);
+      }
+    }
+
+    &--next {
+      background: var(--brand-color-primary);
+      color: var(--brand-color-primary-contrast, #fff);
+
+      &:hover {
+        background: var(--brand-color-primary-shade);
+      }
+    }
+  }
+}
+
+@keyframes tour-fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes tour-card-in {
+  from { opacity: 0; transform: scale(0.9) translateY(6px); }
+  to { opacity: 1; transform: scale(1) translateY(0); }
+}
+

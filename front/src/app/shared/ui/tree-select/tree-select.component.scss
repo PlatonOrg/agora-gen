@@ -1,0 +1,132 @@
+.tree-select {
+  position: relative;
+  width: 100%;
+}
+
+.tree-select__trigger {
+  width: 100%;
+  height: 1.875rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 0.5rem;
+  background: var(--brand-background-card, #fafafa);
+  border: 1px solid var(--brand-border-color);
+  border-radius: 4px;
+  cursor: pointer;
+  transition: border-color 0.15s;
+  font-size: 0.8125rem;
+  font-family: var(--brand-font);
+  box-sizing: border-box;
+
+  &:hover {
+    border-color: var(--brand-color-primary);
+  }
+
+  &:focus {
+    outline: none;
+    border-color: var(--brand-color-primary);
+  }
+}
+
+.tree-select__label {
+  flex: 1;
+  text-align: left;
+  color: var(--brand-text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+
+  &.placeholder {
+    color: var(--brand-text-tertiary);
+  }
+}
+
+.tree-select__chevron {
+  width: 14px;
+  height: 14px;
+  flex-shrink: 0;
+  color: var(--brand-text-secondary);
+  transition: transform 0.2s;
+  margin-left: 4px;
+
+  &.open {
+    transform: rotate(180deg);
+  }
+}
+
+.tree-select__backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 30;
+}
+
+.tree-select__dropdown {
+  position: fixed;
+  z-index: 40;
+  background: var(--brand-background-components);
+  border: 1px solid var(--brand-border-color);
+  border-radius: 6px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+  overflow-y: auto;
+}
+
+.tree-select__item {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.3rem 0.5rem;
+  cursor: pointer;
+  transition: background 0.12s;
+  font-size: 0.8rem;
+  font-family: var(--brand-font);
+  color: var(--brand-text-primary);
+
+  &:hover {
+    background: var(--brand-background-hover);
+  }
+
+  &.selected {
+    background: rgba(var(--brand-color-primary-rgb), 0.08);
+    color: var(--brand-color-primary);
+    font-weight: 600;
+  }
+}
+
+.tree-select__toggle {
+  border: none;
+  background: transparent;
+  padding: 0;
+  border-radius: 3px;
+  cursor: pointer;
+  color: var(--brand-text-secondary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 16px;
+  height: 16px;
+  transition: background 0.12s;
+
+  &:hover {
+    background: var(--brand-background-hover);
+  }
+}
+
+.tree-select__spacer {
+  width: 16px;
+  flex-shrink: 0;
+}
+
+.tree-select__item-label {
+  flex: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.tree-select__children {
+  border-left: 1px solid var(--brand-border-color);
+  margin-left: 1rem;
+}
+

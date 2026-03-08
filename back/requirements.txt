@@ -1,0 +1,35 @@
+# App / business logic / DB / cache, more likely to change
+python-multipart==0.0.9
+langchain-ollama
+langgraph==1.0.4
+litellm==1.80.9
+
+asyncpg==0.29.0
+psycopg2-binary==2.9.9
+sqlalchemy[asyncio]==2.0.45
+greenlet==3.1.1
+redis==5.2.1
+
+python-dotenv==1.0.1
+httpx==0.28.1
+PyJWT==2.10.1
+google-genai==1.55.0
+google-generativeai
+
+pytest
+pytest-asyncio
+
+llama-index-retrievers-bm25
+tiktoken
+
+respx
+pytest
+
+# File content extraction
+pypdf==5.1.0
+python-docx==1.1.2
+openpyxl==3.1.5
+
+# Cerebras
+cerebras-cloud-sdk
+

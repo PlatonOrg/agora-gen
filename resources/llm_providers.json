@@ -1,0 +1,42 @@
+[
+  {
+    "name": "groq",
+    "kind": "openai_compatible",
+    "base_url": "https://api.groq.com/openai/v1",
+    "api_key": "${GROQ_API_KEY}",
+    "default_model": "openai/gpt-oss-120b",
+    "models": [
+      "openai/gpt-oss-120b"
+    ]
+  },
+  {
+    "name": "ragustave",
+    "kind": "ragustave",
+    "base_url": "https://ragarenn.eskemm-numerique.fr/demo@univ-eiffel/api",
+    "api_key": "${RAGUSTAVE_API_KEY}",
+    "default_model": "RedHatAI/Llama-3.3-70B-Instruct-FP8-dynamic",
+    "models": [
+      "RedHatAI/Llama-3.3-70B-Instruct-FP8-dynamic"
+    ]
+  },
+  {
+    "name": "openRouter",
+    "kind": "openrouter",
+    "api_key": "${OPENROUTER_API_KEY}",
+    "default_model": "openai/gpt-oss-120b",
+    "models": [
+      "openai/gpt-oss-120b"
+    ]
+  },
+  {
+    "name": "cerebras",
+    "kind": "cerebras",
+    "api_key": "${CEREBRAS_API_KEY}",
+    "default_model": "gpt-oss-120b",
+    "models": [
+      "gpt-oss-120b"
+    ],
+    "default": true
+  }
+]
+

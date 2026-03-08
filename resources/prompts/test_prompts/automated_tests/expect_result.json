@@ -1,0 +1,82 @@
+[
+  {
+    "request" : "je veux un exercice ou on demande à l'étudiant de d'écrire une fonction en python qui prends 4 booleans, et la fonction permet de reproduire un tableau de karnaugh (on montre le tableau de karnaugh à l'étudiant)",
+    "expected_result" : "9c513502-b1ac-496b-b1ef-952bd0d6f25a"
+  },
+  {
+    "request" : "génère un exercice de math qui définit deux ensembles A et B, et demande à l'étudiant de trouver l'intersection des deux ensembles.",
+    "expected_result": "3532669f-e97d-48fd-95f9-01167143fb3b"
+  },
+  {
+    "request" : "J'aimreai un exercice de physique sur le mouvement d’un projectile sans résistance de l’air, dans lequel un obus est tiré avec une vitesse initiale donnée sous un angle de donné, et demande de calculer la portée à l'aide d'une formule donnée.",
+    "expected_result" : "2f5bf0c7-2572-4518-8167-59e9cbd4a356"
+  },
+  {
+    "request": "Je veux un exercice de biologie sous forme QCM qui demande à l'étudiant de cocher les phrases qui sont correctes.",
+    "expected_result": "4ce2b2be-9968-4c71-9416-ceffcb70841f"
+  },
+  {
+    "request": "Fait moi un exercice de chimie demandant de déterminer la configuration électronique d’un élément à partir de son numéro atomique, en précisant le format d’écriture attendu",
+    "expected_result": "c84bb4df-3ea8-4643-acf5-52b10bc73e2b"
+  },
+  {
+    "request" : "Génère un exercice d’histoire demandant de classer plusieurs événements politiques et sociaux de l’histoire de la France dans l’ordre chronologique.",
+    "expected_result" : "3aa43141-1e8d-4e83-b885-e788e7be6cde"
+  },
+  {
+    "reqeust" : "Un exercice demandant d’associer une définition donnée en anglais au terme correspondant issu d’un glossaire, en demandant de saisir uniquement le mot exact comme réponse.",
+    "expected_result" : "f4edca3d-5597-450b-b826-d8e1ca73207e"
+  },
+  {
+    "request" : "Fabrique un exo d’algorithmique demandant d’associer plusieurs algorithmes classiques à l’argument de terminaison correspondant, afin de justifier qu’ils s’arrêtent pour toute donnée raisonnable.",
+    "expected_result" : "6758db4c-57fe-45a1-b262-79d2355663a8"
+  },
+  {
+    "request" : "Génère un exercice de programmation en Java demandant d’écrire une classe contenant une fonction qui prend une liste en paramètre ainsi qu’une valeur donnée, supprime cette valeur de la liste si elle est présente et renvoie l’élément récupéré, avec un squelette de code à compléter.",
+    "expected_result" : "4e407a42-595f-4a31-bd73-69070b9dcf51"
+  },
+  {
+    "request" : "Génère un exercice de programmation en JavaScript qui demande d’écrire une fonction qui prend un nombre en paramètre et renvoie son carré",
+    "expected_result" : "94dee07e-30c3-4981-b1a9-aa4e7dff7a38"
+  },
+  {
+    "request" : "Génère un exercice de programmation en langage C présentant un court extrait de code manipulant des variables entières et demandant de déterminer la valeur finale d’une variable donnée après exécution",
+    "expected_result" : "bb196c23-8b46-4ff4-97aa-2d2107dbeac3"
+  },
+  {
+    "request" : "Génère moi un exercice en C++ qui demande à l'apprenant d'écrire une fonciton qui prend un entier en paramètre et renvoie un booléen, la fonciton indique si l'entier est pair ou pas",
+    "expected_result" : "f3529fcd-4f88-413c-8fc8-90191b41b9db"
+  },
+  {
+    "request" : "Crée un exercice en C++ demandant de lire deux nombres réels au clavier puis d’afficher le périmètre et l’aire d’un rectangle, avec un main à compléter",
+    "expected_result" : "136d05c0-9717-457d-a5bc-8b0e541d710e"
+  },
+  {
+    "request" : "Crée un exercice d’anglais demandant de choisir la meilleure proposition pour compléter des phrases à trous à partir de plusieurs choix donnés.",
+    "expected_result" : "97f6d7c5-8b00-4791-9c9b-407ad0a1a9f4"
+  },
+  {
+    "request" : "Rédige un exercice d’espagnol où l’élève doit sélectionner l’adjectif approprié pour compléter une phrase, à partir de plusieurs propositions.",
+    "expected_result" : "104c512a-e8dd-4416-9ca2-6b7e613e1f96"
+  },
+  {
+    "request" : "",
+    "expected_result" : ""
+  },
+  {
+    "request" : "",
+    "expected_result" : ""
+  },
+  {
+    "request" : "",
+    "expected_result" : ""
+  },
+  {
+    "request" : "",
+    "expected_result" : ""
+  },
+  {
+    "request" : "",
+    "expected_result" : ""
+  }
+]

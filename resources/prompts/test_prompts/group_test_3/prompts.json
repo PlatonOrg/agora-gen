@@ -1,0 +1,108 @@
+[
+  {
+    "id": 1,
+    "subject": "Algorithmique et structures de données",
+    "level": "Licence 2 Informatique",
+    "components": ["wc-code-editor", "wc-foldable-feedback", "wc-radio-group", "wc-feedback"],
+    "prompt": "Je donne un cours d'algorithmique en L2 informatique sur les algorithmes de tri. Je voudrais un exercice où l'étudiant doit implémenter en Python la fonction de tri fusion (merge sort) de façon récursive. L'énoncé doit rappeler brièvement le principe diviser-pour-régner et donner la signature attendue : `def merge_sort(lst: list) -> list`. Le grader doit tester la fonction sur au moins 5 cas : liste vide, liste d'un élément, liste déjà triée, liste triée à l'envers, et liste avec doublons. Les résultats des tests doivent être affichés avec wc-foldable-feedback pour que l'étudiant voit précisément quel test a échoué, la valeur attendue et la valeur obtenue. On doit aussi lui demander via wc-radio-group quelle est la complexité temporelle de merge sort dans le pire cas parmi O(n), O(n log n), O(n²), O(log n). Le score final combine les tests (80%) et la question de complexité (20%)."
+  },
+  {
+    "id": 2,
+    "subject": "Mathématiques — Algèbre linéaire",
+    "level": "Licence 1 Mathématiques / MPSI",
+    "components": ["wc-matrix", "wc-math-live", "wc-feedback", "wc-radio-group"],
+    "prompt": "Je suis enseignant en algèbre linéaire en première année de licence. Je souhaite un exercice de calcul matriciel où l'on génère aléatoirement deux matrices A (2×2) et B (2×2) à coefficients entiers entre -5 et 5. L'étudiant doit d'abord calculer le produit A×B et saisir le résultat dans une grille wc-matrix (2 lignes, 2 colonnes). Ensuite, il doit calculer le déterminant de A en utilisant wc-math-live pour saisir sa réponse en LaTeX. Le grader vérifie la matrice produit coefficient par coefficient (8 points) et le déterminant (2 points), avec une tolérance de 0 (valeurs entières). Le feedback final doit indiquer le score et corriger les erreurs éventuelles en affichant la valeur attendue pour chaque champ incorrect."
+  },
+  {
+    "id": 3,
+    "subject": "Programmation orientée objet — Java",
+    "level": "Licence 3 Informatique",
+    "components": ["wc-code-editor", "wc-foldable-feedback", "wc-checkbox-group", "wc-feedback"],
+    "prompt": "Dans mon cours de POO avancée en L3, je travaille sur le patron de conception Observateur (Observer pattern). Je veux un exercice où l'étudiant doit compléter une implémentation Java du patron Observer pour un système de notification d'événements. L'énoncé doit expliquer le patron (sujet/observateurs, inscription, notification) et fournir via wc-code-editor un squelette de code Java avec les interfaces `Observable` et `Observer` déjà définies mais les méthodes `subscribe`, `unsubscribe` et `notify` vides. Le grader doit exécuter des tests unitaires vérifiant : (1) qu'un observateur inscrit reçoit bien la notification, (2) qu'un observateur désinscrit ne reçoit plus rien, (3) que plusieurs observateurs sont notifiés simultanément. Les résultats doivent apparaître dans wc-foldable-feedback. De plus, via wc-checkbox-group, l'étudiant doit sélectionner parmi une liste les avantages reconnus du patron Observer (plusieurs bonnes réponses possibles)."
+  },
+  {
+    "id": 4,
+    "subject": "Statistiques et probabilités",
+    "level": "Master 1 Data Science / Économétrie",
+    "components": ["wc-input-box", "wc-math-live", "wc-chart-viewer-bars", "wc-feedback"],
+    "prompt": "Je suis enseignant en statistiques inférentielles en M1. Je souhaite un exercice sur le test d'hypothèse (test t de Student unilatéral). On génère aléatoirement un échantillon de taille n (entre 20 et 40) tiré d'une loi normale de moyenne μ₀ + δ (avec δ petit). L'énoncé doit présenter les données sous forme de statistiques résumées (moyenne observée x̄, écart-type s, taille n) et indiquer l'hypothèse nulle H₀ : μ = μ₀. L'étudiant doit : (1) calculer la statistique t via wc-math-live, (2) saisir la p-value approchée via wc-input-box (type number), (3) conclure via wc-input-box (type text) si on rejette H₀ au seuil α = 0.05. Le grader accepte une tolérance de ±0.05 sur la statistique t et la p-value. Un histogramme wc-chart-viewer-bars doit afficher la distribution simulée de l'échantillon pour contextualiser l'exercice."
+  },
+  {
+    "id": 5,
+    "subject": "Théorie des langages formels et automates",
+    "level": "Licence 3 Informatique — Master 1",
+    "components": ["wc-automaton-editor", "wc-radio-group", "wc-text-select", "wc-feedback"],
+    "prompt": "Je donne un cours sur les automates finis déterministes (AFD) en L3/M1. Je veux un exercice en deux parties. Première partie : on donne à l'étudiant une expression régulière (par exemple `(a|b)*abb`) et une description informelle du langage reconnu ; l'étudiant doit construire l'AFD correspondant en utilisant wc-automaton-editor, en plaçant des états, en définissant les transitions, l'état initial et les états acceptants. La deuxième partie consiste en un wc-text-select sur une liste de mots : l'étudiant doit sélectionner uniquement les mots qui sont reconnus par l'automate (parmi 8 mots proposés, dont 3 sont dans le langage). La question wc-radio-group finale demande de caractériser la classe du langage reconnu (régulier, algébrique, récursif, récursivement énumérable). Le grader valide l'automate par simulation sur les 8 mots test et vérifie la sélection."
+  },
+  {
+    "id": 6,
+    "subject": "Bases de données relationnelles — SQL",
+    "level": "Licence 2 Informatique / IUT",
+    "components": ["wc-code-editor", "wc-sort-list", "wc-foldable-feedback", "wc-feedback"],
+    "prompt": "Je suis enseignant en bases de données relationnelles. Je souhaite un exercice sur les requêtes SQL avancées (sous-requêtes, agrégations, jointures). On présente un schéma relationnel fictif : `Etudiant(id, nom, prenom, annee_naissance)`, `Cours(id, intitule, credits)`, `Inscription(etudiant_id, cours_id, note)`. L'énoncé pose une question précise : 'Écrire une requête SQL qui retourne le nom et la moyenne des notes de chaque étudiant ayant une moyenne strictement supérieure à 12, classés par moyenne décroissante.' L'étudiant écrit sa réponse dans wc-code-editor (langage SQL). En parallèle, via wc-sort-list, l'étudiant doit remettre dans le bon ordre les clauses d'une requête SQL complexe présentées dans le désordre (SELECT, FROM, JOIN, WHERE, GROUP BY, HAVING, ORDER BY). Le grader exécute la requête sur une base de test peuplée et compare le résultat attendu ligne par ligne via wc-foldable-feedback."
+  },
+  {
+    "id": 7,
+    "subject": "Physique — Mécanique quantique",
+    "level": "Master 1 Physique",
+    "components": ["wc-math-live", "wc-radio-group", "wc-input-box", "wc-feedback"],
+    "prompt": "Je suis enseignant en mécanique quantique en M1. Je veux un exercice sur l'équation de Schrödinger indépendante du temps pour le puits infini de potentiel. On donne les données : un puits de largeur L, la masse de la particule m, la constante de Planck ℏ. L'étudiant doit : (1) saisir via wc-math-live l'expression générale des fonctions propres ψ_n(x) normalisées, (2) saisir via wc-math-live l'expression des niveaux d'énergie E_n, (3) calculer numériquement l'énergie du niveau fondamental E_1 (en eV) pour un électron dans un puits de largeur L = 1 nm et saisir la valeur via wc-input-box (type number, tolérance 1%), (4) répondre à la question wc-radio-group : parmi les propositions données, laquelle représente correctement le principe d'orthogonalité des fonctions propres ? Le grader vérifie les expressions LaTeX par correspondance symbolique simplifiée et la valeur numérique."
+  },
+  {
+    "id": 8,
+    "subject": "Réseau et protocoles — Architecture TCP/IP",
+    "level": "Licence 3 Informatique / BUT Réseaux",
+    "components": ["wc-match-list", "wc-input-box", "wc-checkbox-group", "wc-feedback"],
+    "prompt": "Je donne un cours sur l'architecture TCP/IP et les protocoles réseau. Je veux un exercice structuré en trois questions. Première question (wc-match-list) : relier chaque protocole (HTTP, DNS, SMTP, FTP, DHCP, SSH) à son rôle principal parmi 6 descriptions. Deuxième question : on donne l'adresse IP 192.168.10.200 avec le masque 255.255.255.192 (/26). L'étudiant doit saisir via wc-input-box : l'adresse réseau, l'adresse de broadcast, le nombre d'hôtes utilisables, et la plage d'adresses valides (4 champs). Troisième question (wc-checkbox-group) : parmi une liste de 7 affirmations sur TCP vs UDP, l'étudiant sélectionne toutes celles qui sont vraies. Le score est réparti : 30% matching, 50% calcul de sous-réseau, 20% TCP/UDP."
+  },
+  {
+    "id": 9,
+    "subject": "Chimie organique — Mécanismes réactionnels",
+    "level": "Licence 2 Chimie / PCSI",
+    "components": ["wc-sort-list", "wc-radio-group", "wc-input-box", "wc-feedback"],
+    "prompt": "Je suis enseignant en chimie organique. Je souhaite un exercice sur le mécanisme de substitution nucléophile SN2. L'énoncé présente la réaction entre le bromoéthane (CH₃CH₂Br) et l'ion hydroxyde (OH⁻) et demande à l'étudiant de comprendre le mécanisme réactionnel. Première partie (wc-sort-list) : remettre dans l'ordre chronologique les 5 étapes du mécanisme SN2 décrites textuellement (approche du nucléophile dans le dos du carbone, formation de l'état de transition pentacoordiné, inversion de configuration de Walden, départ du groupe partant, formation du produit). Deuxième partie (wc-radio-group) : quelle est la stéréochimie du produit formé ? (rétention, inversion, racémisation, aucune car pas de centre chiral). Troisième partie : l'étudiant saisit via wc-input-box la formule du produit principal formé. Le grader vérifie l'ordre, la stéréochimie et la formule."
+  },
+  {
+    "id": 10,
+    "subject": "Génie logiciel — Tests et qualité",
+    "level": "Master 1 Génie Logiciel",
+    "components": ["wc-code-editor", "wc-checkbox-group", "wc-foldable-feedback", "wc-feedback"],
+    "prompt": "Dans mon cours de génie logiciel en M1, je travaille sur les tests unitaires et la notion de couverture de code. Je veux un exercice où on présente une fonction Python `compute_discount(price: float, customer_type: str, quantity: int) -> float` qui applique des règles de réduction tarifaire imbriquées (plusieurs branches if/elif). Le code de la fonction est affiché en lecture seule (wc-code-viewer ou dans l'énoncé). L'étudiant doit écrire dans wc-code-editor une suite de tests unitaires avec pytest qui atteignent une couverture de branche de 100%. Via wc-checkbox-group, l'étudiant sélectionne aussi parmi une liste quels types de tests sont ici pertinents (tests de frontière, tests de régression, tests de mutation, tests d'intégration, tests de charge). Le grader exécute les tests et mesure la couverture via coverage.py, rapportant les résultats dans wc-foldable-feedback avec les branches non couvertes clairement identifiées."
+  },
+  {
+    "id": 11,
+    "subject": "Économie — Microéconomie de la firme",
+    "level": "Licence 3 Économie / Master 1",
+    "components": ["wc-math-live", "wc-input-box", "wc-jsx", "wc-feedback"],
+    "prompt": "Je suis enseignant en microéconomie. Je souhaite un exercice sur la maximisation du profit d'une firme en concurrence pure et parfaite. On génère aléatoirement une fonction de coût total C(q) = aq³ + bq² + cq + d (avec a, b, c, d entiers positifs générés aléatoirement). Le prix de marché p est aussi tiré aléatoirement. L'étudiant doit : (1) saisir via wc-math-live l'expression analytique du coût marginal Cm(q) = C'(q), (2) saisir via wc-math-live la condition d'équilibre p = Cm(q) résolue pour trouver q*, (3) calculer et saisir via wc-input-box la valeur numérique de q* (quantité optimale) et le profit π* correspondant. Un graphe JSX (wc-jsx) doit illustrer les courbes de coût marginal et de recette marginale pour visualiser le point d'équilibre. Le grader vérifie les expressions symboliques et les valeurs numériques avec une tolérance de 1%."
+  },
+  {
+    "id": 12,
+    "subject": "Traitement du signal — Transformée de Fourier",
+    "level": "Licence 3 / Master 1 Électronique — Signal",
+    "components": ["wc-math-live", "wc-radio-group", "wc-input-box", "wc-chart-viewer-bars", "wc-feedback"],
+    "prompt": "Je suis enseignant en traitement du signal. Je souhaite un exercice sur la transformée de Fourier discrète (DFT). On génère un signal discret x[n] simple (somme de 2 sinusoïdes de fréquences f1 et f2 avec f1 et f2 entières, N = 8 points). Le spectre d'amplitude est affiché via wc-chart-viewer-bars pour que l'étudiant puisse l'analyser. L'étudiant doit : (1) saisir via wc-math-live la définition formelle de la DFT X[k], (2) identifier via wc-input-box les deux fréquences présentes dans le signal (en Hz, sachant la fréquence d'échantillonnage Fe), (3) calculer à la main et saisir via wc-math-live la valeur complexe de X[2] pour le signal donné, (4) répondre via wc-radio-group à une question sur la propriété de symétrie hermitienne de la DFT d'un signal réel. Le grader vérifie chaque réponse avec tolérance appropriée."
+  },
+  {
+    "id": 13,
+    "subject": "Droit — Droit des contrats",
+    "level": "Licence 2 Droit",
+    "components": ["wc-word-selector", "wc-radio-group", "wc-text-select", "wc-input-box", "wc-feedback"],
+    "prompt": "Je suis enseignante en droit des obligations. Je veux un exercice sur la formation du contrat et la théorie des vices du consentement selon le Code civil français. Première partie (wc-text-select) : on présente un texte d'article de doctrine décrivant une situation contractuelle litigieuse ; l'étudiant doit sélectionner dans ce texte les passages qui caractérisent l'existence d'un vice du consentement (dol, erreur ou violence). Deuxième partie (wc-radio-group) : qualification juridique — parmi dol, erreur sur la substance, erreur sur la personne, violence économique, l'étudiant choisit le vice applicable au cas décrit. Troisième partie (wc-word-selector) : reconstituer la formulation exacte de la sanction applicable en remettant dans l'ordre les mots de la règle juridique (nullité relative, délai de prescription de 5 ans, droit de la partie lésée). Quatrième partie (wc-input-box) : indiquer l'article du Code civil correspondant."
+  },
+  {
+    "id": 14,
+    "subject": "Intelligence artificielle — Apprentissage automatique",
+    "level": "Master 1 Informatique / Data Science",
+    "components": ["wc-code-editor", "wc-picker", "wc-input-box", "wc-foldable-feedback", "wc-feedback"],
+    "prompt": "Je suis enseignant en machine learning en M1. Je veux un exercice sur l'implémentation et l'analyse d'un classifieur k-NN (k plus proches voisins) en Python. L'énoncé présente un jeu de données 2D (x1, x2, label) avec 10 points d'entraînement donnés explicitement dans l'énoncé. L'étudiant doit implémenter dans wc-code-editor la fonction `knn_predict(x_train, y_train, x_test, k)` qui retourne la classe prédite pour un point de test en utilisant la distance euclidienne et le vote majoritaire, sans utiliser scikit-learn. Via wc-picker, l'étudiant choisit la valeur de k (parmi 1, 3, 5, 7) qui lui semble optimale pour ce jeu de données. Via wc-input-box, il saisit le taux d'erreur en validation croisée leave-one-out pour le k choisi. Le grader exécute la fonction sur plusieurs points de test et vérifie les prédictions via wc-foldable-feedback, en identifiant les erreurs de classification."
+  },
+  {
+    "id": 15,
+    "subject": "Biologie cellulaire — Cycle cellulaire et mitose",
+    "level": "Licence 1 Sciences de la Vie",
+    "components": ["wc-sort-list", "wc-match-list", "wc-checkbox-group", "wc-binded-bubbles", "wc-feedback"],
+    "prompt": "Je suis enseignante en biologie cellulaire en L1. Je souhaite un exercice complet sur le cycle cellulaire et la mitose. Première partie (wc-sort-list) : remettre dans l'ordre chronologique exact les 8 phases/étapes du cycle cellulaire et de la mitose : G1, S, G2, prophase, prométaphase, métaphase, anaphase, télophase/cytocinèse. Deuxième partie (wc-match-list) : relier chaque phase à son événement moléculaire/morphologique caractéristique principal parmi 8 descriptions (condensation des chromosomes, duplication de l'ADN, alignement sur la plaque équatoriale, séparation des chromatides sœurs, etc.). Troisième partie (wc-checkbox-group) : parmi 8 affirmations sur la régulation du cycle cellulaire (rôle des CDK, points de contrôle, inhibiteurs, gènes suppresseurs de tumeurs), sélectionner toutes celles qui sont scientifiquement exactes. Quatrième partie (wc-binded-bubbles) : jeu d'association de vocabulaire — relier chaque terme anglais à son équivalent français (spindle/fuseau, centromere/centromère, chromatid/chromatide, etc.)."
+  }
+]
+

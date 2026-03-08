@@ -1,0 +1,70 @@
+../.env
+.env.otel
+../resources/backup/
+resources/models/
+../resources/json_exported/
+resources/local_models/
+logs
+act
+local_models/
+
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+
+# Distribution / packaging
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# Virtual environments
+.venv/
+venv/
+env/
+../.env/
+
+# Coverage and test reports
+.tox/
+.coverage
+.coverage.*
+.cache
+htmlcov/
+nosetests.xml
+coverage.xml
+*.cover
+.pytest_cache/
+
+# PyCharm / JetBrains IDEs
+# .idea is the primary folder for PyCharm's project settings.
+# Ignoring the entire folder is the safest and most common practice for collaboration.
+.idea/
+
+# Operating System files
+.DS_Store # macOS
+Thumbs.db # Windows
+
+# Temporary / sensitive data
+# Uncomment these if you are using them and want to keep them out of git
+# *.log
+# *.sqlite3
+# .secret
+# *.key
+# *.bak
+/output/
+/legacy/

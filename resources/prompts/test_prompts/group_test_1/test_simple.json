@@ -1,0 +1,748 @@
+﻿[
+  {
+    "request": "Génère un exercice simple sur l'addition pour des élèves de CP.",
+    "expected_result": [
+      {
+        "kind" : "TEMPLATE_EXO",
+        "id" : "ece8bbde-95a2-4ea6-bc11-2479ac54d221",
+        "URL" : "https://platon.univ-eiffel.fr/resources/ece8bbde-95a2-4ea6-bc11-2479ac54d221/overview"
+      },
+      {
+        "kind" : "TEMPLATE_EXO",
+        "id" : "4f8b6bda-a44d-4845-b713-3246a7f3eabe",
+        "URL" : "https://platon.univ-eiffel.fr/resources/4f8b6bda-a44d-4845-b713-3246a7f3eabe/overview"
+      },
+      {
+        "kind" : "TEMPLATE_EXO",
+        "id" : "3dc76e2d-bb78-49aa-b58d-64ee20a5c21d",
+        "URL" : "https://platon.univ-eiffel.fr/resources/3dc76e2d-bb78-49aa-b58d-64ee20a5c21d/overview"
+      },
+      {
+        "kind" : "TEMPLATE_EXO",
+        "id" : "6ea418a3-f54e-496e-be71-4bec8e9923e6",
+        "URL" : "https://platon.univ-eiffel.fr/resources/6ea418a3-f54e-496e-be71-4bec8e9923e6/overview"
+      }
+    ],
+    "langue": "français",
+    "domaine": "math",
+    "difficulté": "facile",
+    "détail": "bref",
+    "fichiers": "non",
+    "path": null,
+    "type": "first request",
+    "exercice_original": null
+  },
+  {
+    "request": "I need a complex calculus problem involving integrals and derivatives, similar to the ones found in advanced engineering textbooks. Please use the attached PDF as a reference for the notation style.",
+    "expected_result": [
+      {
+        "kind" : "TEMPLATE_EXO",
+        "id" : "b838d7dc-b9c4-4958-b21b-f7c278f2c42a",
+        "URL" : "https://platon.univ-eiffel.fr/resources/b838d7dc-b9c4-4958-b21b-f7c278f2c42a/overview"
+      },
+      {
+        "kind" : "TEMPLATE_EXO",
+        "id" : "520d3eb7-24d0-48d9-8e87-45e71f00a1ca",
+        "URL" : "https://platon.univ-eiffel.fr/resources/520d3eb7-24d0-48d9-8e87-45e71f00a1ca/overview" 
+      }
+    ],
+    "langue": "anglais",
+    "domaine": "math",
+    "difficulté": "difficile",
+    "détail": "détaillé",
+    "fichiers": "oui",
+    "path": "/uploads/prof_smith/calc_ref_v2.pdf",
+    "type": "first request",
+    "exercice_original": null
+  },
+  {
+    "request": "Modifie l'exercice précédent. Au lieu de demander la capitale de la France, demande la capitale de l'Allemagne, et change le niveau de difficulté pour des collégiens.",
+    "expected_result": [
+       { 
+        "kind" : "TEMPLATE_EXO",
+        "id" : "225c0569-481f-451b-9574-fce67a2fb66f",
+        "URL" : "https://platon.univ-eiffel.fr/resources/225c0569-481f-451b-9574-fce67a2fb66f/overview"
+       }
+    ],
+    "langue": "français",
+    "domaine": "géographie",
+    "difficulté": "moyen",
+    "détail": "bref",
+    "fichiers": "non",
+    "path": null,
+    "type": "modif/correction request",
+    "exercice_original": {
+      "request": "Quelle est la capitale de la France ?",
+      "langue": "français",
+      "domaine": "géographie",
+      "difficulté": "facile",
+      "détail": "bref",
+      "fichiers": "non",
+      "path": null,
+      "type": "first request",
+      "exercice_original": null
+    }
+  },
+  {
+    "request": "Crée un QCM sur les bases de la programmation en Python : variables, boucles et conditions. Il faut 10 questions.",
+    "expected_result": [ 
+      { 
+        "kind" : "TEMPLATE", 
+        "id" : "7592c574-810c-49bb-a3f2-9fb9aea92bd8",
+        "URL" : "https://platon.univ-eiffel.fr/resources/7592c574-810c-49bb-a3f2-9fb9aea92bd8/overview"
+      }, 
+      { 
+        "kind" : "TEMPLATE", 
+        "id" : "495e767b-fd61-4d33-a2ce-671fff51a489",
+        "URL" : "https://platon.univ-eiffel.fr/resources/495e767b-fd61-4d33-a2ce-671fff51a489/overview"
+      },
+      { 
+        "kind" : "TEMPLATE", 
+        "id" : "f66e6f3c-f9bc-4fb2-8f7d-c1c41de7783b",
+        "URL" : "https://platon.univ-eiffel.fr/resources/f66e6f3c-f9bc-4fb2-8f7d-c1c41de7783b/overview"
+      },
+      { 
+        "kind" : "TEMPLATE", 
+        "id" : "115b6816-3f53-4ba9-a9f6-9c3987563539",
+        "URL" : "https://platon.univ-eiffel.fr/resources/115b6816-3f53-4ba9-a9f6-9c3987563539/overview"
+      },
+      { 
+        "kind" : "TEMPLATE", 
+        "id" : "4c58b13e-0685-41d5-95aa-0520b03e34e6",
+        "URL" : "https://platon.univ-eiffel.fr/resources/4c58b13e-0685-41d5-95aa-0520b03e34e6/overview"
+      },
+      { 
+        "kind" : "EXERCICE", 
+        "id" : "9c513502-b1ac-496b-b1ef-952bd0d6f25a",
+        "URL" : "https://platon.univ-eiffel.fr/resources/9c513502-b1ac-496b-b1ef-952bd0d6f25a/overview"
+
+      }, 
+      { 
+        "kind" : "EXERCISE", 
+        "id" : "7134b978-5788-4fe4-98cf-91e0ecbdd041" ,
+        "URL" : "https://platon.univ-eiffel.fr/resources/7134b978-5788-4fe4-98cf-91e0ecbdd041/overview"
+      }, 
+      { 
+        "kind" : "EXERCISE", 
+        "id" : "c5436c59-11d7-4b27-b626-57002898c8b8",
+        "URL" : "https://platon.univ-eiffel.fr/resources/c5436c59-11d7-4b27-b626-57002898c8b8/overview"
+      }, 
+      { 
+        "kind" : "EXERCISE", 
+        "id" : "976504b6-e518-411b-936a-55274b34730f",
+        "URL" : "https://platon.univ-eiffel.fr/resources/976504b6-e518-411b-936a-55274b34730f/overview"
+      }, 
+      { 
+        "kind" : "EXERCISE", 
+        "id" : "c55c31b0-1167-4475-bb58-96ecff386330",
+        "URL" : "https://platon.univ-eiffel.fr/resources/c55c31b0-1167-4475-bb58-96ecff386330/overview"
+      }, 
+      { 
+        "kind" : "EXERCISE", 
+        "id" : "42c67aa5-583c-4054-864e-dd1065504ec0",
+        "URL" : "https://platon.univ-eiffel.fr/resources/42c67aa5-583c-4054-864e-dd1065504ec0/overview"
+      }, 
+      { 
+        "kind" : "EXERCISE", 
+        "id" : "a7e10ae3-1878-4929-883f-766a1dc1f55d",
+        "URL" : "https://platon.univ-eiffel.fr/resources/a7e10ae3-1878-4929-883f-766a1dc1f55d/overview"
+      }
+    ],
+    "langue": "français",
+    "domaine": "informatique",
+    "difficulté": "moyen",
+    "détail": "bref",
+    "fichiers": "non",
+    "path": null,
+    "type": "first request",
+    "exercice_original": null
+  },
+  {
+    "request": "Update the chemistry quiz. Question 3 has an error in the molar mass of Carbon. It should be 12.01 g/mol, not 14.01 g/mol.",
+    "expected_result": 
+    [ 
+      { 
+        "kind" : "EXERCICE", 
+        "id" : "c84bb4df-3ea8-4643-acf5-52b10bc73e2b",
+        "URL" : "https://platon.univ-eiffel.fr/resources/c84bb4df-3ea8-4643-acf5-52b10bc73e2b/overview"
+      } 
+    ],
+    "langue": "anglais",
+    "domaine": "chimie",
+    "difficulté": "moyen",
+    "détail": "bref",
+    "fichiers": "non",
+    "path": null,
+    "type": "modif/correction request",
+    "exercice_original": {
+      "request": "Create a quiz on molar mass calculations.",
+      "langue": "anglais",
+      "domaine": "chimie",
+      "difficulté": "moyen",
+      "détail": "bref",
+      "fichiers": "non",
+      "path": null,
+      "type": "first request",
+      "exercice_original": null
+    }
+  },
+  {
+    "request": "Exercice sur les vecteurs.",
+    "expected_result": 
+    [ 
+      { 
+        "kind" : "TEMPLATE", 
+        "id" : "662a78ad-b220-4812-94b7-de9410e3b675", 
+        "URL" : "https://platon.univ-eiffel.fr/resources/662a78ad-b220-4812-94b7-de9410e3b675/overview"
+      },
+      {
+        "kind" : "TEMPLATE", 
+        "id" : "aa966886-3824-48c8-9646-195a3cb6e362", "URL" : "https://platon.univ-eiffel.fr/resources/aa966886-3824-48c8-9646-195a3cb6e362/overview"
+      },
+      {
+        "kind" : "TEMPLATE", 
+        "id" : "954e9ade-d04b-4327-8e44-88f1077022eb", "URL" : "https://platon.univ-eiffel.fr/resources/954e9ade-d04b-4327-8e44-88f1077022eb/overview"
+      },
+      { 
+        "kind" : "TEMPLATE_EXO", 
+        "id" : "bd9d97e9-2588-43a8-a044-7318af20ef0d", "URL" : "https://platon.univ-eiffel.fr/resources/bd9d97e9-2588-43a8-a044-7318af20ef0d/overview" 
+      },
+      {
+        "kind" : "TEMPLATE_EXO", 
+        "id" : "d1c8e5b4-9c3e-4f0a-9a7b-2c8e5f1a2b3c", "URL" : "https://platon.univ-eiffel.fr/resources/d1c8e5b4-9c3e-4f0a-9a7b-2c8e5f1a2b3c/overview"
+      }
+    ],
+    "langue": "français",
+    "domaine": "math",
+    "difficulté": "moyen",
+    "détail": "bref",
+    "fichiers": "non",
+    "path": null,
+    "type": "first request",
+    "exercice_original": null
+  },
+  {
+    "request": "Je voudrais un exercice de philosophie traitant de l'allégorie de la caverne de Platon. L'étudiant doit analyser un extrait de texte (que je fournis en pièce jointe) et répondre à trois questions de réflexion. Le ton doit être académique, niveau Terminale.",
+    "expected_result": 
+    [ 
+    ],
+    "langue": "français",
+    "domaine": "philosophie",
+    "difficulté": "difficile",
+    "détail": "détaillé",
+    "fichiers": "oui",
+    "path": "/exos/philo/platon_texte.txt",
+    "type": "first request",
+    "exercice_original": null
+  },
+  {
+    "request": "Change the code snippet in the Java exercise. The loop should be a 'while' loop instead of a 'for' loop, and add a comment explaining the termination condition.",
+    "expected_result": 
+    [ 
+      { 
+        "kind" : "TEMPLATE", 
+        "id" : "8ef81dd2-5e5c-40db-9f4e-8a8e141a74c2", 
+        "URL" : "https://platon.univ-eiffel.fr/resources/8ef81dd2-5e5c-40db-9f4e-8a8e141a74c2/overview" 
+      },
+      {
+        "kind" : "TEMPLATE_EXO", 
+        "id" : "b7270e40-6e84-4fd7-b557-65a7068bd41a", 
+        "URL" : "https://platon.univ-eiffel.fr/resources/b7270e40-6e84-4fd7-b557-65a7068bd41a/overview" 
+      },
+      { 
+        "kind" : "TEMPLATE_EXO", 
+        "id" : "fd74ecd1-89ad-49ef-a400-09e823efb80d", 
+        "URL" : "https://platon.univ-eiffel.fr/resources/fd74ecd1-89ad-49ef-a400-09e823efb80d/overview" 
+      },
+      {
+
+        "kind" : "TEMPLATE_EXO", 
+        "id" : "8916fef9-f2fe-475e-b044-95b4cd71a6ab", 
+        "URL" : "https://platon.univ-eiffel.fr/resources/8916fef9-f2fe-475e-b044-95b4cd71a6ab/overview" 
+      }, { 
+        "kind" : "TEMPLATE_EXO", 
+        "id" : "03d1ab1c-86ef-43fd-a143-4722c8222cc0", 
+        "URL" : "https://platon.univ-eiffel.fr/resources/03d1ab1c-86ef-43fd-a143-4722c8222cc0/overview" 
+        }
+
+    ],
+    "langue": "anglais",
+    "domaine": "informatique",
+    "difficulté": "moyen",
+    "détail": "détaillé",
+    "fichiers": "non",
+    "path": null,
+    "type": "modif/correction request",
+    "exercice_original": {
+      "request": "Java exercise on iterating arrays using for loops.",
+      "langue": "anglais",
+      "domaine": "informatique",
+      "difficulté": "moyen",
+      "détail": "bref",
+      "fichiers": "non",
+      "path": null,
+      "type": "first request",
+      "exercice_original": null
+    }
+  },
+  {
+    "request": "Génère un exercice de vocabulaire espagnol sur la nourriture.",
+    "expected_result":[
+      { 
+      "kind" : "TEMPLATE_EXO", 
+      "id" : "bed32837-67c3-41ea-a60b-30f65c98705f", 
+      "URL" : "https://platon.univ-eiffel.fr/resources/bed32837-67c3-41ea-a60b-30f65c98705f/overview" 
+      }
+    ],
+    "langue": "français",
+    "domaine": "langue",
+    "difficulté": "facile",
+    "détail": "bref",
+    "fichiers": "non",
+    "path": null,
+    "type": "first request",
+    "exercice_original": null
+  },
+  {
+    "request": "Create a reading comprehension test based on the article provided. Include 5 multiple choice questions and 2 short answer questions.",
+    "langue": "anglais",
+    "domaine": "langue",
+    "difficulté": "moyen",
+    "détail": "moyen",
+    "fichiers": "oui",
+    "path": "/data/articles/environment_2023.pdf",
+    "type": "first request",
+    "exercice_original": null
+  },
+  {
+    "request": "Correction : dans l'exercice sur les planètes, Pluton n'est plus considérée comme une planète majeure. Merci de retirer cette option du QCM.",
+    "langue": "français",
+    "domaine": "astronomie",
+    "difficulté": "facile",
+    "détail": "bref",
+    "fichiers": "non",
+    "path": null,
+    "type": "modif/correction request",
+    "exercice_original": {
+      "request": "QCM sur les planètes du système solaire.",
+      "langue": "français",
+      "domaine": "astronomie",
+      "difficulté": "facile",
+      "détail": "bref",
+      "fichiers": "non",
+      "path": null,
+      "type": "first request",
+      "exercice_original": null
+    }
+  },
+  {
+    "request": "Fais un exercice de physique sur la loi d'Ohm, U=RI.",
+    "langue": "français",
+    "domaine": "physique",
+    "difficulté": "facile",
+    "détail": "bref",
+    "fichiers": "non",
+    "path": null,
+    "type": "first request",
+    "exercice_original": null
+  },
+  {
+    "request": "I want an economics exercise about supply and demand curves. Students need to shift the curves based on scenarios I've listed in the CSV file.",
+    "langue": "anglais",
+    "domaine": "économie",
+    "difficulté": "difficile",
+    "détail": "détaillé",
+    "fichiers": "oui",
+    "path": "/economics/scenarios_market.csv",
+    "type": "first request",
+    "exercice_original": null
+  },
+  {
+    "request": "L'exercice sur les participes passés est trop dur. Simplifie les phrases et retire les exceptions avec l'auxiliaire avoir.",
+    "langue": "français",
+    "domaine": "langue",
+    "difficulté": "facile",
+    "détail": "moyen",
+    "fichiers": "non",
+    "path": null,
+    "type": "modif/correction request",
+    "exercice_original": {
+      "request": "Exercice complexe sur l'accord du participe passé avec avoir et être.",
+      "langue": "français",
+      "domaine": "langue",
+      "difficulté": "difficile",
+      "détail": "bref",
+      "fichiers": "non",
+      "path": null,
+      "type": "first request",
+      "exercice_original": null
+    }
+  },
+  {
+    "request": "Biologie : schéma de la cellule animale à légender.",
+    "langue": "français",
+    "domaine": "biologie",
+    "difficulté": "moyen",
+    "détail": "bref",
+    "fichiers": "non",
+    "path": null,
+    "type": "first request",
+    "exercice_original": null
+  },
+  {
+    "request": "Create a coding challenge where students have to implement a binary search tree in C++. They must handle memory allocation manually.",
+    "langue": "anglais",
+    "domaine": "informatique",
+    "difficulté": "difficile",
+    "détail": "détaillé",
+    "fichiers": "non",
+    "path": null,
+    "type": "first request",
+    "exercice_original": null
+  },
+  {
+    "request": "Modifie la consigne. Au lieu de demander de dessiner, demande de décrire le processus par écrit.",
+    "langue": "français",
+    "domaine": "art",
+    "difficulté": "moyen",
+    "détail": "bref",
+    "fichiers": "non",
+    "path": null,
+    "type": "modif/correction request",
+    "exercice_original": {
+      "request": "Dessinez une nature morte.",
+      "langue": "français",
+      "domaine": "art",
+      "difficulté": "moyen",
+      "détail": "bref",
+      "fichiers": "non",
+      "path": null,
+      "type": "first request",
+      "exercice_original": null
+    }
+  },
+  {
+    "request": "Je souhaite générer un exercice de géométrie analytique concernant les droites dans le plan. L'exercice doit contenir 3 parties : déterminer l'équation d'une droite passant par deux points A(2,3) et B(-1,4), vérifier si un point C appartient à cette droite, et tracer la droite dans un repère orthonormé.",
+    "langue": "français",
+    "domaine": "math",
+    "difficulté": "moyen",
+    "détail": "détaillé",
+    "fichiers": "non",
+    "path": null,
+    "type": "first request",
+    "exercice_original": null
+  },
+  {
+    "request": "Add a hint to the math problem: 'Remember that the derivative of e^x is e^x'.",
+    "langue": "anglais",
+    "domaine": "math",
+    "difficulté": "moyen",
+    "détail": "bref",
+    "fichiers": "non",
+    "path": null,
+    "type": "modif/correction request",
+    "exercice_original": {
+      "request": "Solve the differential equation.",
+      "langue": "anglais",
+      "domaine": "math",
+      "difficulté": "difficile",
+      "détail": "bref",
+      "fichiers": "non",
+      "path": null,
+      "type": "first request",
+      "exercice_original": null
+    }
+  },
+  {
+    "request": "Exercice sur les couleurs en anglais pour débutants.",
+    "langue": "français",
+    "domaine": "langue",
+    "difficulté": "facile",
+    "détail": "bref",
+    "fichiers": "non",
+    "path": null,
+    "type": "first request",
+    "exercice_original": null
+  },
+  {
+    "request": "Please generate a set of questions about the US Constitution based on the document attached.",
+    "langue": "anglais",
+    "domaine": "histoire",
+    "difficulté": "moyen",
+    "détail": "bref",
+    "fichiers": "oui",
+    "path": "/history/us_const_notes.txt",
+    "type": "first request",
+    "exercice_original": null
+  },
+  {
+    "request": "Dans l'exercice de physique, changez la valeur de la gravité g. Utilisez 9.81 m/s² au lieu de 10 m/s².",
+    "langue": "français",
+    "domaine": "physique",
+    "difficulté": "moyen",
+    "détail": "bref",
+    "fichiers": "non",
+    "path": null,
+    "type": "modif/correction request",
+    "exercice_original": {
+      "request": "Exercice chute libre.",
+      "langue": "français",
+      "domaine": "physique",
+      "difficulté": "moyen",
+      "détail": "bref",
+      "fichiers": "non",
+      "path": null,
+      "type": "first request",
+      "exercice_original": null
+    }
+  },
+  {
+    "request": "Crée un exercice de solfège : identifier les notes sur une portée en clé de sol.",
+    "langue": "français",
+    "domaine": "musique",
+    "difficulté": "facile",
+    "détail": "bref",
+    "fichiers": "non",
+    "path": null,
+    "type": "first request",
+    "exercice_original": null
+  },
+  {
+    "request": "I need a difficult logic puzzle involving truth tables and Boolean algebra, similar to LSAT logic games.",
+    "langue": "anglais",
+    "domaine": "math",
+    "difficulté": "difficile",
+    "détail": "moyen",
+    "fichiers": "non",
+    "path": null,
+    "type": "first request",
+    "exercice_original": null
+  },
+  {
+    "request": "Reformule la deuxième question pour qu'elle soit plus claire. Au lieu de 'Que fait-il ?', écris 'Quelle est la profession du personnage principal ?'.",
+    "langue": "français",
+    "domaine": "littérature",
+    "difficulté": "facile",
+    "détail": "moyen",
+    "fichiers": "non",
+    "path": null,
+    "type": "modif/correction request",
+    "exercice_original": {
+      "request": "Questions sur le texte 'L'Étranger'.",
+      "langue": "français",
+      "domaine": "littérature",
+      "difficulté": "moyen",
+      "détail": "bref",
+      "fichiers": "non",
+      "path": null,
+      "type": "first request",
+      "exercice_original": null
+    }
+  },
+  {
+    "request": "Exercice Python : créer une fonction qui calcule la suite de Fibonacci récursivement.",
+    "langue": "français",
+    "domaine": "informatique",
+    "difficulté": "moyen",
+    "détail": "bref",
+    "fichiers": "non",
+    "path": null,
+    "type": "first request",
+    "exercice_original": null
+  },
+  {
+    "request": "Please adjust the biology diagram labels. Swap 'Mitochondria' and 'Nucleus', they are pointing to the wrong organelles.",
+    "langue": "anglais",
+    "domaine": "biologie",
+    "difficulté": "moyen",
+    "détail": "bref",
+    "fichiers": "non",
+    "path": null,
+    "type": "modif/correction request",
+    "exercice_original": {
+      "request": "Label the cell diagram.",
+      "langue": "anglais",
+      "domaine": "biologie",
+      "difficulté": "moyen",
+      "détail": "bref",
+      "fichiers": "non",
+      "path": null,
+      "type": "first request",
+      "exercice_original": null
+    }
+  },
+  {
+    "request": "Génère un problème de statistiques niveau universitaire. Il faut calculer l'écart-type et la variance d'une série statistique donnée dans le fichier Excel ci-joint. Utilise le vocabulaire standard des probabilités.",
+    "langue": "français",
+    "domaine": "math",
+    "difficulté": "difficile",
+    "détail": "détaillé",
+    "fichiers": "oui",
+    "path": "/stats/data_set_2024.xlsx",
+    "type": "first request",
+    "exercice_original": null
+  },
+  {
+    "request": "Change le texte source de l'exercice de traduction. Utilise le paragraphe suivant : 'Le chat dormait paisiblement sur le canapé quand soudain un bruit le réveilla.'",
+    "langue": "français",
+    "domaine": "langue",
+    "difficulté": "moyen",
+    "détail": "détaillé",
+    "fichiers": "non",
+    "path": null,
+    "type": "modif/correction request",
+    "exercice_original": {
+      "request": "Traduire 'The dog ran fast' en français.",
+      "langue": "français",
+      "domaine": "langue",
+      "difficulté": "facile",
+      "détail": "bref",
+      "fichiers": "non",
+      "path": null,
+      "type": "first request",
+      "exercice_original": null
+    }
+  },
+  {
+    "request": "Create a geography quiz about African capitals.",
+    "langue": "anglais",
+    "domaine": "géographie",
+    "difficulté": "moyen",
+    "détail": "bref",
+    "fichiers": "non",
+    "path": null,
+    "type": "first request",
+    "exercice_original": null
+  },
+  {
+    "request": "Je veux un exercice sur les fractions irréductibles comme celui sur bibmath.net/exercices/bgg/college/arithm.",
+    "langue": "français",
+    "domaine": "math",
+    "difficulté": "moyen",
+    "détail": "bref",
+    "fichiers": "non",
+    "path": null,
+    "type": "first request",
+    "exercice_original": null
+  },
+  {
+    "request": "Modifie l'exercice de SQL. Ajoute une condition 'WHERE age > 18' dans la requête attendue.",
+    "langue": "français",
+    "domaine": "informatique",
+    "difficulté": "moyen",
+    "détail": "bref",
+    "fichiers": "non",
+    "path": null,
+    "type": "modif/correction request",
+    "exercice_original": {
+      "request": "Écrire une requête SQL pour sélectionner tous les utilisateurs.",
+      "langue": "français",
+      "domaine": "informatique",
+      "difficulté": "facile",
+      "détail": "bref",
+      "fichiers": "non",
+      "path": null,
+      "type": "first request",
+      "exercice_original": null
+    }
+  },
+  {
+    "request": "Make an exercise about photosynthesis for 5th graders.",
+    "langue": "anglais",
+    "domaine": "biologie",
+    "difficulté": "facile",
+    "détail": "bref",
+    "fichiers": "non",
+    "path": null,
+    "type": "first request",
+    "exercice_original": null
+  },
+  {
+    "request": "Génère un exercice de comptabilité sur le bilan comptable. Les actifs et passifs sont listés dans le fichier CSV.",
+    "langue": "français",
+    "domaine": "économie",
+    "difficulté": "moyen",
+    "détail": "moyen",
+    "fichiers": "oui",
+    "path": "/compta/bilan_data.csv",
+    "type": "first request",
+    "exercice_original": null
+  },
+  {
+    "request": "Correct the typo in the title: change 'Exerice' to 'Exercice'.",
+    "langue": "anglais",
+    "domaine": "général",
+    "difficulté": "facile",
+    "détail": "bref",
+    "fichiers": "non",
+    "path": null,
+    "type": "modif/correction request",
+    "exercice_original": {
+      "request": "Any exercise.",
+      "langue": "anglais",
+      "domaine": "général",
+      "difficulté": "facile",
+      "détail": "bref",
+      "fichiers": "non",
+      "path": null,
+      "type": "first request",
+      "exercice_original": null
+    }
+  },
+  {
+    "request": "Exercice sur les régimes totalitaires dans les années 30.",
+    "langue": "français",
+    "domaine": "histoire",
+    "difficulté": "difficile",
+    "détail": "bref",
+    "fichiers": "non",
+    "path": null,
+    "type": "first request",
+    "exercice_original": null
+  },
+  {
+    "request": "Je veux que vous créiez un exercice très spécifique sur la mécanique des fluides, en particulier le théorème de Bernoulli, appliqué à une aile d'avion. Il faut inclure des schémas explicatifs et demander le calcul de la portance.",
+    "langue": "français",
+    "domaine": "physique",
+    "difficulté": "difficile",
+    "détail": "détaillé",
+    "fichiers": "non",
+    "path": null,
+    "type": "first request",
+    "exercice_original": null
+  },
+  {
+    "request": "Change the language of the instructions from French to English.",
+    "langue": "anglais",
+    "domaine": "langue",
+    "difficulté": "facile",
+    "détail": "bref",
+    "fichiers": "non",
+    "path": null,
+    "type": "modif/correction request",
+    "exercice_original": {
+      "request": "Exercice en français.",
+      "langue": "français",
+      "domaine": "général",
+      "difficulté": "moyen",
+      "détail": "bref",
+      "fichiers": "non",
+      "path": null,
+      "type": "first request",
+      "exercice_original": null
+    }
+  },
+  {
+    "request": "Maths : tables de multiplication de 1 à 9.",
+    "langue": "français",
+    "domaine": "math",
+    "difficulté": "facile",
+    "détail": "bref",
+    "fichiers": "non",
+    "path": null,
+    "type": "first request",
+    "exercice_original": null
+  }
+]
+
+

@@ -1,0 +1,183 @@
+[
+  {
+    "id": 1,
+    "subject": "Mathématiques — Analyse",
+    "level": "Licence 1",
+    "prompt": "Un exercice sur les suites numériques. On donne une suite définie par récurrence, par exemple u₀ = 1 et uₙ₊₁ = (uₙ + 2) / 2, et on demande à l'étudiant de calculer les cinq premiers termes, puis de choisir parmi plusieurs propositions si la suite est croissante, décroissante ou ni l'un ni l'autre, et enfin d'indiquer si elle semble converger et vers quelle limite."
+  },
+  {
+    "id": 2,
+    "subject": "Programmation — Python",
+    "level": "Licence 1 Informatique",
+    "prompt": "Je veux un exercice où l'étudiant doit écrire une fonction Python qui prend une liste d'entiers en entrée et retourne la liste triée dans l'ordre croissant, sans utiliser la fonction sort() intégrée. Le code est évalué automatiquement sur plusieurs listes de test, dont une liste vide et une liste déjà triée."
+  },
+  {
+    "id": 3,
+    "subject": "Droit — Introduction au droit civil",
+    "level": "Licence 1 Droit",
+    "prompt": "Un exercice de qualification juridique. On décrit une situation de la vie courante (par exemple un achat entre particuliers qui tourne mal) et l'étudiant doit identifier la nature du litige parmi plusieurs catégories : droit des contrats, droit de la responsabilité délictuelle, droit des biens, droit de la famille. Il doit aussi indiquer quel article du Code civil s'applique parmi une liste proposée."
+  },
+  {
+    "id": 4,
+    "subject": "Économie — Microéconomie",
+    "level": "Licence 1 Économie / Gestion",
+    "prompt": "Un exercice sur l'élasticité-prix de la demande. On donne les données d'un marché fictif : prix initial, quantité demandée initiale, nouveau prix et nouvelle quantité. L'étudiant doit calculer le coefficient d'élasticité-prix, puis interpréter le résultat en choisissant parmi les propositions : demande élastique, inélastique ou unitaire. On lui demande aussi de prédire l'effet d'une hausse de prix sur le chiffre d'affaires du vendeur."
+  },
+  {
+    "id": 5,
+    "subject": "Chimie — Thermodynamique chimique",
+    "level": "Licence 2 Chimie",
+    "prompt": "Un exercice sur l'enthalpie standard de réaction. On donne les enthalpies standard de formation des réactifs et des produits d'une réaction équilibrée (valeurs numériques en kJ/mol). L'étudiant doit calculer l'enthalpie standard de la réaction, dire si elle est exothermique ou endothermique, puis calculer la chaleur échangée pour une quantité donnée de réactif consommé."
+  },
+  {
+    "id": 6,
+    "subject": "Physique — Mécanique newtonienne",
+    "level": "Licence 1 Physique",
+    "prompt": "Un exercice de dynamique. On décrit un bloc de masse m posé sur un plan incliné d'angle θ avec un coefficient de frottement μ. L'étudiant doit calculer l'accélération du bloc le long du plan (valeurs numériques générées aléatoirement), dire dans quel sens le bloc se déplace si une force est appliquée, et calculer la vitesse atteinte après une distance donnée en partant du repos."
+  },
+  {
+    "id": 7,
+    "subject": "Statistiques — Statistiques descriptives",
+    "level": "Licence 2 Économie / Psychologie / Sociologie",
+    "prompt": "On donne un jeu de données d'une dizaine de valeurs numériques (par exemple des notes d'examen ou des revenus en milliers d'euros, générés aléatoirement). L'étudiant doit calculer la moyenne, la médiane, l'écart-type et le premier et troisième quartile. Les réponses sont saisies dans des champs numériques. On lui demande aussi de qualifier la distribution : symétrique, asymétrique à gauche ou à droite."
+  },
+  {
+    "id": 8,
+    "subject": "Biologie — Biochimie structurale",
+    "level": "Licence 2 SVT / STAPS",
+    "prompt": "Un exercice sur les acides aminés et les liaisons peptidiques. On présente une séquence peptidique courte (5 acides aminés) et on demande à l'étudiant de relier chaque acide aminé à sa famille chimique (polaire, apolaire, chargé positivement, chargé négativement) via un exercice d'association. On lui demande ensuite combien de liaisons peptidiques le peptide contient."
+  },
+  {
+    "id": 9,
+    "subject": "Informatique — Algorithmique",
+    "level": "Licence 2 Informatique",
+    "prompt": "Un exercice sur la complexité algorithmique. On présente cinq algorithmes décrits brièvement (recherche linéaire, recherche dichotomique, tri à bulles, parcours en largeur d'un graphe, calcul récursif de Fibonacci naïf) et l'étudiant doit associer chacun à sa complexité en temps dans le pire cas parmi O(n), O(n log n), O(n²), O(log n), O(2ⁿ). Il doit aussi classer les trois premiers du plus lent au plus rapide pour une entrée de taille n = 1000."
+  },
+  {
+    "id": 10,
+    "subject": "Philosophie — Épistémologie",
+    "level": "Licence 3 Philosophie",
+    "prompt": "Un exercice sur les grandes théories de la connaissance. On propose cinq courtes thèses philosophiques (deux empiristes, deux rationalistes, une sceptique) et l'étudiant doit identifier à quel courant appartient chacune et l'attribuer à l'un des philosophes d'une liste : Descartes, Hume, Kant, Locke, Descartes, Berkeley, Popper. Plusieurs thèses peuvent appartenir au même philosophe."
+  },
+  {
+    "id": 11,
+    "subject": "Gestion — Comptabilité générale",
+    "level": "Licence 1 / BTS Comptabilité",
+    "prompt": "Un exercice d'imputation comptable. On décrit une opération de l'entreprise (achat de matériel, paiement d'un fournisseur, encaissement d'une créance client, versement de salaires) et l'étudiant doit identifier les deux comptes impliqués dans l'écriture comptable et indiquer lequel est débité et lequel est crédité. L'opération et les montants sont tirés aléatoirement."
+  },
+  {
+    "id": 12,
+    "subject": "Physique — Électromagnétisme",
+    "level": "Licence 2 Physique",
+    "prompt": "Un exercice sur la loi de Gauss. On donne une distribution de charges à symétrie sphérique ou cylindrique (paramètres numériques aléatoires) et l'étudiant doit choisir la surface de Gauss appropriée, écrire l'expression du champ électrique résultant, puis calculer numériquement la valeur du champ en un point précis situé à une distance r donnée."
+  },
+  {
+    "id": 13,
+    "subject": "Psychologie — Méthodes de recherche",
+    "level": "Licence 2 Psychologie",
+    "prompt": "On décrit une étude de recherche (avec sa question de recherche, sa population, sa méthode de collecte de données et son plan expérimental) et l'étudiant doit identifier le type de plan utilisé parmi : plan expérimental, quasi-expérimental, corrélationnel, observationnel. Il doit aussi identifier la variable indépendante et la variable dépendante, et repérer un biais potentiel parmi une liste proposée."
+  },
+  {
+    "id": 14,
+    "subject": "Mathématiques — Algèbre linéaire",
+    "level": "Licence 1 Mathématiques / MPSI",
+    "prompt": "Un exercice sur la résolution de systèmes linéaires par la méthode du pivot de Gauss. On génère un système de trois équations à trois inconnues avec des coefficients entiers simples. L'étudiant doit effectuer les opérations élémentaires étape par étape, en saisissant la valeur des trois inconnues x, y, z. On lui demande aussi de dire si le système est compatible et déterminé, compatible et indéterminé, ou incompatible."
+  },
+  {
+    "id": 15,
+    "subject": "Droit public — Institutions européennes",
+    "level": "Licence 2 Droit",
+    "prompt": "Un exercice sur les institutions de l'Union européenne. On décrit une procédure législative (codécision, consultation, approbation) et l'étudiant doit indiquer dans quel ordre interviennent la Commission, le Parlement et le Conseil. On lui pose aussi des questions à choix unique sur les pouvoirs de la Cour de justice de l'UE, le rôle du Parlement européen et la différence entre règlement et directive."
+  },
+  {
+    "id": 16,
+    "subject": "Chimie organique — Stéréochimie",
+    "level": "Licence 2 / Licence 3 Chimie",
+    "prompt": "Un exercice sur la nomenclature stéréochimique R/S. On donne la représentation d'une molécule chirale avec ses quatre substituants et leurs priorités CIP déjà indiquées. L'étudiant doit déterminer si le centre stéréogène est de configuration R ou S. On lui présente aussi deux structures et il doit dire s'il s'agit d'énantiomères, de diastéréoisomères ou de la même molécule."
+  },
+  {
+    "id": 17,
+    "subject": "Informatique — Bases de données",
+    "level": "Licence 2 / IUT Informatique",
+    "prompt": "Un exercice de modélisation entité-association. On décrit verbalement un système d'information simple (par exemple une bibliothèque : livres, auteurs, adhérents, emprunts) et l'étudiant doit identifier les entités, leurs attributs et les associations, puis choisir la bonne cardinalité pour chaque association parmi (1,1), (1,n), (n,n). Les questions sont posées une à une pour chaque association."
+  },
+  {
+    "id": 18,
+    "subject": "Sciences politiques — Systèmes politiques comparés",
+    "level": "Licence 2 / Licence 3 Science politique",
+    "prompt": "Un exercice comparatif sur les régimes politiques. On présente cinq caractéristiques d'un régime politique (mode d'élection du chef de l'État, relation exécutif/législatif, existence d'un premier ministre, type de scrutin, fédéralisme ou non) et l'étudiant doit identifier de quel pays ou quel type de régime il s'agit parmi : présidentiel américain, semi-présidentiel français, parlementaire britannique, fédéral allemand, régime autoritaire."
+  },
+  {
+    "id": 19,
+    "subject": "Mathématiques — Probabilités et statistiques inférentielles",
+    "level": "Licence 2 / Master 1",
+    "prompt": "Un exercice sur les lois de probabilité usuelles. On décrit une situation concrète (pannes d'une machine, appels téléphoniques dans un centre, succès à un examen) et l'étudiant doit identifier la loi de probabilité qui modélise le mieux la situation parmi : loi binomiale, loi de Poisson, loi normale, loi exponentielle, loi géométrique. Il calcule ensuite une probabilité précise avec les paramètres donnés."
+  },
+  {
+    "id": 20,
+    "subject": "Physique — Optique ondulatoire",
+    "level": "Licence 2 Physique",
+    "prompt": "Un exercice sur les interférences à deux ondes. On décrit une expérience de Young avec les paramètres donnés (distance entre les fentes, longueur d'onde, distance à l'écran). L'étudiant doit calculer l'interfrange, la position du troisième maximum brillant, et dire si l'intensité en un point particulier correspond à un maximum ou un minimum d'interférence en calculant la différence de marche."
+  },
+  {
+    "id": 21,
+    "subject": "Géographie — Géopolitique",
+    "level": "Licence 2 / Licence 3 Géographie",
+    "prompt": "Un exercice d'analyse géopolitique. On donne un texte court décrivant une région du monde en tension (données économiques, ethniques, historiques fictives mais réalistes) et l'étudiant doit identifier le ou les types de conflits potentiels parmi : conflit territorial, conflit de ressources, conflit ethnique, conflit idéologique, conflit commercial. Il doit aussi associer chaque acteur mentionné à son rôle (État, organisation internationale, groupe armé non étatique, ONG)."
+  },
+  {
+    "id": 22,
+    "subject": "Sociologie — Théories classiques",
+    "level": "Licence 1 / Licence 2 Sociologie",
+    "prompt": "Un exercice d'attribution de concepts à leurs auteurs. On présente dix concepts ou notions fondamentaux de la sociologie (anomie, idéaux-types, capital social, habitus, distinction, conscience collective, rationalisation, stratification, mobilité sociale, fait social total) et l'étudiant doit associer chacun au sociologue qui l'a théorisé parmi : Durkheim, Weber, Bourdieu, Merton, Mauss, Marx, Parsons."
+  },
+  {
+    "id": 23,
+    "subject": "Biologie — Génétique moléculaire",
+    "level": "Licence 2 / Licence 3 SVT",
+    "prompt": "Un exercice sur la traduction de l'ARN messager en protéine. On donne une séquence d'ADN simple brin, l'étudiant doit d'abord écrire le brin complémentaire, puis transcrire en ARNm, puis identifier les codons et donner la séquence d'acides aminés correspondante en utilisant le code génétique fourni en annexe dans l'énoncé. Les réponses sont saisies sous forme de séquences."
+  },
+  {
+    "id": 24,
+    "subject": "Finance — Mathématiques financières",
+    "level": "Licence 2 Gestion / AES",
+    "prompt": "Un exercice sur la valeur actuelle nette. On décrit un projet d'investissement avec un coût initial et des flux de trésorerie annuels sur cinq ans (valeurs générées aléatoirement). L'étudiant doit calculer la VAN pour un taux d'actualisation donné, dire si le projet est rentable, et comparer deux projets alternatifs pour choisir le plus intéressant financièrement."
+  },
+  {
+    "id": 25,
+    "subject": "Informatique — Réseaux",
+    "level": "Licence 2 / BUT Informatique",
+    "prompt": "Un exercice de calcul d'adressage IP. On donne une adresse IP et un masque de sous-réseau en notation CIDR (par exemple 192.168.50.130/27, valeurs tirées aléatoirement dans des plages réalistes). L'étudiant doit calculer l'adresse réseau, l'adresse de diffusion, la plage d'adresses hôtes utilisables et le nombre maximal d'hôtes. Les réponses sont saisies dans des champs texte séparés."
+  },
+  {
+    "id": 26,
+    "subject": "Littérature — Littérature comparée",
+    "level": "Licence 2 / Licence 3 Lettres",
+    "prompt": "Un exercice d'identification des mouvements littéraires. On cite cinq extraits de textes (en prose ou en vers) issus de périodes et de mouvements différents et l'étudiant doit associer chaque extrait au mouvement qui lui correspond parmi : classicisme, romantisme, réalisme, symbolisme, surréalisme, existentialisme, nouveau roman. Il doit aussi donner un argument textuel justifiant son choix en sélectionnant le bon passage dans une liste."
+  },
+  {
+    "id": 27,
+    "subject": "Physique — Thermodynamique",
+    "level": "Licence 1 / MPSI",
+    "prompt": "Un exercice sur les transformations thermodynamiques d'un gaz parfait. On décrit un cycle simple composé de deux transformations (isotherme, isobare ou adiabatique, tirées aléatoirement). Pour chaque transformation, l'étudiant doit calculer le travail échangé, la chaleur échangée et la variation d'énergie interne. On lui demande aussi de dire si chaque transformation est réversible ou irréversible d'après la description donnée."
+  },
+  {
+    "id": 28,
+    "subject": "Marketing — Comportement du consommateur",
+    "level": "Licence 3 / Master 1 Gestion",
+    "prompt": "Un exercice d'application des modèles du comportement d'achat. On décrit le parcours d'un consommateur fictif (reconnaissance du besoin, recherche d'information, évaluation des alternatives, décision, comportement post-achat) et l'étudiant doit identifier à quelle étape du modèle de Blackwell, Miniard et Engel correspond chaque action décrite. Il doit aussi identifier quel facteur (culturel, social, personnel, psychologique) est à l'origine du déclenchement du besoin."
+  },
+  {
+    "id": 29,
+    "subject": "Mathématiques — Analyse vectorielle",
+    "level": "Licence 2 Mathématiques / Physique",
+    "prompt": "Un exercice sur le gradient, la divergence et le rotationnel. On donne un champ scalaire ou vectoriel exprimé en coordonnées cartésiennes (coefficients entiers simples) et l'étudiant doit calculer son gradient ou sa divergence selon la question posée (tirée aléatoirement). Il saisit les composantes du résultat dans des champs séparés, et répond à une question à choix unique sur l'interprétation physique du résultat."
+  },
+  {
+    "id": 30,
+    "subject": "Médecine / Pharmacologie — Pharmacocinétique",
+    "level": "Licence 3 / Master 1 Sciences pharmaceutiques",
+    "prompt": "Un exercice sur les paramètres pharmacocinétiques. On donne les données d'une étude de biodisponibilité : concentrations plasmatiques à différents temps après administration orale et intraveineuse. L'étudiant doit calculer l'AUC par la méthode des trapèzes pour les deux voies, en déduire la biodisponibilité absolue, puis interpréter le résultat en choisissant si la biodisponibilité est bonne, moyenne ou faible selon les seuils cliniques fournis."
+  }
+]
+

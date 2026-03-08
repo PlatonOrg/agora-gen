@@ -1,0 +1,52 @@
+# VCS
+.git/
+.gitignore
+
+# IDE
+.idea/
+.vscode/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Env — exclude the base file and all environment-specific variants
+.env
+.env.*
+
+back/.venv
+
+# Docker meta-files
+**/Dockerfile*
+**/docker-compose*.yml
+
+# Python bytecode
+**/__pycache__/
+**/*.pyc
+**/*.pyo
+**/*.pyd
+**/*.egg-info/
+
+# Node dependencies
+**/node_modules/
+
+# Build outputs
+**/dist/
+**/build/
+
+# Test caches
+**/.mypy_cache/
+**/.pytest_cache/
+
+resources/local_models/
+
+# DB backups
+resources/backup/
+
+# Logs
+resources/logs/
+**/*.log
+
+# Postgres volume data
+agora_pg_data/
+agora_pg_data_prod/

@@ -1,0 +1,85 @@
+@if (selectedConversationId()) {
+  <app-session-detail-view
+    [sessionId]="selectedConversationId()!"
+    (backRequested)="selectedConversationId.set(null)"
+  />
+} @else {
+  <div class="view-shell">
+
+    <app-log-status-view
+      [state]="state()"
+      [empty]="processed().length === 0"
+      [errorMessage]="errorMessage()"
+      emptyMessage="Aucune conversation enregistrée."
+    />
+
+    @if (state() === 'success' && conversations().length > 0) {
+      <div class="conversations-toolbar">
+        <input
+          type="search"
+          class="conversations-search"
+          placeholder="Rechercher par utilisateur ou identifiant…"
+          [value]="searchQuery()"
+          (input)="onSearchChange($any($event.target).value)" />
+        <span class="conversations-count">{{ processed().length }} conversation(s)</span>
+      </div>
+
+      <app-log-sort-bar
+        [options]="sortOptions"
+        [activeField]="sortField()"
+        [direction]="sortDirection()"
+        (sortChanged)="onSortChanged($event)"
+      />
+
+      <div class="view-list">
+        @for (conv of paginated(); track conv.conversation_id) {
+          <button class="session-card"
+            type="button"
+            (click)="selectedConversationId.set(conv.conversation_id)">
+            <div class="session-card__left">
+              <span class="session-card__icon" aria-hidden="true">
+                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+                </svg>
+              </span>
+            </div>
+            <div class="session-card__body">
+              <div class="session-card__id">
+                @if (conv.username) {
+                  <span class="session-card__username">{{ conv.username }}</span>
+                  <span class="session-card__sep">·</span>
+                }
+                <span class="session-card__conv-id">{{ conv.conversation_id.substring(0, 8) }}…</span>
+              </div>
+              <div class="session-card__meta">
+                @if (conv.started_at) {
+                  <span>Créée le {{ formatDate(conv.started_at) }}</span>
+                }
+                @if (conv.last_at && conv.last_at !== conv.started_at) {
+                  <span class="session-card__sep">·</span>
+                  <span>Active le {{ formatDate(conv.last_at) }}</span>
+                }
+              </div>
+              <div class="session-card__stats">
+                <app-log-badge [label]="conv.exo_generation_count + ' exercice' + (conv.exo_generation_count !== 1 ? 's' : '')" variant="exercise" />
+                <app-log-badge [label]="conv.discussion_generation_count + ' discussion' + (conv.discussion_generation_count !== 1 ? 's' : '')" variant="discussion" />
+                <app-log-badge [label]="conv.total_generation_count + ' au total'" variant="neutral" />
+              </div>
+            </div>
+            <svg class="session-card__arrow" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+              <path d="M9 18l6-6-6-6"/>
+            </svg>
+          </button>
+        }
+      </div>
+
+      <app-log-pagination
+        [page]="page()"
+        [totalPages]="totalPages()"
+        (pageChanged)="page.set($event)"
+      />
+    }
+  </div>
+}
+
+

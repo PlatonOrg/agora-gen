@@ -1,0 +1,37 @@
+<div class="side-panel">
+
+  <div class="side-rail" [class.side-rail--hidden]="!isComponentsPanelCollapsed()">
+    <button
+      class="rail-tab"
+      type="button"
+      (click)="expandComponents.emit()"
+      title="Composants"
+    >
+      <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/>
+        <rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/>
+      </svg>
+      <span class="rail-tab__label">Composants</span>
+    </button>
+  </div>
+
+  @if (!isComponentsPanelCollapsed()) {
+    <div class="side-panel__body side-panel__body--animate" [style.width.px]="wsStore.rightPanelWidth()">
+      <app-panel-header
+        title="Composants"
+        [collapsed]="false"
+        collapseDirection="right"
+        (collapse)="collapseComponents.emit()"
+      />
+      <div class="side-panel__content">
+        <app-components-panel
+          [formulaireComponents]="formulaireComponents()"
+          [widgetComponents]="widgetComponents()"
+          (addComponent)="addComponentToDiscussion.emit($event)"
+          (toggleTooltip)="toggleTooltip.emit($event)"
+        />
+      </div>
+    </div>
+  }
+
+</div>

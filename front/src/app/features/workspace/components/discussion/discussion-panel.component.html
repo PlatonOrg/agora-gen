@@ -1,0 +1,145 @@
+<div
+  class="discussion-panel"
+  [class.discussion-panel--drag-over]="isDragOver"
+  (drop)="onDrop($event)"
+  (dragover)="onDragOver($event)"
+  (dragleave)="onDragLeave($event)"
+>
+  <div class="discussion-header">
+    <div class="discussion-header__menu">
+      <button class="discussion-header__menu-btn" type="button" (click)="togglePanelSwitcher()" title="Changer de panneau">
+        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <line x1="3" y1="6" x2="21" y2="6"/>
+          <line x1="3" y1="12" x2="21" y2="12"/>
+          <line x1="3" y1="18" x2="21" y2="18"/>
+        </svg>
+      </button>
+      @if (isPanelSwitcherOpen()) {
+        <div class="panel-switcher-backdrop" (click)="closePanelSwitcher()"></div>
+        <div class="panel-switcher" role="menu">
+          <button class="panel-switcher__item panel-switcher__item--active" type="button" role="menuitem" disabled>
+            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+            </svg>
+            Discussion
+          </button>
+          <button class="panel-switcher__item" (click)="doSwitchToTemplates()" type="button" role="menuitem">
+            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+              <polyline points="14 2 14 8 20 8"/>
+            </svg>
+            Modèles
+          </button>
+        </div>
+      }
+    </div>
+    <span class="discussion-header__title">Discussion</span>
+    <div class="discussion-header__actions">
+      <app-help-popup
+        title="Utiliser la Discussion"
+        [markdownContent]="discussionHelpContent"
+      />
+    </div>
+  </div>
+
+  @if (showResetDiscussionConfirm()) {
+    <app-confirm-dialog
+      [options]="resetDiscussionDialogOptions"
+      (confirmed)="confirmResetDiscussion()"
+      (cancelled)="cancelResetDiscussion()"
+    />
+  }
+
+  @if (!isGenerationLocked() && selectedAssistantMode() === 'agent') {
+    <div
+      class="generation-mode-bar"
+      [class.generation-mode-bar--active]="forcePureExercise()"
+      role="button"
+      tabindex="0"
+      (click)="toggleForcePureExercise()"
+      (keydown.enter)="toggleForcePureExercise()"
+      (keydown.space)="toggleForcePureExercise()"
+      [attr.aria-pressed]="forcePureExercise()"
+      aria-label="Générer un exercice entièrement personnalisé sans utiliser de modèle préexistant"
+      title="{{ forcePureExercise() ? 'Désactiver — l\'IA peut utiliser un modèle existant si pertinent' : 'Activer — forcer la génération d\'un exercice entièrement personnalisé' }}"
+    >
+      <span class="generation-mode-bar__toggle" [class.generation-mode-bar__toggle--on]="forcePureExercise()">
+        <span class="generation-mode-bar__knob"></span>
+      </span>
+      <span class="generation-mode-bar__text">
+        <span class="generation-mode-bar__label">Exercice entièrement personnalisé</span>
+        <span class="generation-mode-bar__hint">
+          @if (forcePureExercise()) {
+            L'IA créera l'exercice de zéro, sans réutiliser de modèle existant.
+          } @else {
+            L'IA peut s'appuyer sur un modèle existant si une correspondance est trouvée.
+          }
+        </span>
+      </span>
+    </div>
+  }
+
+  @if (isGenerationLocked() && forcePureExercise() && selectedAssistantMode() === 'agent') {
+    <div class="generation-libre-strip" aria-label="Mode génération libre actif">
+      <span class="generation-libre-strip__dot"></span>
+      <span class="generation-libre-strip__label">Génération libre — exercice entièrement personnalisé</span>
+    </div>
+  }
+
+  <div #messagesContainer class="messages-area">
+    @if (messages().length === 0) {
+      <div class="empty-state">
+        <div class="empty-state__icon">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+          </svg>
+        </div>
+        <p class="empty-state__title">Démarrez une conversation</p>
+        <p class="empty-state__hint">Posez une question sur la plateforme PLaTon ou demandez la création d'un exercice. Glissez un champ, un composant ou un paramètre dans la zone de saisie pour l'inclure dans votre message.</p>
+        <div class="empty-state__modes">
+          <span class="empty-state__mode-chip">
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 8v4"/><path d="M12 16h.01"/></svg>
+            Discuter — questions sur PLaTon et sa documentation
+          </span>
+          <span class="empty-state__mode-chip">
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><polyline points="16 3 21 3 21 8"/><line x1="4" y1="20" x2="21" y2="3"/><polyline points="21 16 21 21 16 21"/><line x1="15" y1="15" x2="21" y2="21"/></svg>
+            Générer — création et modification d'exercices
+          </span>
+        </div>
+      </div>
+    }
+
+    @for (message of messages(); track message.id) {
+      <app-message-bubble [message]="message" />
+    }
+  </div>
+
+  @if (uploadFeedback()) {
+    <div class="upload-toast upload-toast--error" role="alert" aria-live="assertive">
+      <span class="upload-toast__icon" aria-hidden="true">!</span>
+      <span class="upload-toast__message">{{ uploadFeedback()!.message }}</span>
+      <button class="upload-toast__close" type="button" (click)="dismissUploadFeedback()" aria-label="Fermer la notification">×</button>
+    </div>
+  }
+
+  <div class="input-area">
+    <app-chat-input
+      #chatInputRef
+      [isProcessing]="isProcessing()"
+      [assistantMode]="selectedAssistantMode()"
+      [componentBadges]="componentBadges()"
+      [parameterBadges]="parameterBadges()"
+      [fieldBadges]="fieldBadges()"
+      [attachedFiles]="attachedFiles()"
+      (modeChange)="setAssistantMode($event)"
+      (send)="onSend($event)"
+      (stop)="stopGeneration()"
+      (removeComponent)="removeComponentBadge($event)"
+      (removeParameter)="removeParameterBadge($event)"
+      (removeField)="removeFieldBadge($event)"
+      (removeFile)="removeAttachedFile($event)"
+      (filesDropped)="onFilesDropped($event)"
+    />
+  </div>
+</div>
+

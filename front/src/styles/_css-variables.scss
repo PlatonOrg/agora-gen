@@ -1,0 +1,157 @@
+// Variables CSS centralisées pour le système de theming d'Agora
+// Basé sur le système de variables PLaTon pour assurer la cohérence
+// Ces variables seront utilisées par tous les composants
+// Les thèmes sont appliqués via les classes .light-theme et .dark-theme sur <html>
+
+// Thème par défaut - appliqué via :root et .light-theme
+:root,
+.light-theme {
+  // === COLORS PRINCIPALES ===
+  --brand-color-primary: #171c8f;
+  --brand-color-primary-rgb: 23, 28, 143;
+  --brand-color-primary-contrast: #ffffff;
+  --brand-color-primary-shade: #14197e;
+  --brand-color-primary-tint: #2e339a;
+
+  --brand-background-sidebar: #3C2964;
+
+  --brand-color-secondary: #3466fe;
+  --brand-color-secondary-rgb: 52, 102, 254;
+  --brand-color-secondary-contrast: #ffffff;
+  --brand-color-secondary-shade: #2e5ae0;
+  --brand-color-secondary-tint: #4875fe;
+
+  --brand-color-tertiary: #7044ff;
+  --brand-color-tertiary-rgb: 112, 68, 255;
+  --brand-color-tertiary-contrast: #ffffff;
+  --brand-color-tertiary-shade: #633ce0;
+  --brand-color-tertiary-tint: #7e57ff;
+
+  --brand-background-components: #fafafa;
+  --brand-background-primary: #f4f2ed;
+  --brand-background-secondary: #f4f2ed;
+  --brand-background-hover: rgba(41, 45, 51, 0.04);
+  --brand-background-card: #fafafa;
+  --brand-background-dialog: #fafafa;
+
+  // Variables supplémentaires
+  --brand-background-darker-2: #efede8;
+  --brand-background-darker-4: #e1deda;
+  --brand-background-darker-10: #e6e6e6;
+  --brand-background-darker-20: #cccccc;
+  --brand-background-darker-30: #b3b3b3;
+  --brand-background-lighter-2: #f8f7ef;
+  --brand-background-alpha-12: rgba(41, 45, 51, 0.12);
+
+  // === TEXTE ===
+  --brand-text-primary: rgba(0, 0, 0, 0.87);
+  --brand-text-secondary: rgba(0, 0, 0, 0.54);
+  --brand-text-tertiary: rgba(0, 0, 0, 0.38);
+  --brand-text-disabled: rgba(0, 0, 0, 0.38);
+  --brand-text-error: #de0029;
+
+  // === BORDURES ===
+  --brand-border-color: rgba(0, 0, 0, 0.12);
+  --brand-border-color-light: rgba(0, 0, 0, 0.06);
+
+  // === FONTS ===
+  --brand-font: 'Inter', 'Roboto', 'Helvetica Neue', sans-serif;
+
+  // === HIGHLIGHT ===
+  --brand-highlight-primary: var(--brand-color-primary);
+
+  // === SHADOWS ===
+  --brand-shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
+  --brand-shadow-md: 0 4px 6px rgba(0, 0, 0, 0.1);
+  --brand-shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.1);
+  --brand-shadow-xl: 0 20px 25px rgba(0, 0, 0, 0.15);
+
+  // === STATUS COLORS ===
+  --brand-success: #10b981;
+  --brand-success-rgb: 16, 185, 129;
+  --brand-warning: #f59e0b;
+  --brand-warning-rgb: 245, 158, 11;
+  --brand-error: #ef4444;
+  --brand-error-rgb: 239, 68, 68;
+  --brand-info: #3b82f6;
+  --brand-info-rgb: 59, 130, 246;
+
+  // === INTERACTIONS ===
+  --brand-color-primary-hover: var(--brand-color-primary-tint);
+  --brand-color-secondary-hover: var(--brand-color-secondary-tint);
+  --brand-background-disabled: var(--brand-background-darker-10);
+}
+
+// Thème sombre - exactement comme PLaTon
+.dark-theme {
+  // === COLORS PRINCIPALES ===
+  --brand-color-primary: #d09000;
+  --brand-color-primary-rgb: 208, 144, 0;
+  --brand-color-primary-contrast: #ffffff;
+  --brand-color-primary-shade: #b88000;
+  --brand-color-primary-tint: #d9a033;
+
+  --brand-background-sidebar: #1a1a2e;
+
+  --brand-color-secondary: #4a7afe;
+  --brand-color-secondary-rgb: 74, 122, 254;
+  --brand-color-secondary-contrast: #ffffff;
+  --brand-color-secondary-shade: #3d6ce0;
+  --brand-color-secondary-tint: #5c88fe;
+
+  --brand-color-tertiary: #8a5cff;
+  --brand-color-tertiary-rgb: 138, 92, 255;
+  --brand-color-tertiary-contrast: #ffffff;
+  --brand-color-tertiary-shade: #7a50e0;
+  --brand-color-tertiary-tint: #966dff;
+
+  --brand-background-components: rgb(38, 40, 48);
+  --brand-background-primary: rgb(17, 17, 22);
+  --brand-background-secondary: rgb(32, 33, 38);
+  --brand-background-hover: rgba(246, 246, 246, 0.04);
+  --brand-background-card: rgb(32, 33, 38);
+  --brand-background-dialog: rgb(32, 33, 38);
+
+  // Variables supplémentaires (thème sombre)
+  --brand-background-darker-2: rgb(29, 30, 35);
+  --brand-background-darker-10: rgb(37, 38, 43);
+  --brand-background-darker-20: rgb(47, 48, 53);
+  --brand-background-darker-30: rgb(57, 58, 63);
+  --brand-background-lighter-5: rgb(42, 43, 48);
+  --brand-background-alpha-12: rgba(246, 246, 246, 0.12);
+
+  // === TEXTE ===
+  --brand-text-primary: #f2f2f2;
+  --brand-text-secondary: rgba(242, 242, 242, 0.7);
+  --brand-text-tertiary: rgba(242, 242, 242, 0.5);
+  --brand-text-disabled: rgba(242, 242, 242, 0.5);
+  --brand-text-error: #ff1a44;
+
+  // === BORDURES ===
+  --brand-border-color: rgba(211, 227, 253, 0.3);
+  --brand-border-color-light: rgba(211, 227, 253, 0.12);
+
+  // === HIGHLIGHT ===
+  --brand-highlight-primary: #d09000;
+
+  // === SHADOWS (plus prononcées en mode sombre) ===
+  --brand-shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.3);
+  --brand-shadow-md: 0 4px 8px rgba(0, 0, 0, 0.4);
+  --brand-shadow-lg: 0 10px 20px rgba(0, 0, 0, 0.4);
+  --brand-shadow-xl: 0 20px 30px rgba(0, 0, 0, 0.5);
+
+  // === STATUS COLORS (légèrement plus claires pour le mode sombre) ===
+  --brand-success: #34d399;
+  --brand-success-rgb: 52, 211, 153;
+  --brand-warning: #fbbf24;
+  --brand-warning-rgb: 251, 191, 36;
+  --brand-error: #f87171;
+  --brand-error-rgb: 248, 113, 113;
+  --brand-info: #60a5fa;
+  --brand-info-rgb: 96, 165, 250;
+
+  // === INTERACTIONS (teintes plus claires en mode sombre) ===
+  --brand-color-primary-hover: var(--brand-color-primary-tint); // teinte plus claire du primaire (sombre)
+  --brand-color-secondary-hover: var(--brand-color-secondary-tint); // teinte plus claire du secondaire (sombre)
+  --brand-background-disabled: var(--brand-background-darker-10); // fond plus neutre pour l'état désactivé (sombre)
+}

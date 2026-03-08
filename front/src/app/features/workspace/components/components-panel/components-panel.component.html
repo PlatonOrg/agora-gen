@@ -1,0 +1,89 @@
+<div class="components-panel">
+  <div class="components-container">
+
+    <div class="drag-guide" role="note">
+      <h3 class="drag-guide__title">Glissez-déposez vos composants</h3>
+      <p class="drag-guide__subtitle">
+        Saisissez un composant ci-dessous et faites-le glisser vers l'une des deux zones suivantes :
+      </p>
+      <div class="drag-guide__target drag-guide__target--editor">
+        <span class="drag-guide__icon" aria-hidden="true">
+          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/>
+            <path d="M5 15v4a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-4"/>
+          </svg>
+        </span>
+        <span class="drag-guide__text">
+          <strong>Vers l'éditeur</strong> (zone centrale)<br/>
+          Le composant est ajouté directement dans votre exercice.
+        </span>
+      </div>
+      <div class="drag-guide__target drag-guide__target--discussion">
+        <span class="drag-guide__icon" aria-hidden="true">
+          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+          </svg>
+        </span>
+        <span class="drag-guide__text">
+          <strong>Vers la discussion</strong> (panneau gauche)<br/>
+          L'IA utilisera ce composant comme contexte pour générer l'exercice.
+        </span>
+      </div>
+    </div>
+
+    <div class="component-section">
+      <h3 class="section-title">Formulaires</h3>
+      <div class="component-flow">
+        @for (comp of formulaireComponents; track comp.name) {
+          <div
+            class="component-card formulaire"
+            draggable="true"
+            (dragstart)="onDragStart($event, comp.name, 'Formulaire')"
+            (mouseenter)="showTooltip($event, comp)"
+            (mouseleave)="hideTooltip()">
+            <div class="component-body">
+              <span class="component-name">{{ comp.name }}</span>
+              <a class="component-doc-link" [href]="docUrl(comp)" target="_blank" rel="noopener noreferrer"
+                 (click)="$event.stopPropagation()" draggable="false"
+                 title="Documentation {{ comp.name }}">
+                <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
+                  <polyline points="15 3 21 3 21 9"/>
+                  <line x1="10" y1="14" x2="21" y2="3"/>
+                </svg>
+              </a>
+            </div>
+          </div>
+        }
+      </div>
+    </div>
+
+    <div class="component-section">
+      <h3 class="section-title">Widgets</h3>
+      <div class="component-flow">
+        @for (comp of widgetComponents; track comp.name) {
+          <div
+            class="component-card widget"
+            draggable="true"
+            (dragstart)="onDragStart($event, comp.name, 'Widget')"
+            (mouseenter)="showTooltip($event, comp)"
+            (mouseleave)="hideTooltip()">
+            <div class="component-body">
+              <span class="component-name">{{ comp.name }}</span>
+              <a class="component-doc-link" [href]="docUrl(comp)" target="_blank" rel="noopener noreferrer"
+                 (click)="$event.stopPropagation()" draggable="false"
+                 title="Documentation {{ comp.name }}">
+                <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
+                  <polyline points="15 3 21 3 21 9"/>
+                  <line x1="10" y1="14" x2="21" y2="3"/>
+                </svg>
+              </a>
+            </div>
+          </div>
+        }
+      </div>
+    </div>
+
+  </div>
+</div>

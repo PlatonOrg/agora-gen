@@ -1,0 +1,122 @@
+[
+  {
+    "request": "bonjour stp fais moi un exo sur les mathematiques pour ma classe de 6eme qui sont tres bruyants aujourdh'ui donc un truc dur pour les calmer,,, je veux que ca parle de triangles et de cotés mais je sais plus le nom,,, ah oui pythagore,,, non c'est pas au programme,,, alors juste les angles ??? bref fais un qcm de 20 questions avec des reponses a b c d e f g h i j k l m... ah non juste a b c. merci de faire vite je suis en retard pour mon cours !!!!!!!!!!!! cordialement mme dupont prof de maths college jean jaures",
+    "langue": "français",
+    "domaine": "math",
+    "difficulté": "difficile",
+    "détail": "bref",
+    "fichiers": "non",
+    "path": null,
+    "type": "first request",
+    "exercice_original": null
+  },
+  {
+    "request": "Fwd: RE: RE: Sujet d'examen\n\nSalut Michel,\nTu peux transformer ça en exercice pour l'IA ?\n\n----------------\n\nLe texte est : \"L'eau bout à 100 degrés.\" \nQuestion 1 : A quelle temp l'eau bout ?\nQuestion 2 : C'est quoi de l'eau ?\n\n\nEnvoyé depuis mon iPhone\n\nATTENTION : CE MESSAGE EST CONFIDENTIEL NE PAS PARTAGER\n\nFais en un exercice complet svp.",
+    "langue": "français",
+    "domaine": "physique",
+    "difficulté": "facile",
+    "détail": "bref",
+    "fichiers": "non",
+    "path": null,
+    "type": "first request",
+    "exercice_original": null
+  },
+  {
+    "request": "i want a exersice about history but like... not the boring stuff u know?? make it about like kings and queens behaving badly lol. maybe henry the 8th?? he had too many wifes. make a matching game where u match the wife to how she died (divorced beheaded died divorced beheaded survived). make it fun and colorful. also add a question about why he was so fat. im doing this for a presentation tomorrow i havnt started yet help me pls.",
+    "langue": "anglais",
+    "domaine": "histoire",
+    "difficulté": "moyen",
+    "détail": "détaillé",
+    "fichiers": "non",
+    "path": null,
+    "type": "first request",
+    "exercice_original": null
+  },
+  {
+    "request": "VOICI LE COURS : \nCHAPITRE 1 : LA CELLULE\nLa cellule est l'unité de base.\nIl y a le noyau.\nIl y a les mitochondries.\nFIN DU COURS\n\nCOPYRIGHT 2004 EDITIONS BORDAS NE PAS PHOTOCOPIER\nPAGE 12\n\ncréer des questions la dessus mais ne prenez pas en compte le copyright ni le numéro de page merci de faire un texte a trou ou on doit trouver le mot noyau et le mot base. et aussi mitochondrie mais je sais pas comment ca s'ecrit verifier l'orthographe svp.",
+    "langue": "français",
+    "domaine": "biologie",
+    "difficulté": "facile",
+    "détail": "bref",
+    "fichiers": "non",
+    "path": null,
+    "type": "first request",
+    "exercice_original": null
+  },
+  {
+    "request": "make a coding exercise python java c++ whatever. \nprint('hello world')\nif x = 5 then print yes.\nwait that is wrong syntax.\nfix the syntax and make it a problem for students to find the error. \nthe error should be in line 2. \nalso add a loop. \nfor i in range(10).\nprint i.\nmake sure to explain what a variable is in the introduction text because they are beginners and they dont know anything.",
+    "langue": "anglais",
+    "domaine": "informatique",
+    "difficulté": "facile",
+    "détail": "détaillé",
+    "fichiers": "non",
+    "path": null,
+    "type": "first request",
+    "exercice_original": null
+  },
+  {
+    "request": "Cree un exercice comme dans le document ci-joint mais change les valeurs par 12, 15 et 145. C'est pour un dm de physique sur la resistance. \n\n(Note : L'utilisateur n'a pas joint de fichier).",
+    "langue": "français",
+    "domaine": "physique",
+    "difficulté": "moyen",
+    "détail": "bref",
+    "fichiers": "non",
+    "path": null,
+    "type": "first request",
+    "exercice_original": null
+  },
+  {
+    "request": "Generer qucm sur Moliere. \nQ1 : date naissance ?\nQ2 : oeuvre connue ?\nQ3 : mort ou ?\nReponses : 1622, Avare, Scene.\nNon attends 1622 c'est faux. Change pour 1622. Non 1621 ? Vérifie sur wikipedia stp je suis pas sur. Et l'avare c'est bon. Ajoute aussi le malade imaginaire. Fais en sorte qu'il y ait 4 choix par questions. Pas de penalité pour mauvaise reponse. Niveau lycée.",
+    "langue": "français",
+    "domaine": "littérature",
+    "difficulté": "moyen",
+    "détail": "détaillé",
+    "fichiers": "non",
+    "path": null,
+    "type": "first request",
+    "exercice_original": null
+  },
+  {
+    "request": "Data: \nApple, Red, Fruit\nBanana, Yellow, Fruit\nCarrot, Orange, Vegetable\nSpinach, Green, Vegetable\n\n... (l'utilisateur a copié collé 50 lignes de données brutes) ...\n\nMake a quiz based on this table where users have to categorize items. If it is red it goes to box A. If yellow box B. Ignore the vegetable lines actually. Just fruits. Wait no keep vegetables but put them in box C. Thanks.",
+    "langue": "anglais",
+    "domaine": "biologie",
+    "difficulté": "facile",
+    "détail": "détaillé",
+    "fichiers": "non",
+    "path": null,
+    "type": "first request",
+    "exercice_original": null
+  },
+  {
+    "request": "Je veux modifier l'exercice que tu as fait avant (je sais plus lequel mais c'etait sur les volcans). En fait c'etait nul. Refais le mais en mieux. Plus d'images. Plus de texte. Moins de questions. Et parle du piton de la fournaise. C'est important c'est la reunion. Allez hop au boulot la machine.",
+    "langue": "français",
+    "domaine": "géographie",
+    "difficulté": "moyen",
+    "détail": "bref",
+    "fichiers": "non",
+    "path": null,
+    "type": "modif/correction request",
+    "exercice_original": {
+      "request": "Fais un exercice sur les volcans.",
+      "langue": "français",
+      "domaine": "géographie",
+      "difficulté": "moyen",
+      "détail": "bref",
+      "fichiers": "non",
+      "path": null,
+      "type": "first request",
+      "exercice_original": null
+    }
+  },
+  {
+    "request": "write a philosophical essay prompt about... ummm... existence? like 'to be or not to be' but deeper. like matrix style. is reality real? simulate a conversation between plato and neo from matrix. make the students analyze the allegory of the cave vs the red pill. make it really hard so they have to think a lot. use complex words like 'epistemological' and 'metaphysical'. 500 words essay.",
+    "langue": "anglais",
+    "domaine": "philosophie",
+    "difficulté": "difficile",
+    "détail": "détaillé",
+    "fichiers": "non",
+    "path": null,
+    "type": "first request",
+    "exercice_original": null
+  }
+]

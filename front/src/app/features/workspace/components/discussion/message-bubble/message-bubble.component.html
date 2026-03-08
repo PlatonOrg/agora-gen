@@ -1,0 +1,52 @@
+<div
+  class="msg"
+  [class.msg--user]="message().role === 'user'"
+  [class.msg--ai]="message().role === 'ai'"
+  [class.msg--system]="message().role === 'system'"
+  [class.msg--in-progress]="message().state === 'in_progress'"
+  [class.msg--completed]="message().state === 'completed'"
+  [class.msg--error]="message().state === 'error'"
+  [class.msg--stopped]="message().state === 'stopped'"
+>
+  @if (message().role !== 'user') {
+    <div class="msg__avatar" [class.msg__avatar--ai]="message().role === 'ai'" [class.msg__avatar--system]="message().role === 'system'">
+      @if (message().role === 'ai') {
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+          <path d="M12 2a2 2 0 0 1 2 2c0 .74-.4 1.39-1 1.73V7h1a7 7 0 0 1 7 7h1a1 1 0 0 1 1 1v3a1 1 0 0 1-1 1h-1v1a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-1H2a1 1 0 0 1-1-1v-3a1 1 0 0 1 1-1h1a7 7 0 0 1 7-7h1V5.73c-.6-.34-1-.99-1-1.73a2 2 0 0 1 2-2M7.5 13A2.5 2.5 0 0 0 5 15.5 2.5 2.5 0 0 0 7.5 18 2.5 2.5 0 0 0 10 15.5 2.5 2.5 0 0 0 7.5 13m9 0a2.5 2.5 0 0 0-2.5 2.5 2.5 2.5 0 0 0 2.5 2.5 2.5 2.5 0 0 0 2.5-2.5 2.5 2.5 0 0 0-2.5-2.5z"/>
+        </svg>
+      } @else {
+        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true">
+          <circle cx="12" cy="12" r="10"/>
+          <path d="M12 8v4"/><path d="M12 16h.01"/>
+        </svg>
+      }
+    </div>
+  }
+
+  <div class="msg__content">
+    @if (message().role !== 'user' && message().role !== 'system') {
+      <span class="msg__sender">Agora IA</span>
+    }
+
+    <div class="msg__bubble">
+      @if (message().components.length || message().attachedFields?.length || message().attachedParameters?.length || message().attachedFileNames?.length) {
+        <div class="msg__attachments">
+          <app-attachment-badges
+            [components]="message().components"
+            [fields]="message().attachedFields ?? []"
+            [parameters]="message().attachedParameters ?? []"
+            [fileNames]="message().attachedFileNames ?? []"
+            [compact]="true"
+          />
+        </div>
+      }
+
+      @if (message().generationTimeline) {
+        <app-generation-steps [timeline]="message().generationTimeline!" />
+      } @else if (message().content) {
+        <p class="msg__text">{{ message().content }}</p>
+      }
+    </div>
+  </div>
+</div>
+

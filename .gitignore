@@ -1,0 +1,20 @@
+.idea
+act
+.env
+.env.dev
+.env.prod
+docker-compose.override.yml
+local_models/
+
+# Logs
+back/logs/
+logs/
+*.log
+*.log.*
+.github
+
+resources/docs/platon_docs
+resources/backup
+resources/json_exported
+resources/examples
+resources/docs

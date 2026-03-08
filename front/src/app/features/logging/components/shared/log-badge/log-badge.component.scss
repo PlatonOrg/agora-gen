@@ -1,0 +1,19 @@
+.badge {
+  display: inline-flex;
+  align-items: center;
+  height: 18px;
+  padding: 0 7px;
+  border-radius: 3px;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  font-family: var(--brand-font);
+  letter-spacing: 0.03em;
+  white-space: nowrap;
+
+  &--exercise   { background: rgba(var(--brand-color-secondary-rgb), 0.1); color: var(--brand-color-secondary); }
+  &--discussion { background: rgba(46, 125, 82, 0.1); color: #2e7d52; }
+  &--neutral    { background: var(--brand-background-secondary); color: var(--brand-text-secondary); border: 1px solid var(--brand-border-color); }
+  &--info       { background: rgba(2, 132, 199, 0.08); color: #0284c7; }
+  &--success    { background: rgba(22, 163, 74, 0.1); color: #16a34a; }
+  &--warn       { background: rgba(234, 179, 8, 0.12); color: #a16207; }
+}

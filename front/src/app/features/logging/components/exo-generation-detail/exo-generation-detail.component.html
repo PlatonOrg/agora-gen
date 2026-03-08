@@ -1,0 +1,285 @@
+<div class="exo-detail">
+
+  @if (gen().request; as req) {
+    <app-log-section title="Requête" [icon]="icons.request">
+      <div class="detail-grid">
+        <app-log-kv key="ID" [value]="req.id" />
+        <app-log-kv key="Date" [value]="fmt(req.created_at)" />
+        <app-log-kv key="Session" [value]="req.session_id" />
+      </div>
+
+      <div class="detail-row">
+        <span class="detail-label">Message utilisateur</span>
+        <blockquote class="detail-quote">{{ req.user_request }}</blockquote>
+      </div>
+
+      @if (req.components.length) {
+        <div class="detail-row">
+          <span class="detail-label">Composants</span>
+          <div class="detail-tags">
+            @for (c of req.components; track c) {
+              <app-log-badge [label]="c" variant="info" />
+            }
+          </div>
+        </div>
+      }
+
+      @if (req.fields_to_modify?.length) {
+        <div class="detail-row">
+          <span class="detail-label">Champs à modifier</span>
+          <div class="detail-tags">
+            @for (f of req.fields_to_modify!; track f) {
+              <app-log-badge [label]="f" variant="neutral" />
+            }
+          </div>
+        </div>
+      }
+
+      @if (req.file_summaries?.length) {
+        <div class="detail-row">
+          <span class="detail-label">Fichiers joints ({{ req.file_summaries!.length }})</span>
+          <div class="file-summaries">
+            @for (f of req.file_summaries!; track f.filename) {
+              <div class="file-summary-card">
+                <div class="file-summary-card__header">
+                  <span [innerHTML]="icons.file"></span>
+                  <span class="file-summary-card__name">{{ f.filename }}</span>
+                </div>
+                @if (f.summary) {
+                  <div class="file-summary-card__section">
+                    <span class="file-summary-card__label">Résumé</span>
+                    <p class="file-summary-card__text">{{ f.summary }}</p>
+                  </div>
+                }
+                @if (f.text_excerpt) {
+                  <div class="file-summary-card__section">
+                    <span class="file-summary-card__label">Extrait du texte</span>
+                    <pre class="file-summary-card__excerpt">{{ f.text_excerpt }}</pre>
+                  </div>
+                }
+              </div>
+            }
+          </div>
+        </div>
+      } @else if (req.file_names?.length) {
+        <div class="detail-row">
+          <span class="detail-label">Fichiers joints</span>
+          <div class="detail-tags">
+            @for (f of req.file_names!; track f) {
+              <app-log-badge [label]="f" variant="warn" />
+            }
+          </div>
+        </div>
+      }
+
+      @if (req.variables) {
+        <div class="detail-row">
+          <span class="detail-label">Variables</span>
+          <app-log-json [data]="req.variables" />
+        </div>
+      }
+
+      @if (req.conversation_history?.length) {
+        <div class="detail-row">
+          <span class="detail-label">Historique ({{ req.conversation_history!.length }} message(s))</span>
+          <app-log-json [data]="req.conversation_history" />
+        </div>
+      }
+    </app-log-section>
+  }
+
+  @if (gen().request?.current_exercise_state) {
+    <app-log-section title="État de l'exercice" [icon]="icons.state">
+      <app-log-json [data]="gen().request!.current_exercise_state" />
+    </app-log-section>
+  }
+
+  @if (gen().component_selection; as cs) {
+    <app-log-section title="Selection de composants" [icon]="icons.components">
+      <div class="detail-grid">
+        <app-log-kv key="Fournisseur LLM" [value]="cs.llm_provider" />
+        <app-log-kv key="Modele LLM" [value]="cs.llm_model" />
+        <app-log-kv key="Date" [value]="fmt(cs.created_at)" />
+        @if (cs.input_tokens !== null) {
+          <app-log-kv key="Tokens (entree)" [value]="'' + cs.input_tokens" />
+        }
+        @if (cs.output_tokens !== null) {
+          <app-log-kv key="Tokens (sortie)" [value]="'' + cs.output_tokens" />
+        }
+      </div>
+      @if (cs.reasoning) {
+        <div class="detail-row">
+          <span class="detail-label">Raisonnement</span>
+          <blockquote class="detail-quote detail-quote--sm">{{ cs.reasoning }}</blockquote>
+        </div>
+      }
+      @if (cs.user_priority_tags.length) {
+        <div class="detail-row">
+          <span class="detail-label">Composants prioritaires (utilisateur)</span>
+          <div class="detail-tags">
+            @for (t of cs.user_priority_tags; track t) {
+              <app-log-badge [label]="t" variant="warn" />
+            }
+          </div>
+        </div>
+      }
+      <div class="detail-row">
+        <span class="detail-label">Composants selectionnes ({{ cs.selected_tags.length }})</span>
+        <div class="detail-tags">
+          @if (cs.selected_tags.length) {
+            @for (t of cs.selected_tags; track t) {
+              <app-log-badge [label]="t" variant="info" />
+            }
+          } @else {
+            <span class="detail-empty">Aucun composant sélectionné</span>
+          }
+        </div>
+      </div>
+    </app-log-section>
+  }
+
+  @if (gen().rag_search; as rag) {
+    <app-log-section title="Recherche RAG (exercices)" [icon]="icons.rag">
+      <div class="detail-grid">
+        <app-log-kv key="Modèle" [value]="rag.embedding_model" />
+        <app-log-kv key="Table" [value]="rag.vector_table" />
+        <app-log-kv key="Date" [value]="fmt(rag.created_at)" />
+      </div>
+      <div class="detail-row">
+        <span class="detail-label">Requête</span>
+        <blockquote class="detail-quote detail-quote--sm">{{ rag.query }}</blockquote>
+      </div>
+      @if (rag.results.length) {
+        <div class="detail-row">
+          <span class="detail-label">Résultats ({{ rag.results.length }})</span>
+          <div class="rag-results">
+            @for (r of rag.results; track r.rank) {
+              <div class="rag-result">
+                <span class="rag-result__rank">#{{ r.rank }}</span>
+                <span class="rag-result__name">{{ r.resource_name ?? r.platon_id ?? '—' }}</span>
+                @if (r.kind) { <app-log-badge [label]="r.kind" variant="neutral" /> }
+                @if (r.score !== null) {
+                  <span class="rag-result__score">{{ r.score!.toFixed(3) }}</span>
+                }
+                @if (r.platon_id) {
+                  <a class="rag-result__link"
+                     [href]="'https://platon.univ-eiffel.fr/resources/' + r.platon_id + '/overview'"
+                     target="_blank" rel="noopener noreferrer" title="Voir dans Platon">
+                    <span [innerHTML]="safe(icons.preview)"></span>
+                  </a>
+                }
+              </div>
+            }
+          </div>
+        </div>
+      }
+    </app-log-section>
+  }
+
+  @if (gen().llm_result; as llm) {
+    <app-log-section title="Generation LLM" [icon]="icons.llm">
+      <div class="detail-grid">
+        <app-log-kv key="Fournisseur" [value]="llm.llm_provider" />
+        <app-log-kv key="Modele" [value]="llm.llm_model" />
+        <app-log-kv key="Prompt systeme" [value]="llm.system_prompt_name" />
+        <app-log-kv key="Date" [value]="fmt(llm.created_at)" />
+        @if (llm.input_tokens !== null) {
+          <app-log-kv key="Tokens (entree)" [value]="'' + llm.input_tokens" />
+        }
+        @if (llm.output_tokens !== null) {
+          <app-log-kv key="Tokens (sortie)" [value]="'' + llm.output_tokens" />
+        }
+        @if (llm.llm_request_count !== null && llm.llm_request_count! > 1) {
+          <app-log-kv key="Requetes LLM" [value]="'' + llm.llm_request_count" />
+        }
+      </div>
+
+      @if (llm.system_prompt_content) {
+        <div class="detail-row">
+          <span class="detail-label">Contenu du prompt système</span>
+          <pre class="prompt-content">{{ llm.system_prompt_content }}</pre>
+        </div>
+      }
+
+      @if (llm.preview_url) {
+        <div class="detail-row">
+          <span class="detail-label">URL de prévisualisation</span>
+          <a class="preview-link" [href]="llm.preview_url" target="_blank" rel="noopener noreferrer">
+            <span [innerHTML]="safe(icons.preview)"></span>
+            {{ llm.preview_url }}
+          </a>
+        </div>
+      }
+
+      @if (llm.retry_count && llm.retry_count > 0) {
+        <app-log-section [title]="llm.retry_count + ' tentative(s) de correction'" [icon]="icons.retry">
+          @if (llm.retry_errors?.length) {
+            <div class="retry-errors">
+              @for (err of llm.retry_errors!; track $index; let i = $index) {
+                <div class="retry-error">
+                  <span class="retry-error__attempt">Tentative {{ i + 1 }}</span>
+                  <span class="retry-error__msg">{{ err }}</span>
+                </div>
+              }
+            </div>
+          }
+        </app-log-section>
+      }
+
+      @if (llm.examples_used?.length) {
+        <app-log-section [title]="'Exemples utilisés (' + llm.examples_used!.length + ')'" [icon]="icons.examples">
+          <app-log-json [data]="llm.examples_used" />
+        </app-log-section>
+      }
+
+      @if (llm.llm_calls?.length) {
+        <div class="detail-row">
+          <span class="detail-label">Détail des appels LLM ({{ llm.llm_calls!.length }})</span>
+          <div class="llm-calls-table">
+            <div class="llm-calls-table__header">
+              <span>Type</span>
+              <span>Modèle</span>
+              <span class="llm-calls-table__num">Tokens entrée</span>
+              <span class="llm-calls-table__num">Tokens sortie</span>
+              <span class="llm-calls-table__num">Total</span>
+              <span class="llm-calls-table__num">Prompt sys. (car.)</span>
+            </div>
+            @for (call of llm.llm_calls!; track $index) {
+              <div class="llm-calls-table__row" [class.llm-calls-table__row--repair]="call.call_type.startsWith('repair')">
+                <span class="llm-calls-table__type">
+                  <app-log-badge
+                    [label]="call.call_type"
+                    [variant]="call.call_type.startsWith('repair') ? 'warn' : 'info'" />
+                </span>
+                <span class="llm-calls-table__model">{{ call.model }}</span>
+                <span class="llm-calls-table__num">{{ call.input_tokens ?? '—' }}</span>
+                <span class="llm-calls-table__num">{{ call.output_tokens ?? '—' }}</span>
+                <span class="llm-calls-table__num llm-calls-table__total">
+                  {{ (call.input_tokens ?? 0) + (call.output_tokens ?? 0) || '—' }}
+                </span>
+                <span class="llm-calls-table__num">{{ call.system_prompt_chars ?? '—' }}</span>
+              </div>
+            }
+            <div class="llm-calls-table__footer">
+              <span class="llm-calls-table__footer-label">TOTAL</span>
+              <span></span>
+              <span class="llm-calls-table__num llm-calls-table__total">{{ sumTokens(llm.llm_calls!, 'input') }}</span>
+              <span class="llm-calls-table__num llm-calls-table__total">{{ sumTokens(llm.llm_calls!, 'output') }}</span>
+              <span class="llm-calls-table__num llm-calls-table__total">{{ sumTokens(llm.llm_calls!, 'total') }}</span>
+              <span></span>
+            </div>
+          </div>
+        </div>
+      }
+
+      @if (llm.llm_output) {
+        <div class="detail-row">
+          <span class="detail-label">Sortie LLM</span>
+          <app-log-json [data]="llm.llm_output" />
+        </div>
+      }
+    </app-log-section>
+  }
+
+</div>
+

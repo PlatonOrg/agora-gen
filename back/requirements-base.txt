@@ -1,0 +1,16 @@
+# Heavy / rarely changing deps
+llama-index-core
+llama-index-embeddings-huggingface
+llama-index-vector-stores-postgres
+
+# If you keep HF stack
+torch
+transformers
+sentence-transformers
+safetensors
+
+# Backend base
+fastapi
+uvicorn[standard]
+pydantic
+pydantic-settings

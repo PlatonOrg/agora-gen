@@ -1,0 +1,68 @@
+# Development Dockerfile with hot-reload
+FROM node:22-slim
+
+WORKDIR /app
+
+# Install nginx for reverse proxy
+RUN apt-get update && apt-get install -y nginx && rm -rf /var/lib/apt/lists/*
+
+# Copy package files
+COPY front/package*.json ./
+
+# Install dependencies
+RUN npm install --legacy-peer-deps
+
+# Copy source code
+COPY front/ .
+
+# Copy docs folder for components metadata and videos
+COPY resources/ ./resources/
+
+# Create nginx config to proxy to Angular dev server and serve docs
+RUN echo 'server { \
+    listen 80; \
+    server_name localhost; \
+    \
+    # Serve docs folder directly from mounted volume \
+    location /resources/ { \
+        alias /app/resources/; \
+        autoindex off; \
+        add_header Cache-Control "no-cache"; \
+    } \
+    \
+    # Proxy Angular dev server \
+    location / { \
+        proxy_pass http://localhost:4200; \
+        proxy_http_version 1.1; \
+        proxy_set_header Upgrade $http_upgrade; \
+        proxy_set_header Connection "upgrade"; \
+        proxy_set_header Host $host; \
+        proxy_set_header X-Real-IP $remote_addr; \
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for; \
+        proxy_set_header X-Forwarded-Proto $scheme; \
+        proxy_cache_bypass $http_upgrade; \
+    } \
+    \
+    # Proxy API requests to backend (SSE-compatible) \
+    location /api/ { \
+        proxy_pass http://agora_backend:8000; \
+        proxy_http_version 1.1; \
+        proxy_set_header Connection ""; \
+        proxy_buffering off; \
+        proxy_cache off; \
+        gzip off; \
+        proxy_set_header X-Accel-Buffering no; \
+        proxy_read_timeout 3600s; \
+        proxy_send_timeout 3600s; \
+        proxy_set_header Host $host; \
+        proxy_set_header X-Real-IP $remote_addr; \
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for; \
+        proxy_set_header X-Forwarded-Proto $scheme; \
+    } \
+}' > /etc/nginx/sites-available/default
+
+# Expose port 80
+EXPOSE 80
+
+# Start nginx and Angular dev server
+CMD sh -c "npm run start -- --host 0.0.0.0 --port 4200 --poll 2000 & nginx -g 'daemon off;'"

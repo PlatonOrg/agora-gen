@@ -1,0 +1,13 @@
+<div class="help-popup-host">
+  <button
+    class="help-btn"
+    type="button"
+    [class.help-btn--open]="isOpen()"
+    [attr.aria-expanded]="isOpen()"
+    [attr.aria-label]="'Aide : ' + title"
+    [title]="'Aide : ' + title"
+    (click)="toggle()"
+  >
+    ?
+  </button>
+</div>

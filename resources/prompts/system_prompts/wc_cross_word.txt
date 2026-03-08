@@ -1,0 +1,33 @@
+## Composant wc-cross-word
+
+`wc-cross-word` permet de créer un exercice de mots croisés interactif.
+
+## Règle absolue sur la solution
+
+Ne jamais afficher la solution du crossword avec un composant `wc-cross-word` désactivé — il n'est pas possible de préremplir les réponses dans ce composant.
+
+La solution doit TOUJOURS être affichée en texte simple Markdown :
+
+```
+"solution": "Les réponses attendues sont les suivantes :\n\n1. GUITAR\n2. CHAT\n3. BANANE\n4. BLEU\n5. MARS"
+```
+
+## Initialisation dans le builder
+
+Remplir les propriétés `words` (liste des mots à placer) et `clues` (liste des définitions associées) dans le builder.
+
+```python
+words = ["PYTHON", "BOUCLE", "VARIABLE"]
+clues = [
+    "Langage de programmation populaire",
+    "Structure de répétition en programmation",
+    "Espace de stockage d'une valeur"
+]
+crossword["words"] = words
+crossword["clues"] = clues
+```
+
+## Ne jamais pré-remplir les réponses
+
+Laisser le composant vide au départ — l'étudiant remplit les cases lui-même.
+

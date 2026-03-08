@@ -1,0 +1,85 @@
+<div class="logging-page">
+
+  <nav class="log-sidebar">
+    <div class="log-sidebar__brand">
+      <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+        <polyline points="14 2 14 8 20 8"/>
+        <line x1="16" y1="13" x2="8" y2="13"/>
+        <line x1="16" y1="17" x2="8" y2="17"/>
+        <polyline points="10 9 9 9 8 9"/>
+      </svg>
+      <span class="log-sidebar__brand-label">Administration</span>
+    </div>
+
+    <ul class="log-sidebar__menu" role="menu">
+      @for (item of navItems; track item.tab) {
+        <li class="log-sidebar__item"
+          [class.log-sidebar__item--active]="activeTab() === item.tab"
+          role="menuitem"
+          tabindex="0"
+          (click)="activeTab.set(item.tab)"
+          (keydown.enter)="activeTab.set(item.tab)">
+          <span class="log-sidebar__item-icon" [innerHTML]="item.icon"></span>
+          <span class="log-sidebar__item-label">{{ item.label }}</span>
+        </li>
+      }
+    </ul>
+
+    <div class="log-sidebar__footer">
+      <button class="log-sidebar__back-btn" type="button" (click)="goBack()">
+        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M19 12H5"/><polyline points="12 19 5 12 12 5"/>
+        </svg>
+        <span>Retour</span>
+      </button>
+    </div>
+  </nav>
+
+  <div class="log-body">
+    <header class="log-topbar">
+      <span class="log-topbar__title">{{ activeLabel() }}</span>
+      <div class="log-topbar__user">
+        @if (userProfile.profile(); as profile) {
+          @if (isUserMenuOpen()) {
+            <div class="log-user-menu-backdrop" (click)="closeUserMenu()"></div>
+          }
+          <div class="log-user-rail">
+            <button class="log-user-btn" type="button" (click)="toggleUserMenu()" [title]="profile.username">
+              <app-user-chip [profile]="profile" />
+            </button>
+            @if (isUserMenuOpen()) {
+              <div class="log-user-menu" role="menu">
+                <div class="log-user-menu__identity">
+                  <span class="log-user-menu__name">{{ profile.firstName }} {{ profile.lastName }}</span>
+                  <span class="log-user-menu__username">{{ profile.username }}</span>
+                </div>
+                <div class="log-user-menu__divider"></div>
+                <button class="log-user-menu__item log-user-menu__item--danger" (click)="logout()" type="button" role="menuitem">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
+                    <polyline points="16 17 21 12 16 7"/>
+                    <line x1="21" y1="12" x2="9" y2="12"/>
+                  </svg>
+                  Se déconnecter
+                </button>
+              </div>
+            }
+          </div>
+        }
+      </div>
+    </header>
+
+    <main class="log-content">
+      @if (activeTab() === 'conversations') {
+        <app-log-conversations-view />
+      } @else if (activeTab() === 'statistics') {
+        <app-admin-dashboard-page />
+      } @else if (activeTab() === 'config') {
+        <app-log-stats-view />
+      }
+    </main>
+  </div>
+
+</div>
+

@@ -1,0 +1,26 @@
+## Composant wc-binded-bubbles
+
+`wc-binded-bubbles` permet de créer un exercice de tri ou d'ordonnancement par bulles interactives.
+
+## Règle critique : mode `ordered` obligatoire
+
+Toujours utiliser le mode `ordered`. Le mode `shuffle` a un bug connu et ne doit jamais être utilisé.
+
+```python
+binded_bubbles["mode"] = "ordered"
+```
+
+## Initialisation dans le builder
+
+Définir la liste des éléments à ordonner dans le builder :
+
+```python
+items = ["Étape 1", "Étape 2", "Étape 3", "Étape 4"]
+random.shuffle(items)
+binded_bubbles["items"] = items
+```
+
+## Solution
+
+Afficher la solution en texte Markdown ou utiliser un composant solution avec `disabled: True` si le composant supporte cette propriété.
+

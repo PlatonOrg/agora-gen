@@ -1,0 +1,141 @@
+:host {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.session-card {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  padding: 10px 14px;
+  background: var(--brand-background-components);
+  border: 1px solid var(--brand-border-color);
+  border-radius: 4px;
+  cursor: pointer;
+  text-align: left;
+  font-family: var(--brand-font);
+  transition: border-color 0.15s, background 0.15s;
+
+  &:hover {
+    border-color: var(--brand-color-secondary);
+    background: rgba(var(--brand-color-secondary-rgb), 0.02);
+
+    .session-card__arrow { color: var(--brand-color-secondary); transform: translateX(2px); }
+  }
+}
+
+.session-card__left {
+  display: flex;
+  align-items: flex-start;
+  padding-top: 2px;
+  flex-shrink: 0;
+}
+
+.session-card__icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 4px;
+  background: rgba(var(--brand-color-secondary-rgb), 0.1);
+  color: var(--brand-color-secondary);
+}
+
+.session-card__body {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.session-card__id {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--brand-text-primary);
+  font-family: 'Consolas', 'Fira Code', monospace;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.session-card__meta {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 0.75rem;
+  color: var(--brand-text-tertiary);
+  font-family: var(--brand-font);
+  flex-wrap: wrap;
+}
+
+.session-card__sep {
+  color: var(--brand-border-color);
+}
+
+.session-card__stats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-top: 2px;
+}
+
+.session-card__arrow {
+  color: var(--brand-text-tertiary);
+  flex-shrink: 0;
+  transition: color 0.15s, transform 0.15s;
+}
+
+.session-card__username {
+  color: var(--brand-color-secondary);
+  font-weight: 600;
+}
+
+.session-card__conv-id {
+  font-weight: 400;
+  opacity: 0.7;
+}
+
+.conversations-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 20px;
+  border-bottom: 1px solid var(--brand-border-color);
+  background: var(--brand-background-components);
+  flex-shrink: 0;
+}
+
+.conversations-search {
+  flex: 1;
+  padding: 7px 12px;
+  border: 1px solid var(--brand-border-color);
+  border-radius: 4px;
+  background: var(--brand-background-components);
+  color: var(--brand-text-primary);
+  font-size: 0.8125rem;
+  font-family: var(--brand-font);
+  outline: none;
+  transition: border-color 0.15s;
+
+  &:focus {
+    border-color: var(--brand-color-secondary);
+  }
+
+  &::placeholder {
+    color: var(--brand-text-tertiary);
+  }
+}
+
+.conversations-count {
+  font-size: 0.75rem;
+  color: var(--brand-text-tertiary);
+  white-space: nowrap;
+  font-family: var(--brand-font);
+}
+

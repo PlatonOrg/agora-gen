@@ -1,0 +1,25 @@
+.kv {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  font-size: 0.8125rem;
+  min-width: 0;
+  font-family: var(--brand-font);
+}
+
+.kv__key {
+  flex-shrink: 0;
+  color: var(--brand-text-tertiary);
+  font-size: 0.6875rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  min-width: 120px;
+}
+
+.kv__value {
+  color: var(--brand-text-primary);
+  font-family: 'Consolas', 'Fira Code', monospace;
+  font-size: 0.8125rem;
+  word-break: break-all;
+}

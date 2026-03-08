@@ -1,0 +1,466 @@
+// ─── Shared logging layout atoms ─────────────────────────────────────────────
+
+:host {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+}
+
+// ─── View shell ──────────────────────────────────────────────────────────────
+
+.view-shell {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.view-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 0 20px;
+  height: 48px;
+  background: var(--brand-background-components);
+  border-bottom: 1px solid var(--brand-border-color);
+  flex-shrink: 0;
+}
+
+.view-title {
+  margin: 0;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  font-family: var(--brand-font);
+  color: var(--brand-text-primary);
+}
+
+.view-count {
+  font-size: 0.75rem;
+  font-family: var(--brand-font);
+  color: var(--brand-text-tertiary);
+  background: var(--brand-background-secondary);
+  border: 1px solid var(--brand-border-color);
+  border-radius: 10px;
+  padding: 1px 8px;
+}
+
+.view-list {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  padding: 16px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+// ─── Topbar / back button ─────────────────────────────────────────────────────
+
+.topbar {
+  display: flex;
+  align-items: center;
+  padding: 0 16px;
+  height: 40px;
+  border-bottom: 1px solid var(--brand-border-color);
+  flex-shrink: 0;
+  background: var(--brand-background-components);
+}
+
+.back-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.8125rem;
+  font-family: var(--brand-font);
+  color: var(--brand-text-secondary);
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 4px;
+  transition: background 0.15s, color 0.15s;
+
+  &:hover {
+    background: var(--brand-background-hover);
+    color: var(--brand-color-primary);
+  }
+}
+
+// ─── Filter bar ───────────────────────────────────────────────────────────────
+
+.filter-bar {
+  display: flex;
+  gap: 4px;
+  padding: 8px 20px;
+  border-bottom: 1px solid var(--brand-border-color);
+  flex-shrink: 0;
+  background: var(--brand-background-components);
+  align-items: center;
+}
+
+.filter-btn {
+  padding: 4px 12px;
+  border-radius: 4px;
+  border: 1px solid transparent;
+  background: none;
+  cursor: pointer;
+  font-size: 0.8125rem;
+  font-family: var(--brand-font);
+  color: var(--brand-text-secondary);
+  transition: all 0.15s;
+  height: 28px;
+
+  &:hover {
+    background: var(--brand-background-hover);
+    color: var(--brand-text-primary);
+  }
+
+  &--active {
+    border-color: var(--brand-color-secondary);
+    background: rgba(var(--brand-color-secondary-rgb), 0.08);
+    color: var(--brand-color-secondary);
+    font-weight: 600;
+  }
+}
+
+// ─── Detail layout (used in exo & discussion detail) ─────────────────────────
+
+.detail-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 4px 12px;
+}
+
+.detail-row {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.detail-label {
+  font-size: 0.6875rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  color: var(--brand-text-tertiary);
+  font-family: var(--brand-font);
+}
+
+.detail-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.detail-empty {
+  font-size: 0.8125rem;
+  color: var(--brand-text-tertiary);
+  font-style: italic;
+  font-family: var(--brand-font);
+}
+
+.detail-quote {
+  margin: 0;
+  padding: 8px 12px;
+  border-left: 3px solid var(--brand-color-secondary);
+  background: rgba(var(--brand-color-secondary-rgb), 0.04);
+  border-radius: 0 4px 4px 0;
+  font-size: 0.875rem;
+  font-family: var(--brand-font);
+  color: var(--brand-text-primary);
+  line-height: 1.55;
+
+  &--sm { font-size: 0.8125rem; }
+
+  &--disc {
+    border-left-color: #2e7d52;
+    background: rgba(46, 125, 82, 0.04);
+  }
+}
+
+// ─── Monospace / code blocks ──────────────────────────────────────────────────
+
+.prompt-content {
+  margin: 0;
+  padding: 10px 12px;
+  font-size: 0.75rem;
+  font-family: 'Consolas', 'Fira Code', monospace;
+  white-space: pre-wrap;
+  word-break: break-word;
+  line-height: 1.6;
+  background: var(--brand-background-secondary);
+  border: 1px solid var(--brand-border-color);
+  border-radius: 4px;
+  color: var(--brand-text-primary);
+  max-height: 280px;
+  overflow-y: auto;
+}
+
+// ─── RAG results ──────────────────────────────────────────────────────────────
+
+.rag-results {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.rag-result {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 5px 8px;
+  border-radius: 4px;
+  background: var(--brand-background-secondary);
+  font-size: 0.8rem;
+  border: 1px solid var(--brand-border-color);
+
+  &__rank {
+    font-weight: 700;
+    color: var(--brand-text-tertiary);
+    min-width: 22px;
+    font-size: 0.6875rem;
+    font-family: var(--brand-font);
+  }
+
+  &__name {
+    flex: 1;
+    color: var(--brand-text-primary);
+    font-family: monospace;
+    font-size: 0.78rem;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  &__score {
+    font-family: monospace;
+    font-size: 0.75rem;
+    color: var(--brand-color-secondary);
+    font-weight: 700;
+    margin-left: auto;
+  }
+
+  &__link {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 22px;
+    height: 22px;
+    border-radius: 4px;
+    border: 1px solid var(--brand-border-color);
+    background: var(--brand-background-components);
+    color: var(--brand-color-secondary);
+    flex-shrink: 0;
+    transition: color 0.15s, background 0.15s, border-color 0.15s;
+    text-decoration: none;
+
+    &:hover {
+      color: #fff;
+      background: var(--brand-color-secondary);
+      border-color: var(--brand-color-secondary);
+    }
+  }
+}
+
+// ─── Preview link ─────────────────────────────────────────────────────────────
+
+.preview-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 0.8rem;
+  font-family: monospace;
+  color: var(--brand-color-secondary);
+  text-decoration: none;
+  word-break: break-all;
+  padding: 4px 8px;
+  border-radius: 4px;
+  background: rgba(var(--brand-color-secondary-rgb), 0.06);
+  border: 1px solid rgba(var(--brand-color-secondary-rgb), 0.15);
+  transition: background 0.15s;
+
+  &:hover {
+    background: rgba(var(--brand-color-secondary-rgb), 0.12);
+    text-decoration: underline;
+  }
+
+  ::ng-deep svg { flex-shrink: 0; }
+}
+
+// ─── Retry errors ─────────────────────────────────────────────────────────────
+
+.retry-errors {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.retry-error {
+  display: flex;
+  gap: 10px;
+  padding: 6px 10px;
+  border-radius: 4px;
+  background: rgba(239, 68, 68, 0.05);
+  border-left: 3px solid #ef4444;
+  font-size: 0.8rem;
+
+  &__attempt {
+    font-weight: 700;
+    color: #ef4444;
+    white-space: nowrap;
+    font-size: 0.75rem;
+    font-family: var(--brand-font);
+    flex-shrink: 0;
+  }
+
+  &__msg {
+    color: var(--brand-text-primary);
+    font-family: monospace;
+    line-height: 1.5;
+    word-break: break-word;
+  }
+}
+
+// ─── File summary cards ───────────────────────────────────────────────────────
+
+.file-summaries {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.file-summary-card {
+  border: 1px solid var(--brand-border-color);
+  border-radius: 4px;
+  overflow: hidden;
+
+  &__header {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 10px;
+    background: var(--brand-background-secondary);
+    border-bottom: 1px solid var(--brand-border-color);
+    font-size: 0.8125rem;
+    font-weight: 600;
+    font-family: var(--brand-font);
+    color: var(--brand-text-primary);
+
+    svg { flex-shrink: 0; color: var(--brand-color-secondary); }
+  }
+
+  &__name {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-family: monospace;
+  }
+
+  &__section { padding: 6px 10px; }
+
+  &__label {
+    display: block;
+    font-size: 0.6875rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.07em;
+    color: var(--brand-text-tertiary);
+    margin-bottom: 3px;
+    font-family: var(--brand-font);
+  }
+
+  &__text {
+    margin: 0;
+    font-size: 0.8rem;
+    color: var(--brand-text-primary);
+    line-height: 1.5;
+    font-family: var(--brand-font);
+  }
+
+  &__excerpt {
+    margin: 0;
+    padding: 6px 8px;
+    font-size: 0.73rem;
+    font-family: 'Consolas', 'Fira Code', monospace;
+    white-space: pre-wrap;
+    word-break: break-word;
+    line-height: 1.5;
+    background: var(--brand-background-secondary);
+    border: 1px solid var(--brand-border-color);
+    border-radius: 3px;
+    color: var(--brand-text-primary);
+    max-height: 100px;
+    overflow-y: auto;
+  }
+}
+
+// ─── Chunks list (discussion RAG) ─────────────────────────────────────────────
+
+.chunks-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.chunk {
+  border: 1px solid var(--brand-border-color);
+  border-radius: 4px;
+  overflow: hidden;
+
+  &__meta {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 4px 8px;
+    background: var(--brand-background-secondary);
+    font-size: 0.75rem;
+  }
+
+  &__rank { font-weight: 700; color: var(--brand-text-tertiary); min-width: 22px; font-family: var(--brand-font); }
+
+  &__path {
+    flex: 1;
+    font-family: monospace;
+    color: var(--brand-text-secondary);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  &__score {
+    font-family: monospace;
+    color: #2e7d52;
+    font-weight: 700;
+    margin-left: auto;
+  }
+
+  &__text {
+    margin: 0;
+    padding: 6px 10px;
+    font-size: 0.78rem;
+    line-height: 1.55;
+    font-family: var(--brand-font);
+    color: var(--brand-text-secondary);
+    max-height: 110px;
+    overflow-y: auto;
+  }
+}
+
+// ─── Answer block ─────────────────────────────────────────────────────────────
+
+.answer-block {
+  padding: 10px 12px;
+  background: var(--brand-background-secondary);
+  border: 1px solid var(--brand-border-color);
+  border-radius: 4px;
+  font-size: 0.875rem;
+  font-family: var(--brand-font);
+  line-height: 1.6;
+  color: var(--brand-text-primary);
+  white-space: pre-wrap;
+  max-height: 280px;
+  overflow-y: auto;
+}

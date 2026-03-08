@@ -1,0 +1,120 @@
+:host {
+  display: block;
+  flex-shrink: 0;
+}
+
+:host ::ng-deep .panel-header__btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border: none;
+  border-radius: 4px;
+  background: transparent;
+  color: var(--brand-text-tertiary);
+  cursor: pointer;
+  padding: 0;
+  transition: background-color 0.15s ease, color 0.15s ease;
+  flex-shrink: 0;
+
+  svg {
+    display: block;
+    flex-shrink: 0;
+  }
+
+  &:hover {
+    background-color: var(--brand-background-hover);
+    color: var(--brand-text-primary);
+  }
+
+  &--action {
+    color: var(--brand-text-secondary);
+
+    &:hover {
+      background-color: var(--brand-background-hover);
+      color: var(--brand-text-primary);
+    }
+  }
+
+  &--danger:hover {
+    background-color: rgba(222, 0, 41, 0.08);
+    color: var(--brand-text-error, #de0029);
+  }
+}
+
+.panel-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 48px;
+  padding: 0 12px 0 14px;
+  background-color: var(--brand-background-components);
+  border-bottom: 1px solid var(--brand-border-color);
+  user-select: none;
+  gap: 8px;
+  flex-shrink: 0;
+
+  &__title {
+    font-size: 0.8125rem;
+    font-weight: 600;
+    color: var(--brand-text-primary);
+    font-family: var(--brand-font);
+    letter-spacing: 0.01em;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    flex: 1;
+  }
+
+  &__actions {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    flex-shrink: 0;
+  }
+
+  &__btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    border: none;
+    border-radius: 4px;
+    background: transparent;
+    color: var(--brand-text-tertiary);
+    cursor: pointer;
+    padding: 0;
+    transition: background-color 0.15s ease, color 0.15s ease;
+    flex-shrink: 0;
+
+    svg {
+      display: block;
+      flex-shrink: 0;
+    }
+
+    &:hover {
+      background-color: var(--brand-background-hover);
+      color: var(--brand-text-primary);
+    }
+
+    &--collapse {
+      color: var(--brand-text-secondary);
+
+      &:hover {
+        background-color: rgba(var(--brand-color-primary-rgb), 0.06);
+        color: var(--brand-color-primary);
+      }
+    }
+
+    &--action {
+      color: var(--brand-text-tertiary);
+    }
+
+    &--danger:hover {
+      background-color: rgba(222, 0, 41, 0.08);
+      color: var(--brand-text-error, #de0029);
+    }
+  }
+}

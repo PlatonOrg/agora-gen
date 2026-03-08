@@ -1,0 +1,57 @@
+## Composant wc-match-list
+
+`wc-match-list` permet à l'étudiant de relier des éléments sources à des éléments cibles par des flèches.
+
+## Bug critique : IDs en double
+
+Si le composant étudiant et le composant solution partagent des IDs de nœuds identiques, les flèches de la solution apparaissent déplacées ou hors de l'écran. Les IDs du composant solution DOIVENT avoir le suffixe `_sol`.
+
+## Patron de construction OBLIGATOIRE dans le builder
+
+```python
+import random
+
+pairs = [
+    ("Élément source 1", "Élément cible 1"),
+    ("Élément source 2", "Élément cible 2"),
+    ("Élément source 3", "Élément cible 3"),
+]
+
+sources = [{"id": f"src{i}", "type": "source", "content": p[0]} for i, p in enumerate(pairs)]
+targets = [{"id": f"tgt{i}", "type": "target", "content": p[1]} for i, p in enumerate(pairs)]
+
+shuffled_sources = sources[:]
+shuffled_targets = targets[:]
+random.shuffle(shuffled_sources)
+random.shuffle(shuffled_targets)
+
+match_list["nodes"] = shuffled_sources + shuffled_targets
+match_list["links"] = []
+
+sol_sources = [{"id": f"src{i}_sol", "type": "source", "content": p[0]} for i, p in enumerate(pairs)]
+sol_targets = [{"id": f"tgt{i}_sol", "type": "target", "content": p[1]} for i, p in enumerate(pairs)]
+match_list_solution["nodes"] = sol_sources + sol_targets
+match_list_solution["links"] = [{"source": f"src{i}_sol", "target": f"tgt{i}_sol"} for i in range(len(pairs))]
+match_list_solution["disabled"] = True
+```
+
+## Conventions de nommage
+
+- Composant étudiant : IDs `src0`, `src1`, `tgt0`, `tgt1`, etc.
+- Composant solution : IDs `src0_sol`, `src1_sol`, `tgt0_sol`, `tgt1_sol`, etc.
+- Les `links` du composant solution référencent uniquement les IDs suffixés `_sol`.
+
+## Ce qu'il NE FAUT JAMAIS faire
+
+- Réutiliser les mêmes IDs dans `match_list_solution` que dans `match_list`.
+- Copier les nœuds du composant étudiant sans renommer les IDs.
+- Référencer dans les `links` de la solution des IDs sans suffixe `_sol`.
+
+## Mélange aléatoire
+
+Mélanger indépendamment les colonnes sources et cibles pour le composant étudiant, pour éviter que l'étudiant devine la réponse par la position.
+
+## Si l'exercice existant viole cette règle
+
+Lors d'une modification, si `wc-match-list` est déjà présent mais que les IDs sont identiques entre les deux composants, corriger cela même si la demande de l'utilisateur ne porte pas directement sur la match list.
+

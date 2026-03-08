@@ -1,0 +1,276 @@
+/* src/styles.scss */
+/* Système de theming basé sur les conventions PLaTon */
+
+// 1. Import Angular Material prebuilt styles (or your custom theme setup)
+@use '@angular/material' as mat;
+
+// 2. Import système de variables CSS centralisé (basé sur PLaTon)
+@use 'styles/css-variables';
+@use 'styles/overrides' as *;
+
+// 3. Apply Global Reset
+html, body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  width: 100%;
+}
+
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+// 4. Appliquer le thème par défaut (light-theme)
+html {
+  // Le thème light est appliqué par défaut via :root dans _css-variables.scss
+  scroll-behavior: smooth;
+}
+
+body {
+  // Apply the signature background color globally
+  background-color: var(--brand-background-primary);
+  font-family: var(--brand-font);
+  color: var(--brand-text-primary);
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+// ============================================
+// 5. Custom Scrollbar Styles (Global)
+// ============================================
+
+// Webkit browsers (Chrome, Safari, Edge)
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(
+    180deg,
+    rgba(var(--brand-color-secondary-rgb), 0.4) 0%,
+    rgba(var(--brand-color-tertiary-rgb), 0.4) 100%
+  );
+  border-radius: 10px;
+  border: 2px solid transparent;
+  background-clip: padding-box;
+  transition: background 0.3s ease;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(
+    180deg,
+    rgba(var(--brand-color-secondary-rgb), 0.7) 0%,
+    rgba(var(--brand-color-tertiary-rgb), 0.7) 100%
+  );
+  border: 2px solid transparent;
+  background-clip: padding-box;
+}
+
+::-webkit-scrollbar-thumb:active {
+  background: linear-gradient(
+    180deg,
+    rgba(var(--brand-color-secondary-rgb), 0.9) 0%,
+    rgba(var(--brand-color-tertiary-rgb), 0.9) 100%
+  );
+  border: 2px solid transparent;
+  background-clip: padding-box;
+}
+
+::-webkit-scrollbar-corner {
+  background: transparent;
+}
+
+// Firefox
+* {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(var(--brand-color-secondary-rgb), 0.4) transparent;
+}
+
+// Optional: Add a standard CSS reset here if things look inconsistent
+
+// ── Component panel tooltip (global, position:fixed) ────────────────────────
+
+.comp-global-tooltip {
+  position: fixed;
+  z-index: 99999;
+  background: #2d2d2d;
+  border-radius: 3px;
+  padding: 6px 10px;
+  max-width: 240px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.28);
+  pointer-events: none;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+
+  &__text {
+    font-family: 'Inter', 'Roboto', Arial, sans-serif;
+    font-size: 12px;
+    font-weight: 400;
+    color: #ffffff;
+    line-height: 1.5;
+    white-space: normal;
+    word-break: break-word;
+  }
+
+  &__arrow {
+    position: absolute;
+    width: 0;
+    height: 0;
+    transform: translateX(-50%);
+
+    &--below {
+      bottom: -5px;
+      border-left: 5px solid transparent;
+      border-right: 5px solid transparent;
+      border-top: 5px solid #2d2d2d;
+    }
+
+    &--above {
+      top: -5px;
+      border-left: 5px solid transparent;
+      border-right: 5px solid transparent;
+      border-bottom: 5px solid #2d2d2d;
+    }
+  }
+}
+
+// ── Help popup portal (appended to body, above everything) ──────────────────
+
+.help-portal-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 99998;
+  background: transparent;
+}
+
+.help-portal-popup {
+  position: fixed;
+  z-index: 99999;
+  width: 400px;
+  max-width: calc(100vw - 24px);
+  max-height: calc(100vh - 24px);
+  overflow-y: auto;
+  background: var(--brand-background-dialog, #fafafa);
+  border: 1px solid var(--brand-border-color);
+  border-radius: 10px;
+  box-shadow:
+    0 8px 32px rgba(0, 0, 0, 0.18),
+    0 2px 8px rgba(0, 0, 0, 0.1);
+  opacity: 0;
+  transform: scale(0.96) translateY(-4px);
+  transition: opacity 0.15s ease, transform 0.15s ease;
+
+  &__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.85rem 1rem 0.6rem;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+    position: sticky;
+    top: 0;
+    background: var(--brand-background-dialog, #fafafa);
+    border-radius: 10px 10px 0 0;
+    gap: 8px;
+    z-index: 1;
+  }
+
+  &__title {
+    font-size: 0.875rem;
+    font-weight: 700;
+    color: var(--brand-text-primary);
+    margin: 0;
+    font-family: var(--brand-font);
+    flex: 1;
+  }
+
+  &__close {
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: var(--brand-text-tertiary);
+    padding: 4px;
+    border-radius: 4px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: color 0.15s, background-color 0.15s;
+    flex-shrink: 0;
+    line-height: 0;
+
+    &:hover {
+      color: var(--brand-text-primary);
+      background: var(--brand-background-hover);
+    }
+  }
+
+  &__body {
+    padding: 0.85rem 1rem 1rem;
+    font-size: 0.8rem;
+    color: var(--brand-text-secondary);
+    line-height: 1.65;
+    font-family: var(--brand-font);
+
+    h2 {
+      font-size: 0.8125rem;
+      font-weight: 700;
+      color: var(--brand-text-primary);
+      margin: 1rem 0 0.35rem;
+      &:first-child { margin-top: 0; }
+    }
+
+    h3 {
+      font-size: 0.7rem;
+      font-weight: 700;
+      color: var(--brand-color-primary);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      margin: 0.9rem 0 0.3rem;
+    }
+
+    p { margin: 0 0 0.55rem; }
+    strong { color: var(--brand-text-primary); font-weight: 600; }
+
+    code {
+      font-family: 'Fira Mono', 'Courier New', monospace;
+      font-size: 0.77rem;
+      background: var(--brand-background-hover);
+      padding: 1px 5px;
+      border-radius: 4px;
+      color: var(--brand-color-primary);
+    }
+
+    hr { border: none; border-top: 1px solid rgba(0,0,0,0.07); margin: 0.75rem 0; }
+
+    blockquote {
+      border-left: 3px solid var(--brand-color-primary);
+      margin: 0.6rem 0;
+      padding: 0.45rem 0.8rem;
+      background: rgba(var(--brand-color-primary-rgb), 0.04);
+      border-radius: 0 6px 6px 0;
+      color: var(--brand-text-primary);
+      font-size: 0.78rem;
+    }
+
+    ul, ol { margin: 0.35rem 0 0.55rem 1.1rem; padding: 0; li { margin-bottom: 0.2rem; } }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 0.55rem 0;
+      font-size: 0.77rem;
+      td {
+        padding: 5px 8px;
+        border: 1px solid rgba(0,0,0,0.08);
+        vertical-align: top;
+        &:first-child { font-weight: 600; color: var(--brand-text-primary); background: var(--brand-background-hover); white-space: nowrap; }
+      }
+      tr:nth-child(even) td { background: rgba(0,0,0,0.012); }
+    }
+  }
+}

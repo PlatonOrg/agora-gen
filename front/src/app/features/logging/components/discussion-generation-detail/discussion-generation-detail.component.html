@@ -1,0 +1,82 @@
+<div class="disc-detail">
+
+  @if (gen().request; as req) {
+    <app-log-section title="Requête" [icon]="icons.request">
+      <div class="detail-grid">
+        <app-log-kv key="ID" [value]="req.id" />
+        <app-log-kv key="Date" [value]="fmt(req.created_at)" />
+        <app-log-kv key="Session" [value]="req.session_id" />
+      </div>
+      <div class="detail-row">
+        <span class="detail-label">Question utilisateur</span>
+        <blockquote class="detail-quote detail-quote--disc">{{ req.user_request }}</blockquote>
+      </div>
+    </app-log-section>
+  }
+
+  @if (gen().rag_search; as rag) {
+    <app-log-section title="Recherche RAG (documentation)" [icon]="icons.ragDoc">
+      <div class="detail-grid">
+        <app-log-kv key="Modèle" [value]="rag.embedding_model" />
+        <app-log-kv key="Table" [value]="rag.vector_table" />
+        <app-log-kv key="Date" [value]="fmt(rag.created_at)" />
+      </div>
+      <div class="detail-row">
+        <span class="detail-label">Requête</span>
+        <blockquote class="detail-quote detail-quote--sm detail-quote--disc">{{ rag.query }}</blockquote>
+      </div>
+      @if (rag.chunks.length) {
+        <div class="detail-row">
+          <span class="detail-label">Chunks récupérés ({{ rag.chunks.length }})</span>
+          <div class="chunks-list">
+            @for (c of rag.chunks; track c.rank) {
+              <div class="chunk">
+                <div class="chunk__meta">
+                  <span class="chunk__rank">#{{ c.rank }}</span>
+                  <span class="chunk__path">{{ c.source_path ?? '—' }}</span>
+                  @if (c.score !== null) {
+                    <span class="chunk__score">{{ c.score!.toFixed(3) }}</span>
+                  }
+                </div>
+                @if (c.chunk_text) {
+                  <p class="chunk__text">{{ c.chunk_text }}</p>
+                }
+              </div>
+            }
+          </div>
+        </div>
+      }
+    </app-log-section>
+  }
+
+  @if (gen().llm_result; as llm) {
+    <app-log-section title="Reponse LLM" [icon]="icons.llm">
+      <div class="detail-grid">
+        <app-log-kv key="Fournisseur" [value]="llm.llm_provider" />
+        <app-log-kv key="Modele" [value]="llm.llm_model" />
+        <app-log-kv key="Prompt systeme" [value]="llm.system_prompt_name" />
+        <app-log-kv key="Date" [value]="fmt(llm.created_at)" />
+        @if (llm.input_tokens !== null) {
+          <app-log-kv key="Tokens (entree)" [value]="'' + llm.input_tokens" />
+        }
+        @if (llm.output_tokens !== null) {
+          <app-log-kv key="Tokens (sortie)" [value]="'' + llm.output_tokens" />
+        }
+      </div>
+      @if (llm.system_prompt_content) {
+        <div class="detail-row">
+          <span class="detail-label">Contenu du prompt système</span>
+          <pre class="prompt-content">{{ llm.system_prompt_content }}</pre>
+        </div>
+      }
+      @if (llm.llm_output) {
+        <div class="detail-row">
+          <span class="detail-label">Réponse</span>
+          <div class="answer-block">{{ llm.llm_output }}</div>
+        </div>
+      }
+    </app-log-section>
+  }
+
+</div>
+

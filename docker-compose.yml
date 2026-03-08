@@ -1,0 +1,89 @@
+# Development docker-compose
+# Usage: docker compose --env-file .env.dev up
+
+services:
+  # --- Frontend (New Service) ---
+  frontend:
+    build:
+      context: .
+      dockerfile: ./front/Dockerfile.dev
+    container_name: agora_frontend
+    ports:
+      - "80:80"  # Keep port 80 for frontend
+    depends_on:
+      - api
+    volumes:
+      # Mount source code for hot-reload
+      - ./front/src:/app/src
+      - ./front/angular.json:/app/angular.json
+      - ./front/tsconfig.json:/app/tsconfig.json
+      - ./front/tsconfig.app.json:/app/tsconfig.app.json
+      - ./front/tsconfig.spec.json:/app/tsconfig.spec.json
+      - ./front/public:/app/public
+      - ./resources:/app/resources
+    environment:
+      - NODE_ENV=development
+      - CHOKIDAR_USEPOLLING=true
+      - CHOKIDAR_INTERVAL=1000
+    networks:
+      - agora_net
+
+  # --- Backend API (FastAPI) ---
+  api:
+    build:
+      context: .
+      dockerfile: ./back/Dockerfile
+    container_name: agora_backend
+    env_file:
+      - .env.dev
+    ports:
+      - "8000:8000"
+    depends_on:
+      - db
+      - redis
+    volumes:
+      - ./back/src:/app/src
+      - ./back/scripts:/app/scripts
+      - ./back/tests:/app/tests
+      - ./.env.dev:/app/.env
+      - ./resources:/app/resources
+      - ./resources/local_models:/opt/models
+    networks:
+      - agora_net
+
+  # --- Database (Postgres + PGVector) ---
+  db:
+    image: pgvector/pgvector:pg16
+    container_name: agora_db
+    env_file:
+      - .env.dev
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-agora}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-agora_password}
+      POSTGRES_DB: ${POSTGRES_DB:-agora_db}
+    ports:
+      - "5433:5432"
+    volumes:
+      - agora_pg_data:/var/lib/postgresql/data
+    networks:
+      - agora_net
+
+  # --- Cache & Session Store (Redis) ---
+  redis:
+    image: redis:7-alpine
+    container_name: agora_redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - agora_redis_data:/data
+    networks:
+      - agora_net
+
+volumes:
+  agora_pg_data:
+  agora_redis_data:
+
+networks:
+  agora_net:
+    name: agora_net
+    driver: bridge

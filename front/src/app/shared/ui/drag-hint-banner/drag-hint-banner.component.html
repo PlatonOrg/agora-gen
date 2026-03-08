@@ -1,0 +1,35 @@
+@if (onboarding.showDragHint()) {
+  <div class="drag-hint" role="note" aria-label="Conseil glisser-déposer">
+    <div class="drag-hint__icon" aria-hidden="true">
+      <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24"
+           fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+           stroke-linejoin="round">
+        <path d="M14 8V6a2 2 0 0 0-2-2 2 2 0 0 0-2 2v6"/>
+        <path d="M8 12V9a2 2 0 0 0-2-2 2 2 0 0 0-2 2v6a6 6 0 0 0 6 6h2a6 6 0 0 0 6-6v-2a2 2 0 0 0-2-2 2 2 0 0 0-2 2"/>
+      </svg>
+    </div>
+    <div class="drag-hint__content">
+      <span class="drag-hint__line">
+        Glissez un composant vers
+        <span class="drag-hint__target drag-hint__target--exercise">l'éditeur</span>
+        pour l'ajouter à l'exercice, ou vers
+        <span class="drag-hint__target drag-hint__target--discussion">la discussion</span>
+        pour guider l'IA.
+      </span>
+    </div>
+    <button
+      class="drag-hint__dismiss"
+      type="button"
+      aria-label="Ne plus afficher ce conseil"
+      title="Ne plus afficher"
+      (click)="dismiss()"
+    >
+      <svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" viewBox="0 0 24 24"
+           fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"
+           stroke-linejoin="round" aria-hidden="true">
+        <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+      </svg>
+    </button>
+  </div>
+}
+

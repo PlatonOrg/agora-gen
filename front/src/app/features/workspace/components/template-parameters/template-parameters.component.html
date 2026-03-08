@@ -1,0 +1,163 @@
+@if (parameters().length === 0) {
+  <div class="tp-empty">
+    <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+    <span>Aucun paramètre à configurer</span>
+  </div>
+} @else {
+  <div class="tp-params-list">
+    @for (param of parameters(); track param.name) {
+      <div class="tp-card">
+
+        <div class="tp-card__head">
+          @if (isDraggable()) {
+            <span class="exc-drag-handle tp-card__drag" draggable="true"
+                  (dragstart)="onDragStart($event, param)" (dragend)="onDragEnd($event)"
+                  title="Glisser vers la discussion"
+                  aria-label="Glisser ce paramètre">
+              <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><circle cx="9" cy="5" r="2"/><circle cx="15" cy="5" r="2"/><circle cx="9" cy="12" r="2"/><circle cx="15" cy="12" r="2"/><circle cx="9" cy="19" r="2"/><circle cx="15" cy="19" r="2"/></svg>
+            </span>
+          }
+
+          <div class="tp-card__meta">
+            <span class="tp-card__name">{{ param.name }}</span>
+            @if (param.description) {
+              <span class="tp-card__desc">{{ param.description }}</span>
+            }
+          </div>
+
+          <span class="tp-card__badge">{{ param.type }}</span>
+        </div>
+
+        <div class="tp-card__body">
+
+          @if (param.type === 'number') {
+            @if (isEditable()) {
+              <div class="tp-input-row">
+                <input class="exc-input" type="number" draggable="false"
+                       [value]="param.value"
+                       [min]="param.options?.min"
+                       [max]="param.options?.max"
+                       (input)="onParameterChange(param, $any($event.target).value)" />
+                @if (param.options?.min !== undefined && param.options?.max !== undefined) {
+                  <span class="tp-range">{{ param.options.min }} – {{ param.options.max }}</span>
+                }
+              </div>
+            } @else {
+              <span class="tp-value">{{ param.value !== undefined && param.value !== null && param.value !== '' ? param.value : '—' }}</span>
+            }
+          }
+
+          @if (param.type === 'text') {
+            @if (isEditable()) {
+              <textarea class="exc-textarea" draggable="false" [value]="param.value" rows="2"
+                        (input)="onParameterChange(param.name, $any($event.target).value)"></textarea>
+            } @else {
+              <span class="tp-value tp-value--pre">{{ param.value !== undefined && param.value !== '' ? param.value : '—' }}</span>
+            }
+          }
+
+          @if (param.type === 'code') {
+            <div class="exc-monaco-wrap" draggable="false">
+              @if (isEditable()) {
+                <ngx-monaco-editor class="exc-monaco"
+                  [options]="{ theme: 'vs', language: param.options?.language || 'plaintext', automaticLayout: true, minimap: { enabled: false }, scrollBeyondLastLine: false, fontSize: 12 }"
+                  [(ngModel)]="param.value"
+                  (ngModelChange)="onParameterChange(param.name, $event)">
+                </ngx-monaco-editor>
+              } @else {
+                <pre class="exc-code-ro"><code [highlight]="param.value" [language]="getHighlightLanguage(param.options?.language)">{{ param.value }}</code></pre>
+              }
+            </div>
+          }
+
+          @if (param.type === 'json') {
+            <div class="exc-monaco-wrap" draggable="false">
+              @if (isEditable()) {
+                <ngx-monaco-editor class="exc-monaco"
+                  [options]="{ theme: 'vs', language: 'json', automaticLayout: true, minimap: { enabled: false }, scrollBeyondLastLine: false, fontSize: 12 }"
+                  [ngModel]="getJsonString(param)"
+                  (ngModelChange)="setJsonString(param, $event)">
+                </ngx-monaco-editor>
+              } @else {
+                <pre class="exc-code-ro"><code [highlight]="jsonStringValue(param)" language="json">{{ jsonStringValue(param) }}</code></pre>
+              }
+            </div>
+          }
+
+          @if (param.type === 'boolean') {
+            @if (isEditable()) {
+              <select class="exc-select" draggable="false"
+                      [value]="param.value"
+                      (change)="onParameterChange(param.name, $any($event.target).value === 'true')">
+                <option [value]="true">Vrai</option>
+                <option [value]="false">Faux</option>
+              </select>
+            } @else {
+              <span class="tp-value tp-value--bool" [class.tp-value--bool-true]="param.value">
+                {{ param.value ? 'Vrai' : 'Faux' }}
+              </span>
+            }
+          }
+
+          @if (param.type === 'file' || param.type === 'string') {
+            @if (isEditable()) {
+              <input class="exc-input" type="text" draggable="false" [value]="param.value"
+                     (input)="onParameterChange(param.name, $any($event.target).value)" />
+            } @else {
+              <span class="tp-value">{{ param.value !== undefined && param.value !== '' ? param.value : '—' }}</span>
+            }
+          }
+
+          @if (param.type === 'select') {
+            @if (isEditable()) {
+              <select class="exc-select" draggable="false" [value]="param.value"
+                      (change)="onParameterChange(param.name, $any($event.target).value)">
+                @for (choice of param.options?.choices; track choice) {
+                  <option [value]="choice">{{ choice }}</option>
+                }
+              </select>
+            } @else {
+              <span class="tp-value">{{ param.value !== undefined && param.value !== '' ? param.value : '—' }}</span>
+            }
+          }
+
+          @if (param.type === 'list') {
+            <div class="exc-list">
+              @for (_ of param.value; track $index; let j = $index) {
+                <div class="exc-list-item">
+                  <span class="exc-list-bullet">{{ j + 1 }}</span>
+                  @if (isEditable()) {
+                    <textarea class="exc-textarea exc-textarea--sm" draggable="false"
+                              rows="1"
+                              [(ngModel)]="param.value[j]"
+                              (ngModelChange)="onListItemChange(param, j, $event)"></textarea>
+                    <button class="exc-list-remove" type="button" (click)="removeListItem(param, j)">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                    </button>
+                  } @else {
+                    <span class="tp-value tp-value--inline">{{ param.value[j] }}</span>
+                  }
+                </div>
+              }
+              @if (!param.value?.length) {
+                <span class="exc-empty-hint">Aucun élément</span>
+              }
+              @if (isEditable()) {
+                <button type="button" class="exc-add-btn" (click)="addListItem(param)">+ Ajouter</button>
+              }
+            </div>
+          }
+
+          @if (param.options?.defaultValue !== undefined && param.options?.defaultValue !== null && param.options?.defaultValue !== '') {
+            <div class="tp-default">
+              <span class="tp-default__label">Défaut :</span>
+              <code class="tp-default__val">{{ param.options.defaultValue }}</code>
+            </div>
+          }
+
+        </div>
+      </div>
+    }
+  </div>
+}
+

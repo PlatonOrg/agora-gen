@@ -1,0 +1,41 @@
+## Composant wc-jsx
+
+`wc-jsx` permet d'intégrer un graphique JSXGraph interactif dans l'exercice.
+
+## Règle critique : la variable `board`
+
+La variable `board` est déjà prédéfinie dans le script du composant par la plateforme PLaTon. Ne jamais redéfinir `board` dans le script assigné depuis le builder — cela cassera le composant.
+
+**Incorrect :**
+```python
+jsx_component["script"] = """
+const board = JXG.JSXGraph.initBoard('jxgbox', {boundingbox: [-1, 5, 5, -1], axis: true});
+const A = board.create('point', [1, 2], {name: 'A'});
+"""
+```
+
+**Correct :**
+```python
+jsx_component["script"] = f"""
+const A = board.create('point', [{A[0]}, {A[1]}], {{name: 'A', fixed: true, size: 2, color: 'black'}});
+"""
+```
+
+## Initialisation dans le builder
+
+Le script JSX doit être construit comme une f-string Python pour injecter les données dynamiques générées dans le builder :
+
+```python
+jsx_component["script"] = f"""
+const point = board.create('point', [{x}, {y}], {{name: 'P', fixed: false, size: 3}});
+"""
+```
+
+## Ne pas révéler la solution dans l'initialisation
+
+Si l'exercice demande à l'étudiant de placer un point ou déplacer un objet, ne pas le positionner à la bonne position dans le script initial. Utiliser une position neutre qui ne révèle pas la réponse.
+
+## Accès aux objets JSX dans le grader
+
+Pour récupérer la réponse de l'étudiant, utiliser les propriétés du composant (ex : `jsx_component["value"]`). La structure exacte dépend de la documentation du composant.
+

@@ -1,0 +1,203 @@
+﻿[
+  {
+    "request": "Génère un exercice simple sur l'addition pour des élèves de CP.",
+    "expected_result": [
+      {
+        "kind": "TEMPLATE_EXO",
+        "id": "ece8bbde-95a2-4ea6-bc11-2479ac54d221",
+        "URL": "https://platon.univ-eiffel.fr/resources/ece8bbde-95a2-4ea6-bc11-2479ac54d221/overview"
+      },
+      {
+        "kind": "TEMPLATE_EXO",
+        "id": "4f8b6bda-a44d-4845-b713-3246a7f3eabe",
+        "URL": "https://platon.univ-eiffel.fr/resources/4f8b6bda-a44d-4845-b713-3246a7f3eabe/overview"
+      },
+      {
+        "kind": "TEMPLATE_EXO",
+        "id": "3dc76e2d-bb78-49aa-b58d-64ee20a5c21d",
+        "URL": "https://platon.univ-eiffel.fr/resources/3dc76e2d-bb78-49aa-b58d-64ee20a5c21d/overview"
+      },
+      {
+        "kind": "TEMPLATE_EXO",
+        "id": "6ea418a3-f54e-496e-be71-4bec8e9923e6",
+        "URL": "https://platon.univ-eiffel.fr/resources/6ea418a3-f54e-496e-be71-4bec8e9923e6/overview"
+      }
+    ]
+  },
+  {
+    "request": "Crée un QCM sur les bases de la programmation en Python : variables, boucles et conditions. Il faut 10 questions.",
+    "expected_result": [
+      {
+        "kind": "TEMPLATE",
+        "id": "7592c574-810c-49bb-a3f2-9fb9aea92bd8",
+        "URL": "https://platon.univ-eiffel.fr/resources/7592c574-810c-49bb-a3f2-9fb9aea92bd8/overview"
+      },
+      {
+        "kind": "TEMPLATE",
+        "id": "495e767b-fd61-4d33-a2ce-671fff51a489",
+        "URL": "https://platon.univ-eiffel.fr/resources/495e767b-fd61-4d33-a2ce-671fff51a489/overview"
+      },
+      {
+        "kind": "TEMPLATE",
+        "id": "f66e6f3c-f9bc-4fb2-8f7d-c1c41de7783b",
+        "URL": "https://platon.univ-eiffel.fr/resources/f66e6f3c-f9bc-4fb2-8f7d-c1c41de7783b/overview"
+      },
+      {
+        "kind": "TEMPLATE",
+        "id": "115b6816-3f53-4ba9-a9f6-9c3987563539",
+        "URL": "https://platon.univ-eiffel.fr/resources/115b6816-3f53-4ba9-a9f6-9c3987563539/overview"
+      },
+      {
+        "kind": "TEMPLATE",
+        "id": "4c58b13e-0685-41d5-95aa-0520b03e34e6",
+        "URL": "https://platon.univ-eiffel.fr/resources/4c58b13e-0685-41d5-95aa-0520b03e34e6/overview"
+      },
+      {
+        "kind": "EXERCICE",
+        "id": "9c513502-b1ac-496b-b1ef-952bd0d6f25a",
+        "URL": "https://platon.univ-eiffel.fr/resources/9c513502-b1ac-496b-b1ef-952bd0d6f25a/overview"
+      },
+      {
+        "kind": "EXERCISE",
+        "id": "7134b978-5788-4fe4-98cf-91e0ecbdd041",
+        "URL": "https://platon.univ-eiffel.fr/resources/7134b978-5788-4fe4-98cf-91e0ecbdd041/overview"
+      },
+      {
+        "kind": "EXERCISE",
+        "id": "c5436c59-11d7-4b27-b626-57002898c8b8",
+        "URL": "https://platon.univ-eiffel.fr/resources/c5436c59-11d7-4b27-b626-57002898c8b8/overview"
+      },
+      {
+        "kind": "EXERCISE",
+        "id": "976504b6-e518-411b-936a-55274b34730f",
+        "URL": "https://platon.univ-eiffel.fr/resources/976504b6-e518-411b-936a-55274b34730f/overview"
+      },
+      {
+        "kind": "EXERCISE",
+        "id": "c55c31b0-1167-4475-bb58-96ecff386330",
+        "URL": "https://platon.univ-eiffel.fr/resources/c55c31b0-1167-4475-bb58-96ecff386330/overview"
+      },
+      {
+        "kind": "EXERCISE",
+        "id": "42c67aa5-583c-4054-864e-dd1065504ec0",
+        "URL": "https://platon.univ-eiffel.fr/resources/42c67aa5-583c-4054-864e-dd1065504ec0/overview"
+      },
+      {
+        "kind": "EXERCISE",
+        "id": "a7e10ae3-1878-4929-883f-766a1dc1f55d",
+        "URL": "https://platon.univ-eiffel.fr/resources/a7e10ae3-1878-4929-883f-766a1dc1f55d/overview"
+      }
+    ]
+  },
+  {
+    "request": "Exercice sur les vecteurs.",
+    "expected_result": [
+      {
+        "kind": "TEMPLATE",
+        "id": "662a78ad-b220-4812-94b7-de9410e3b675",
+        "URL": "https://platon.univ-eiffel.fr/resources/662a78ad-b220-4812-94b7-de9410e3b675/overview"
+      },
+      {
+        "kind": "TEMPLATE",
+        "id": "aa966886-3824-48c8-9646-195a3cb6e362",
+        "URL": "https://platon.univ-eiffel.fr/resources/aa966886-3824-48c8-9646-195a3cb6e362/overview"
+      },
+      {
+        "kind": "TEMPLATE",
+        "id": "954e9ade-d04b-4327-8e44-88f1077022eb",
+        "URL": "https://platon.univ-eiffel.fr/resources/954e9ade-d04b-4327-8e44-88f1077022eb/overview"
+      },
+      {
+        "kind": "TEMPLATE_EXO",
+        "id": "bd9d97e9-2588-43a8-a044-7318af20ef0d",
+        "URL": "https://platon.univ-eiffel.fr/resources/bd9d97e9-2588-43a8-a044-7318af20ef0d/overview"
+      },
+      {
+        "kind": "TEMPLATE_EXO",
+        "id": "d1c8e5b4-9c3e-4f0a-9a7b-2c8e5f1a2b3c",
+        "URL": "https://platon.univ-eiffel.fr/resources/d1c8e5b4-9c3e-4f0a-9a7b-2c8e5f1a2b3c/overview"
+      }
+    ]
+  },
+  {
+    "request": "Génère un exercice de vocabulaire espagnol sur la nourriture.",
+    "expected_result": [
+      {
+        "kind": "EXERCICE",
+        "id": "42438a2c-9807-4da2-84fa-e0d27d11cc0f",
+        "URL": "https://platon.univ-eiffel.fr/resources/42438a2c-9807-4da2-84fa-e0d27d11cc0f/overview"
+      },
+      {
+        "kind": "TEMPLATE_EXO",
+        "id": "bed32837-67c3-41ea-a60b-30f65c98705f",
+        "URL": "https://platon.univ-eiffel.fr/resources/bed32837-67c3-41ea-a60b-30f65c98705f/overview"
+      },
+      {
+        "kind": "TEMPLATE_EXO",
+        "id": "3c550e51-7812-4e88-b785-356963820f39",
+        "URL": "https://platon.univ-eiffel.fr/resources/3c550e51-7812-4e88-b785-356963820f39/overview"
+      },
+      {
+        "kind": "TEMPLATE_EXO",
+        "id": "9263c295-0939-46f7-aa97-f4b8fb7c0309",
+        "URL": "https://platon.univ-eiffel.fr/resources/9263c295-0939-46f7-aa97-f4b8fb7c0309/overview"
+      }
+    ]
+  },
+  {
+    "request": "Fais un exercice de physique sur la loi d'Ohm, U=RI.",
+    "expected_result": []
+  },
+  {
+    "request": "Biologie : schéma de la cellule animale à légender.",
+    "expected_result": []
+  },
+  {
+    "request": "Crée un défi de programmation où les étudiants doivent implémenter un arbre de recherche binaire en C++. Ils doivent gérer l'allocation de mémoire manuellement.",
+    "expected_result": []
+  },
+  {
+    "request": "Je souhaite générer un exercice de géométrie analytique concernant les droites dans le plan. L'exercice doit contenir 3 parties : déterminer l'équation d'une droite passant par deux points A(2,3) et B(-1,4), vérifier si un point C appartient à cette droite, et tracer la droite dans un repère orthonormé.",
+    "expected_result": []
+  },
+  {
+    "request": "Exercice sur les couleurs en anglais pour débutants.",
+    "expected_result": []
+  },
+  {
+    "request": "Crée un exercice de solfège : identifier les notes sur une portée en clé de sol.",
+    "expected_result": []
+  },
+  {
+    "request": "J'ai besoin d'un puzzle logique difficile impliquant des tables de vérité et de l'algèbre booléenne, similaire aux jeux logiques du LSAT.",
+    "expected_result": []
+  },
+  {
+    "request": "Exercice Python : créer une fonction qui calcule la suite de Fibonacci récursivement.",
+    "expected_result": []
+  },
+  {
+    "request": "Crée un quiz de géographie sur les capitales africaines.",
+    "expected_result": []
+  },
+  {
+    "request": "Je veux un exercice sur les fractions irréductibles comme celui sur bibmath.net/exercices/bgg/college/arithm.",
+    "expected_result": []
+  },
+  {
+    "request": "Fais un exercice sur la photosynthèse pour les élèves de CM1.",
+    "expected_result": []
+  },
+  {
+    "request": "Exercice sur les régimes totalitaires dans les années 30.",
+    "expected_result": []
+  },
+  {
+    "request": "Je veux que vous créiez un exercice très spécifique sur la mécanique des fluides, en particulier le théorème de Bernoulli, appliqué à une aile d'avion. Il faut inclure des schémas explicatifs et demander le calcul de la portance.",
+    "expected_result": []
+  },
+  {
+    "request": "Maths : tables de multiplication de 1 à 9.",
+    "expected_result": []
+  }
+]

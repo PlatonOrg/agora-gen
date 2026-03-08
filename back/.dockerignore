@@ -1,0 +1,43 @@
+# Ignore virtual environments
+.venv
+venv/
+env/
+local_models/
+
+# Bytecode caches
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Local environment files
+../.env
+
+# Vscode / PyCharm / IDE configs
+.idea/
+.vscode/
+
+# Git contains huge history, ignore it
+.git/
+.gitignore
+
+# Docker stuff
+Dockerfile
+docker-compose.yml
+docker-compose.langfuse.yml
+
+# OS files
+.DS_Store
+
+# Test caches
+.mypy_cache/
+.pytest_cache/
+
+# Data volumes created by docker-compose
+agora_pg_data/
+agora_pg_data_prod/
+
+# Anything else large and not needed in container
+*.log
+
+resources/local_models

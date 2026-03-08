@@ -1,0 +1,253 @@
+<div class="tp-root">
+
+  <!-- ── Search bar ── -->
+  <div class="tp-search">
+    <div class="tp-search__input-wrap">
+      <svg class="tp-search__icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
+      </svg>
+      <input
+        class="tp-search__input"
+        type="search"
+        placeholder="Rechercher un modèle d'exercice…"
+        [(ngModel)]="searchText"
+        (ngModelChange)="templatesSearchTextChange.emit($event)"
+        (keydown.enter)="searchTemplates.emit()"
+        autocomplete="off"
+      />
+      <button
+        class="tp-search__btn"
+        type="button"
+        [class.tp-search__btn--loading]="isSearchingTemplates"
+        (click)="searchTemplates.emit()"
+        title="Lancer la recherche"
+      >
+        @if (isSearchingTemplates) {
+          <span class="tp-spinner" aria-hidden="true"></span>
+        } @else {
+          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <polyline points="9 18 15 12 9 6"/>
+          </svg>
+        }
+      </button>
+    </div>
+  </div>
+
+  <!-- ── Filters accordion ── -->
+  <div class="tp-filters" [class.tp-filters--open]="isTemplatesFiltersExpanded">
+    <button
+      class="tp-filters__toggle"
+      type="button"
+      (click)="toggleTemplatesFilters.emit()"
+      [attr.aria-expanded]="isTemplatesFiltersExpanded"
+    >
+      <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/>
+      </svg>
+      <span>Filtres</span>
+      @if (selectedComponents.length + selectedSujets.length + selectedNiveaux.length + (selectedCercle ? 1 : 0) > 0) {
+        <span class="tp-filters__count">{{ selectedComponents.length + selectedSujets.length + selectedNiveaux.length + (selectedCercle ? 1 : 0) }}</span>
+      }
+      <svg class="tp-filters__chevron" [class.tp-filters__chevron--open]="isTemplatesFiltersExpanded"
+           xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none"
+           stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="m6 9 6 6 6-6"/>
+      </svg>
+    </button>
+
+    @if (isTemplatesFiltersExpanded) {
+      <div class="tp-filters__body">
+
+        <!-- Composant -->
+        <div class="tp-filter-row">
+          <label class="tp-filter-label">Composant</label>
+          <div class="tp-token-field">
+            @for (c of selectedComponents; track c) {
+              <span class="tp-token tp-token--component">
+                {{ c }}
+                <button type="button" class="tp-token__remove" (click)="removeComponentFilter.emit(c)" [title]="'Retirer ' + c">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                </button>
+              </span>
+            }
+            <div class="tp-token-input-wrap">
+              <input class="tp-token-input"
+                [value]="componentInput"
+                (input)="componentInputChange.emit($any($event.target).value)"
+                (focus)="openComponentDropdown.emit()"
+                (blur)="closeComponentDropdown.emit()"
+                (keydown.enter)="$event.preventDefault(); addComponentFilter.emit(componentInput)"
+                [placeholder]="selectedComponents.length ? '' : 'Composant…'" />
+              @if (componentDropdownOpen && filteredComponents.length) {
+                <div class="tp-dropdown" (mousedown)="$event.preventDefault()">
+                  @for (c of filteredComponents; track c) {
+                    <div class="tp-dropdown__item" (click)="addComponentFilter.emit(c)">{{ c }}</div>
+                  }
+                </div>
+              }
+            </div>
+          </div>
+        </div>
+
+        <!-- Cercle -->
+        <div class="tp-filter-row">
+          <label class="tp-filter-label">Cercle</label>
+          <div class="tp-filter-control">
+            <app-tree-select [data]="CERCLE_TREE" [value]="selectedCercle" (valueChange)="selectCercle.emit($event)" />
+          </div>
+        </div>
+
+        <!-- Sujet -->
+        <div class="tp-filter-row">
+          <label class="tp-filter-label">Sujet</label>
+          <div class="tp-token-field tp-token-field--topic">
+            @for (s of selectedSujets; track s) {
+              <span class="tp-token tp-token--topic">
+                {{ s }}
+                <button type="button" class="tp-token__remove" (click)="removeSujet.emit(s)">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                </button>
+              </span>
+            }
+            <div class="tp-token-input-wrap">
+              <input class="tp-token-input"
+                [value]="sujetInput"
+                (input)="sujetInputChange.emit($any($event.target).value)"
+                (focus)="openSujetDropdown.emit()"
+                (blur)="closeSujetDropdown.emit()"
+                (keydown.enter)="$event.preventDefault(); addSujet.emit(sujetInput)"
+                [placeholder]="selectedSujets.length ? '' : 'Sujet…'" />
+              @if (sujetDropdownOpen && filteredSujets.length) {
+                <div class="tp-dropdown" (mousedown)="$event.preventDefault()">
+                  @for (s of filteredSujets; track s) {
+                    <div class="tp-dropdown__item" (click)="addSujet.emit(s)">{{ s }}</div>
+                  }
+                </div>
+              }
+            </div>
+          </div>
+        </div>
+
+        <!-- Niveau -->
+        <div class="tp-filter-row">
+          <label class="tp-filter-label">Niveau</label>
+          <div class="tp-token-field tp-token-field--level">
+            @for (n of selectedNiveaux; track n) {
+              <span class="tp-token tp-token--level">
+                {{ n }}
+                <button type="button" class="tp-token__remove" (click)="removeNiveau.emit(n)">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                </button>
+              </span>
+            }
+            <div class="tp-token-input-wrap">
+              <input class="tp-token-input"
+                [value]="niveauInput"
+                (input)="niveauInputChange.emit($any($event.target).value)"
+                (focus)="openNiveauDropdown.emit()"
+                (blur)="closeNiveauDropdown.emit()"
+                (keydown.enter)="$event.preventDefault(); addNiveau.emit(niveauInput)"
+                [placeholder]="selectedNiveaux.length ? '' : 'Niveau…'" />
+              @if (niveauDropdownOpen && filteredNiveaux.length) {
+                <div class="tp-dropdown" (mousedown)="$event.preventDefault()">
+                  @for (n of filteredNiveaux; track n) {
+                    <div class="tp-dropdown__item" (click)="addNiveau.emit(n)">{{ n }}</div>
+                  }
+                </div>
+              }
+            </div>
+          </div>
+        </div>
+
+      </div>
+    }
+  </div>
+
+  <!-- ── Results ── -->
+  <div class="tp-results">
+    <div class="tp-results__header">
+      <span class="tp-results__count">{{ filteredTemplates.length }} modèle{{ filteredTemplates.length !== 1 ? 's' : '' }}</span>
+    </div>
+
+    @if (isSearchingTemplates) {
+      <div class="tp-skeletons">
+        @for (i of [1,2,3,4]; track i) {
+          <div class="tp-skeleton">
+            <div class="tp-skeleton__title"></div>
+            <div class="tp-skeleton__desc"></div>
+          </div>
+        }
+      </div>
+    } @else if (filteredTemplates.length === 0) {
+      <div class="tp-empty">
+        <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
+        </svg>
+        <p>Aucun modèle trouvé</p>
+        <span>Essayez d'autres mots-clés ou ajustez les filtres</span>
+      </div>
+    } @else {
+      <div class="tp-list">
+        @for (template of filteredTemplates; track template.id) {
+          <div class="tp-card" [class.tp-card--open]="isTemplateExpanded(template.id)">
+
+            <!-- Card header -->
+            <div class="tp-card__header" (click)="toggleTemplate(template.id)" role="button" [attr.aria-expanded]="isTemplateExpanded(template.id)">
+              <div class="tp-card__meta">
+                <span class="tp-card__name">{{ template.name }}</span>
+                @if (getInputs(template).length) {
+                  <span class="tp-card__badge">{{ getInputs(template).length }} param{{ getInputs(template).length > 1 ? 's' : '' }}</span>
+                }
+              </div>
+              @if (template.description) {
+                <p class="tp-card__desc">{{ template.description }}</p>
+              }
+              <svg class="tp-card__chevron" [class.tp-card__chevron--open]="isTemplateExpanded(template.id)"
+                   xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none"
+                   stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="m6 9 6 6 6-6"/>
+              </svg>
+            </div>
+
+            <!-- Card body (expanded) -->
+            @if (isTemplateExpanded(template.id)) {
+              <div class="tp-card__body">
+
+                @if (getInputs(template).length) {
+                  <div class="tp-card__params-preview">
+                    <app-template-parameters
+                      [parameters]="getInputs(template)"
+                      [isEditable]="false"
+                      [isDraggable]="false"
+                      (parameterChange)="onParameterChange($event)">
+                    </app-template-parameters>
+                  </div>
+                } @else {
+                  <p class="tp-card__no-params">Ce modèle ne possède aucun paramètre configurable.</p>
+                }
+
+                <div class="tp-card__actions">
+                  <button type="button" class="tp-btn tp-btn--ghost" (click)="viewTemplate(template.id)">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                      <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>
+                    </svg>
+                    Prévisualiser
+                  </button>
+                  <button type="button" class="tp-btn tp-btn--primary" (click)="useTemplate.emit(template)">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                      <polyline points="20 6 9 17 4 12"/>
+                    </svg>
+                    Appliquer
+                  </button>
+                </div>
+
+              </div>
+            }
+
+          </div>
+        }
+      </div>
+    }
+  </div>
+
+</div>

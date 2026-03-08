@@ -1,0 +1,274 @@
+:host {
+  display: block;
+  height: 100vh;
+  overflow: hidden;
+}
+
+.logging-page {
+  display: flex;
+  height: 100%;
+  overflow: hidden;
+  background: var(--brand-background-secondary);
+}
+
+// ─── Sidebar (Platon-style purple) ─────────────────────────────────────────
+
+.log-sidebar {
+  width: 220px;
+  min-width: 220px;
+  height: 100%;
+  background: var(--brand-background-sidebar, #3c2964);
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0;
+  overflow: hidden;
+}
+
+.log-sidebar__brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  height: 48px;
+  padding: 0 16px;
+  flex-shrink: 0;
+  color: rgba(255, 255, 255, 0.9);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.log-sidebar__brand-label {
+  font-size: 0.9375rem;
+  font-weight: 700;
+  font-family: var(--brand-font);
+  letter-spacing: 0.01em;
+  color: rgba(255, 255, 255, 0.95);
+}
+
+.log-sidebar__menu {
+  list-style: none;
+  margin: 0;
+  padding: 8px 0;
+  flex: 1;
+  overflow-y: auto;
+}
+
+.log-sidebar__item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 16px;
+  cursor: pointer;
+  font-size: 0.875rem;
+  font-family: var(--brand-font);
+  color: rgba(255, 255, 255, 0.65);
+  transition: background 0.15s, color 0.15s;
+  border-left: 3px solid transparent;
+  user-select: none;
+  outline: none;
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.06);
+    color: rgba(255, 255, 255, 0.9);
+  }
+
+  &--active {
+    background: rgba(255, 255, 255, 0.1);
+    color: #fff;
+    border-left-color: var(--brand-color-secondary, #3466fe);
+    font-weight: 600;
+  }
+}
+
+.log-sidebar__item-icon {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+  opacity: 0.8;
+
+  ::ng-deep svg { width: 16px; height: 16px; }
+}
+
+.log-sidebar__item-label {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.log-sidebar__footer {
+  padding: 12px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  flex-shrink: 0;
+}
+
+.log-sidebar__back-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  padding: 8px 10px;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 6px;
+  background: transparent;
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 0.8125rem;
+  font-family: var(--brand-font);
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+  text-align: left;
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.08);
+    color: rgba(255, 255, 255, 0.9);
+    border-color: rgba(255, 255, 255, 0.25);
+  }
+}
+
+// ─── Main body ─────────────────────────────────────────────────────────────
+
+.log-body {
+  flex: 1;
+  min-width: 0;
+  min-height: 0;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  background: var(--brand-background-secondary);
+}
+
+// ─── Top bar (same height / feel as workspace-header) ──────────────────────
+
+.log-topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 48px;
+  padding: 0 16px;
+  background: var(--brand-background-components);
+  border-bottom: 1px solid var(--brand-border-color);
+  flex-shrink: 0;
+  gap: 8px;
+  user-select: none;
+}
+
+.log-topbar__title {
+  font-size: 0.9375rem;
+  font-weight: 600;
+  font-family: var(--brand-font);
+  color: var(--brand-text-primary);
+}
+
+.log-topbar__user {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.log-user-menu-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 199;
+}
+
+.log-user-rail {
+  position: relative;
+}
+
+.log-user-btn {
+  display: flex;
+  align-items: center;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 4px 6px;
+  border-radius: 6px;
+  transition: background-color 0.15s ease;
+
+  &:hover {
+    background-color: var(--brand-background-hover);
+  }
+}
+
+.log-user-menu {
+  position: absolute;
+  top: calc(100% + 4px);
+  right: 0;
+  min-width: 200px;
+  background-color: var(--brand-background-components);
+  border: 1px solid var(--brand-border-color);
+  border-radius: 8px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+  z-index: 200;
+  overflow: hidden;
+  padding: 4px;
+
+  &__identity {
+    padding: 8px 10px 6px;
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+  }
+
+  &__name {
+    font-size: 0.8125rem;
+    font-weight: 700;
+    color: var(--brand-text-primary);
+    font-family: var(--brand-font);
+    white-space: nowrap;
+  }
+
+  &__username {
+    font-size: 0.6875rem;
+    color: var(--brand-text-tertiary);
+    font-family: var(--brand-font);
+    white-space: nowrap;
+  }
+
+  &__divider {
+    height: 1px;
+    background-color: var(--brand-border-color);
+    margin: 3px 0;
+  }
+
+  &__item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    width: 100%;
+    padding: 7px 10px;
+    border: none;
+    border-radius: 5px;
+    background: transparent;
+    color: var(--brand-text-secondary);
+    font-size: 0.8125rem;
+    font-family: var(--brand-font);
+    cursor: pointer;
+    text-align: left;
+    transition: background-color 0.15s ease, color 0.15s ease;
+
+    svg { flex-shrink: 0; color: inherit; }
+
+    &:hover {
+      background-color: var(--brand-background-hover);
+      color: var(--brand-text-primary);
+    }
+
+    &--danger {
+      color: var(--brand-text-error, #de0029);
+
+      &:hover {
+        background-color: rgba(222, 0, 41, 0.07);
+      }
+    }
+  }
+}
+
+
+// ─── Content area ──────────────────────────────────────────────────────────
+
+.log-content {
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}

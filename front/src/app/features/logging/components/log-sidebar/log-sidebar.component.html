@@ -1,0 +1,18 @@
+<nav class="log-sidebar">
+  <div class="log-sidebar__header">
+    <span class="log-sidebar__title">Logs</span>
+  </div>
+
+  <ul class="log-sidebar__menu" role="menu">
+    @for (item of navItems; track item.tab) {
+      <li class="log-sidebar__item"
+        [class.log-sidebar__item--active]="activeTab() === item.tab"
+        role="menuitem"
+        (click)="tabSelected.emit(item.tab)">
+        <span class="log-sidebar__item-icon" [innerHTML]="item.icon"></span>
+        <span class="log-sidebar__item-label">{{ item.label }}</span>
+      </li>
+    }
+  </ul>
+</nav>
+

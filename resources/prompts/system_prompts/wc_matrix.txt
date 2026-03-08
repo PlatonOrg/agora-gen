@@ -1,0 +1,44 @@
+## Composant wc-matrix
+
+`wc-matrix` permet d'afficher une matrice interactive dans laquelle l'étudiant peut saisir des valeurs dans les cellules.
+
+## Propriété `cells`
+
+La propriété `cells` doit être remplie avec une liste d'objets, jamais avec des chaînes de caractères directes.
+
+Chaque objet de cellule doit avoir :
+- `value` : la valeur affichée ou saisie (string)
+- `disabled` (optionnel) : `True` pour désactiver la cellule (lecture seule)
+
+**Incorrect :**
+```python
+matrix["cells"] = ["1", "2", "3", "4"]
+```
+
+**Correct :**
+```python
+matrix["cells"] = [
+    {"value": "1"},
+    {"value": "2"},
+    {"value": "3"},
+    {"value": "4"}
+]
+```
+
+## Composant solution
+
+Pour la solution, désactiver toutes les cellules avec `disabled: True` et les préremplir avec les bonnes valeurs :
+
+```python
+matrix_solution["cells"] = [
+    {"value": "0", "disabled": True},
+    {"value": "5", "disabled": True},
+    {"value": "3", "disabled": True},
+    {"value": "2", "disabled": True}
+]
+```
+
+## Formules mathématiques dans les cellules
+
+Pour les formules, utiliser la syntaxe `$...$` dans le champ `value` si la documentation le supporte. Sinon, utiliser des valeurs numériques simples.
+

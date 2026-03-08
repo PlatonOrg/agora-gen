@@ -1,0 +1,102 @@
+<form class="chat-form"
+  (submit)="onSubmit($event)"
+>
+  @if (hasBadges()) {
+    <div class="chat-form__attachments">
+      <app-attachment-badges
+        [components]="componentNames()"
+        [fields]="fieldNames()"
+        [parameters]="parameterNames()"
+        [fileNames]="fileNames()"
+        [removable]="true"
+        [removeComponent]="removeComponentFn"
+        [removeField]="removeFieldFn"
+        [removeParameter]="removeParameterFn"
+        [removeFile]="removeFileFn"
+      />
+    </div>
+  }
+
+  <div class="chat-form__input-wrap" [class.chat-form__input-wrap--focused]="isFocused" [class.chat-form__input-wrap--processing]="isProcessing()">
+    <div
+      #inputEl
+      class="chat-form__textarea"
+      [class.chat-form__textarea--disabled]="isProcessing()"
+      [attr.contenteditable]="isProcessing() ? 'false' : 'true'"
+      [attr.data-placeholder]="isProcessing() ? 'Génération en cours…' : placeholder()"
+      (input)="onInput($event)"
+      (keydown)="onKeyDown($event)"
+      (mousedown)="onMouseDown($event)"
+      (focus)="onFocusEvent()"
+      (blur)="onBlurEvent()"
+      (paste)="onPaste($event)"
+      role="textbox"
+      aria-multiline="true"
+      aria-label="Message"
+    ></div>
+
+    <div class="chat-form__footer">
+      <div class="chat-form__footer-left">
+        @if (llmCapabilities.fileUploadSupported()) {
+          <input #fileInput type="file" multiple style="display:none" [attr.accept]="fileAcceptAttribute()" (change)="onFileSelected($event)" />
+          <button
+            type="button"
+            class="footer-btn"
+            [class.footer-btn--active]="attachedFiles().length > 0"
+            [disabled]="fileCount() >= maxFiles() || assistantMode() === 'ask'"
+            [title]="assistantMode() === 'ask' ? 'Joindre des fichiers est désactivé en mode Ask' : fileCount() >= maxFiles() ? 'Limite de ' + maxFiles() + ' fichiers atteinte' : attachedFiles().length > 0 ? attachedFiles().length + ' fichier(s) en attente' : 'Joindre des fichiers'"
+            (click)="fileInput.click()"
+          >
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M21.44 11.05l-8.49 8.49a5 5 0 0 1-7.07-7.07l8.49-8.49a3.5 3.5 0 0 1 4.95 4.95l-8.49 8.49a2 2 0 0 1-2.83-2.83l7.07-7.07"/>
+            </svg>
+            @if (attachedFiles().length > 0) {
+              <span class="footer-btn__badge">{{ attachedFiles().length }}</span>
+            }
+          </button>
+        }
+      </div>
+
+      <div class="chat-form__footer-right">
+        <div class="mode-toggle" role="group" aria-label="Mode assistant">
+          <button type="button" class="mode-btn" [class.mode-btn--active]="assistantMode() === 'ask'" (click)="setMode('ask')" title="Répondre à une question sur la documentation PLaTon">
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 8v4"/><path d="M12 16h.01"/></svg>
+            Discuter
+          </button>
+          <button type="button" class="mode-btn" [class.mode-btn--active]="assistantMode() === 'agent'" (click)="setMode('agent')" title="Générer ou modifier un exercice PLaTon">
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><polyline points="16 3 21 3 21 8"/><line x1="4" y1="20" x2="21" y2="3"/><polyline points="21 16 21 21 16 21"/><line x1="15" y1="15" x2="21" y2="21"/></svg>
+            Générer
+          </button>
+        </div>
+
+        @if (isProcessing()) {
+          <button
+            type="button"
+            class="send-btn send-btn--stop"
+            (click)="stop.emit()"
+            title="Arrêter la génération"
+            aria-label="Arrêter"
+          >
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+              <rect x="4" y="4" width="16" height="16" rx="2"/>
+            </svg>
+          </button>
+        } @else {
+          <button
+            type="submit"
+            class="send-btn"
+            [disabled]="!canSend()"
+            title="Envoyer (Entrée)"
+            aria-label="Envoyer"
+          >
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <line x1="22" y1="2" x2="11" y2="13"/>
+              <polygon points="22 2 15 22 11 13 2 9 22 2"/>
+            </svg>
+          </button>
+        }
+      </div>
+    </div>
+  </div>
+</form>
+

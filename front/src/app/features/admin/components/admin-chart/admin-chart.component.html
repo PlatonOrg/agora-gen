@@ -1,0 +1,27 @@
+@if (hasData()) {
+  <div class="chart-wrapper">
+    <ngx-charts-line-chart
+      [results]="chartData()"
+      [scheme]="colorScheme"
+      [xAxis]="true"
+      [yAxis]="true"
+      [legend]="true"
+      [showXAxisLabel]="true"
+      [showYAxisLabel]="false"
+      [xAxisLabel]="'Date'"
+      [trimXAxisTicks]="true"
+      [animations]="animate()"
+      [autoScale]="true"
+      [timeline]="false"
+    >
+    </ngx-charts-line-chart>
+  </div>
+} @else {
+  <div class="chart-empty">
+    <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <path d="M3 3v18h18"/>
+      <path d="M18.7 8l-5.1 5.2-2.8-2.7L7 14.3"/>
+    </svg>
+    <span class="chart-empty__label">Aucune donnée pour cette période</span>
+  </div>
+}

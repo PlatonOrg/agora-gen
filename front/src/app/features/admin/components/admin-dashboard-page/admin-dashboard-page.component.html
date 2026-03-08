@@ -1,0 +1,150 @@
+<div class="admin-dashboard">
+
+  <header class="dashboard-topbar">
+    <button class="back-btn" type="button" (click)="goBack()">
+      <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M19 12H5"/><polyline points="12 19 5 12 12 5"/>
+      </svg>
+      <span>Retour</span>
+    </button>
+    <span class="dashboard-topbar__title">Tableau de bord administrateur</span>
+  </header>
+
+  <main class="dashboard-content">
+
+    <!-- Date range controls -->
+    <section class="date-controls">
+      <div class="date-presets">
+        <button
+          class="preset-btn"
+          [class.preset-btn--active]="selectedPreset() === 'last_7_days'"
+          type="button"
+          (click)="applyPreset('last_7_days')"
+        >7 derniers jours</button>
+        <button
+          class="preset-btn"
+          [class.preset-btn--active]="selectedPreset() === 'last_30_days'"
+          type="button"
+          (click)="applyPreset('last_30_days')"
+        >30 derniers jours</button>
+        <button
+          class="preset-btn"
+          [class.preset-btn--active]="selectedPreset() === 'last_365_days'"
+          type="button"
+          (click)="applyPreset('last_365_days')"
+        >365 derniers jours</button>
+      </div>
+
+      <div class="date-custom">
+        <label class="date-field">
+          <span class="date-field__label">Du</span>
+          <input
+            type="date"
+            class="date-field__input"
+            [ngModel]="customDateFrom"
+            (ngModelChange)="customDateFrom = $event"
+            (change)="applyCustomRange()"
+          />
+        </label>
+        <label class="date-field">
+          <span class="date-field__label">Au</span>
+          <input
+            type="date"
+            class="date-field__input"
+            [ngModel]="customDateTo"
+            (ngModelChange)="customDateTo = $event"
+            (change)="applyCustomRange()"
+          />
+        </label>
+      </div>
+    </section>
+
+    @if (statsService.loading()) {
+      <div class="summary-cards">
+        @for (i of [1, 2, 3, 4]; track i) {
+          <div class="card card--skeleton">
+            <div class="skeleton-line skeleton-icon"></div>
+            <div class="skeleton-line skeleton-label"></div>
+            <div class="skeleton-line skeleton-value"></div>
+          </div>
+        }
+      </div>
+    } @else if (statsService.error()) {
+      <div class="error-banner">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <circle cx="12" cy="12" r="10"/>
+          <line x1="12" y1="8" x2="12" y2="12"/>
+          <line x1="12" y1="16" x2="12.01" y2="16"/>
+        </svg>
+        <span>{{ statsService.error() }}</span>
+      </div>
+    } @else {
+      <div class="summary-cards">
+
+        <div class="card card--conversations">
+          <div class="card-header">
+            <div class="card-icon">
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+              </svg>
+            </div>
+            <span class="card-label">Conversations</span>
+          </div>
+          <div class="card-value">{{ statsService.stats()?.summary?.total_conversations ?? 0 }}</div>
+        </div>
+
+        <div class="card card--exercises">
+          <div class="card-header">
+            <div class="card-icon">
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                <polyline points="17 8 12 3 7 8"/>
+                <line x1="12" y1="3" x2="12" y2="15"/>
+              </svg>
+            </div>
+            <span class="card-label">Exercices publiés</span>
+          </div>
+          <div class="card-value">{{ statsService.stats()?.summary?.total_published_exercises ?? 0 }}</div>
+        </div>
+
+        <div class="card card--failures">
+          <div class="card-header">
+            <div class="card-icon">
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+                <line x1="12" y1="9" x2="12" y2="13"/>
+                <line x1="12" y1="17" x2="12.01" y2="17"/>
+              </svg>
+            </div>
+            <span class="card-label">Échecs</span>
+          </div>
+          <div class="card-value">{{ statsService.stats()?.summary?.total_failures ?? 0 }}</div>
+        </div>
+
+        <div class="card card--response-time">
+          <div class="card-header">
+            <div class="card-icon">
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <circle cx="12" cy="12" r="10"/>
+                <polyline points="12 6 12 12 16 14"/>
+              </svg>
+            </div>
+            <span class="card-label">Temps de réponse moyen</span>
+          </div>
+          <div class="card-value">{{ formatResponseTime(statsService.stats()?.summary?.avg_response_time_ms ?? null) }}</div>
+        </div>
+
+      </div>
+
+      <!-- Time series chart -->
+      <section class="chart-section">
+        <h2 class="chart-section__title">Évolution journalière</h2>
+        <app-admin-chart
+          [daily]="statsService.stats()?.daily ?? []"
+          [animate]="selectedPreset() !== 'last_365_days'"
+        />
+      </section>
+    }
+  </main>
+
+</div>

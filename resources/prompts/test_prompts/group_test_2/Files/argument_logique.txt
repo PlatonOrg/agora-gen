@@ -1,0 +1,3 @@
+Si il pleut, alors le sol est mouillé.
+Or, le sol n'est pas mouillé.
+Donc, il ne pleut pas.

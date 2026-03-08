@@ -1,0 +1,101 @@
+<svg
+  class="tour-spotlight"
+  [attr.width]="svgW"
+  [attr.height]="svgH"
+  [attr.viewBox]="'0 0 ' + svgW + ' ' + svgH"
+  xmlns="http://www.w3.org/2000/svg"
+  aria-hidden="true"
+  (click)="skipTour.emit()"
+>
+  <defs>
+    <mask id="tour-spotlight-mask">
+      <rect width="100%" height="100%" fill="white"/>
+      <rect
+        [attr.x]="spotlightRect.x"
+        [attr.y]="spotlightRect.y"
+        [attr.width]="spotlightRect.w"
+        [attr.height]="spotlightRect.h"
+        [attr.rx]="spotlightRect.r"
+        fill="black"
+      />
+    </mask>
+  </defs>
+  <rect
+    width="100%"
+    height="100%"
+    fill="rgba(0,0,0,0.52)"
+    mask="url(#tour-spotlight-mask)"
+  />
+  <rect
+    class="tour-spotlight__border"
+    [attr.x]="spotlightRect.x"
+    [attr.y]="spotlightRect.y"
+    [attr.width]="spotlightRect.w"
+    [attr.height]="spotlightRect.h"
+    [attr.rx]="spotlightRect.r"
+    fill="none"
+    stroke="rgba(255,255,255,0.5)"
+    stroke-width="2"
+  />
+</svg>
+
+<div
+  class="tour-card {{ arrowClass }}"
+  role="dialog"
+  aria-modal="true"
+  [attr.aria-label]="step.title"
+  [ngStyle]="tooltipStyle"
+>
+  <div class="tour-card__header">
+    <span class="tour-card__step-badge">{{ progressLabel }}</span>
+    <button
+      class="tour-card__close"
+      type="button"
+      title="Ignorer le guide"
+      aria-label="Ignorer le guide"
+      (click)="skipTour.emit()"
+    >
+      <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none"
+           stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+      </svg>
+    </button>
+  </div>
+
+  <h3 class="tour-card__title">{{ step.title }}</h3>
+  <p class="tour-card__body" [innerHTML]="step.body"></p>
+
+  <div class="tour-card__progress">
+    <div class="tour-card__progress-bar" [style.width.%]="progressPercent"></div>
+  </div>
+
+  <div class="tour-card__footer">
+    <button
+      class="tour-card__btn tour-card__btn--skip"
+      type="button"
+      (click)="skipTour.emit()"
+    >
+      Ignorer
+    </button>
+    <button
+      class="tour-card__btn tour-card__btn--next"
+      type="button"
+      (click)="nextStep.emit()"
+    >
+      @if (isLastStep) {
+        Terminer
+        <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none"
+             stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <polyline points="20 6 9 17 4 12"/>
+        </svg>
+      } @else {
+        Suivant
+        <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none"
+             stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <polyline points="9 18 15 12 9 6"/>
+        </svg>
+      }
+    </button>
+  </div>
+</div>
+

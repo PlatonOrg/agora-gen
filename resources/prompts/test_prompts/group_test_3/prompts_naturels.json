@@ -1,0 +1,153 @@
+[
+  {
+    "id": 1,
+    "subject": "Mathématiques — Arithmétique",
+    "level": "CM2 / 6e",
+    "prompt": "Je voudrais un exercice sur les tables de multiplication pour des élèves de primaire. On tire au sort deux nombres entre 2 et 12, et l'élève doit donner leur produit. Si la réponse est bonne, un message d'encouragement s'affiche. Si elle est fausse, on lui dit quel était le bon résultat."
+  },
+  {
+    "id": 2,
+    "subject": "Français — Conjugaison",
+    "level": "4e / 3e",
+    "prompt": "Un exercice de conjugaison où l'on donne une phrase avec un verbe à l'infinitif entre parenthèses, et l'élève doit choisir la forme correcte parmi plusieurs propositions. Par exemple : 'Hier, nous (aller) au marché.' avec les choix : allons, sommes allés, irons, allions. Il faut plusieurs phrases avec des verbes et des temps variés."
+  },
+  {
+    "id": 3,
+    "subject": "Histoire — Première Guerre mondiale",
+    "level": "Terminale",
+    "prompt": "Je veux tester les connaissances de mes lycéens sur les causes de la Première Guerre mondiale. L'exercice doit proposer plusieurs affirmations — certaines vraies, d'autres fausses — et l'élève doit cocher toutes celles qui sont correctes. Par exemple : 'L'assassinat de François-Ferdinand a été l'élément déclencheur', 'La France et l'Allemagne faisaient partie de la même alliance', etc."
+  },
+  {
+    "id": 4,
+    "subject": "Physique — Optique géométrique",
+    "level": "Seconde",
+    "prompt": "Un exercice sur la loi de Descartes pour la réfraction. On donne l'angle d'incidence et les indices de réfraction de deux milieux (par exemple air/verre), et l'élève doit calculer l'angle de réfraction. Il tape sa réponse en degrés. On accepte une petite marge d'erreur, disons ±1°."
+  },
+  {
+    "id": 5,
+    "subject": "Anglais — Vocabulaire",
+    "level": "Collège",
+    "prompt": "Un exercice de vocabulaire anglais où l'on donne un mot en français et l'élève doit le relier à sa traduction anglaise parmi une liste mélangée. Une dizaine de mots du quotidien : maison, voiture, chien, livre, soleil, eau, pain, chaise, fenêtre, arbre."
+  },
+  {
+    "id": 6,
+    "subject": "Biologie — Le système digestif",
+    "level": "5e",
+    "prompt": "Je voudrais un exercice où les élèves doivent remettre dans l'ordre les étapes de la digestion : ingestion, mastication, déglutition, digestion gastrique, digestion intestinale, absorption des nutriments, élimination des déchets. Les étapes sont présentées dans le désordre et l'élève doit les replacer dans la bonne séquence."
+  },
+  {
+    "id": 7,
+    "subject": "Mathématiques — Géométrie",
+    "level": "3e",
+    "prompt": "Un exercice sur le théorème de Pythagore. On génère aléatoirement un triangle rectangle avec deux côtés connus (nombres entiers simples), et l'élève doit calculer et saisir la longueur du troisième côté. On leur demande aussi de dire si le triangle est rectangle, obtusangle ou acutangle pour des longueurs données différentes."
+  },
+  {
+    "id": 8,
+    "subject": "Géographie — Les pays et leurs capitales",
+    "level": "CM1 / CM2",
+    "prompt": "Un quiz de géographie sur les capitales européennes. On tire au sort cinq pays parmi une liste (France, Allemagne, Espagne, Italie, Portugal, Belgique, Pays-Bas, Suède, Pologne, Grèce) et pour chaque pays on demande à l'élève de choisir la bonne capitale parmi quatre propositions dont trois sont des distracteurs plausibles."
+  },
+  {
+    "id": 9,
+    "subject": "Sciences — États de la matière",
+    "level": "CE2 / CM1",
+    "prompt": "Un exercice simple où l'on montre une liste d'objets ou de substances (glace, vapeur d'eau, jus d'orange, pierre, fer, fumée, sable, mercure liquide) et l'élève doit les classer en trois catégories : solide, liquide, gazeux. Une fois qu'il a fait son classement, on lui indique combien il en a bien placé."
+  },
+  {
+    "id": 10,
+    "subject": "Mathématiques — Fractions",
+    "level": "CM2 / 6e",
+    "prompt": "Je veux un exercice sur la simplification de fractions. On génère une fraction aléatoire non réduite (par exemple 12/18, 15/25, 8/12) et l'élève doit donner la fraction irréductible correspondante en saisissant le numérateur et le dénominateur séparément. Le système vérifie que la fraction donnée est bien équivalente et irréductible."
+  },
+  {
+    "id": 11,
+    "subject": "Littérature — Figures de style",
+    "level": "Lycée",
+    "prompt": "Un exercice de reconnaissance des figures de style. On présente cinq phrases extraites de textes littéraires classiques et pour chacune, l'élève doit identifier la figure de style employée parmi : métaphore, métonymie, hyperbole, antithèse, personnification, comparaison, oxymore. Une phrase par question, avec une liste de choix pour chacune."
+  },
+  {
+    "id": 12,
+    "subject": "Chimie — Tableau périodique",
+    "level": "Seconde / 1re",
+    "prompt": "Un exercice sur la configuration électronique des éléments légers du tableau périodique. On donne un élément au hasard (parmi H, He, Li, C, N, O, F, Ne, Na, Mg, Al, Si, P, S, Cl, Ar) et l'élève doit saisir sa configuration électronique. On lui demande aussi dans quelle période et quelle famille il se trouve, via des questions à choix unique."
+  },
+  {
+    "id": 13,
+    "subject": "Éducation civique — Institutions françaises",
+    "level": "3e / Lycée",
+    "prompt": "Un exercice sur les institutions de la Ve République. On décrit le rôle d'une institution (Assemblée nationale, Sénat, Conseil constitutionnel, Cour de cassation, Conseil d'État, Président de la République) et l'élève doit deviner de laquelle il s'agit. Dix descriptions courtes, une réponse à choisir parmi six institutions pour chacune."
+  },
+  {
+    "id": 14,
+    "subject": "Mathématiques — Probabilités",
+    "level": "1re / Terminale",
+    "prompt": "Un exercice sur les probabilités conditionnelles. On décrit une situation concrète : dans un sac on place des billes de couleurs différentes (quantités générées aléatoirement), et on pose une question du type 'Quelle est la probabilité de tirer une bille rouge sachant qu'elle n'est pas bleue ?'. L'élève tape sa réponse sous forme de fraction ou de nombre décimal arrondi à deux chiffres."
+  },
+  {
+    "id": 15,
+    "subject": "Musique — Théorie musicale",
+    "level": "Conservatoire / Lycée",
+    "prompt": "Un exercice de solfège sur la reconnaissance des intervalles. On indique deux notes (par exemple Do et Sol) et l'élève doit identifier l'intervalle qui les sépare parmi : unisson, seconde, tierce, quarte, quinte, sixte, septième, octave. On pose la question aussi dans l'autre sens : on donne un intervalle et la note de départ, et l'élève doit trouver la note d'arrivée."
+  },
+  {
+    "id": 16,
+    "subject": "Espagnol — Grammaire",
+    "level": "Collège / Lycée",
+    "prompt": "Un exercice de grammaire espagnole sur les verbes ser et estar. On présente dix phrases avec un blanc à remplir et l'élève doit choisir entre 'es' et 'está' (ou la conjugaison appropriée). Les phrases couvrent des cas typiques : nationalité, profession, état physique, localisation, état émotionnel, matériau, etc."
+  },
+  {
+    "id": 17,
+    "subject": "Mathématiques — Calcul littéral",
+    "level": "4e / 3e",
+    "prompt": "Un exercice de développement et factorisation. On donne une expression algébrique développée (générée aléatoirement avec des petits entiers) et on demande à l'élève de la factoriser, puis de vérifier son résultat en donnant la valeur de l'expression pour x = 3 par exemple. L'élève saisit l'expression factorisée et la valeur numérique de contrôle."
+  },
+  {
+    "id": 18,
+    "subject": "Philosophie — Les grandes notions",
+    "level": "Terminale",
+    "prompt": "Un exercice de reconnaissance de notions philosophiques. On cite un extrait court d'un philosophe connu (Platon, Descartes, Kant, Sartre, Nietzsche…) et l'élève doit identifier la notion principale abordée dans l'extrait parmi : liberté, conscience, vérité, justice, bonheur, autrui, le temps, la nature, l'art, le travail. Cinq extraits différents."
+  },
+  {
+    "id": 19,
+    "subject": "SVT — Génétique",
+    "level": "Terminale",
+    "prompt": "Un exercice sur la transmission héréditaire mendélienne. On décrit un croisement entre deux individus aux génotypes donnés (avec des allèles dominants et récessifs) et l'élève doit : d'abord identifier les proportions phénotypiques attendues dans la descendance F1, puis donner les proportions pour F2. Les réponses sont données sous forme de fractions ou de pourcentages."
+  },
+  {
+    "id": 20,
+    "subject": "Informatique — Logique booléenne",
+    "level": "Lycée / BTS",
+    "prompt": "Un exercice sur les portes logiques et les tables de vérité. On donne une expression booléenne avec deux ou trois variables (par exemple : (A AND B) OR (NOT C)) et l'élève doit compléter la table de vérité en indiquant la sortie pour chaque combinaison d'entrées. Les cases à remplir sont présentées une à une avec les valeurs d'entrée visibles."
+  },
+  {
+    "id": 21,
+    "subject": "Économie — Budget des ménages",
+    "level": "BEP / CAP / Seconde",
+    "prompt": "Un exercice pratique sur la gestion d'un budget mensuel. On donne les revenus et les dépenses d'un foyer fictif (loyer, alimentation, transport, loisirs, factures) générés aléatoirement, et l'élève doit calculer le solde mensuel, identifier si le budget est équilibré ou déficitaire, et proposer un poste de dépense à réduire parmi une liste si le budget est en déficit."
+  },
+  {
+    "id": 22,
+    "subject": "Arts plastiques — Histoire de l'art",
+    "level": "Collège",
+    "prompt": "Un exercice d'association entre des œuvres d'art célèbres et leurs auteurs. On présente dix titres d'œuvres (La Joconde, La Nuit étoilée, Guernica, Le Penseur, La Persistance de la mémoire, La Liberté guidant le peuple, Les Nymphéas, Le Cri, La Création d'Adam, Impression soleil levant) et l'élève doit relier chacune à son créateur parmi une liste mélangée."
+  },
+  {
+    "id": 23,
+    "subject": "Physique-Chimie — Électricité",
+    "level": "3e",
+    "prompt": "Un exercice sur la loi d'Ohm. On génère un circuit simple avec deux valeurs connues sur les trois (tension U en volts, intensité I en ampères, résistance R en ohms) et l'élève doit calculer la troisième. Les valeurs sont des nombres simples. On lui demande aussi d'indiquer l'unité de la grandeur calculée en choisissant parmi V, A ou Ω."
+  },
+  {
+    "id": 24,
+    "subject": "Latin — Déclinaisons",
+    "level": "Lycée",
+    "prompt": "Un exercice de morphologie latine sur les déclinaisons. On donne un nom latin (tiré de la première ou de la deuxième déclinaison) avec son génitif, et on demande à l'élève de le décliner au cas demandé (nominatif, génitif, datif, accusatif, ablatif, vocatif) en nombre singulier ou pluriel tiré au sort. Il saisit la forme correcte dans une zone de texte."
+  },
+  {
+    "id": 25,
+    "subject": "Technologie — Matériaux et propriétés",
+    "level": "5e / 4e",
+    "prompt": "Un exercice sur les propriétés des matériaux. On présente dix objets du quotidien (couteau de cuisine, pull en laine, bouteille en verre, câble électrique, planche de surf, carrosserie de voiture, emballage alimentaire, pont, vitre de fenêtre, semelle de chaussure) et pour chacun l'élève doit identifier le matériau principal parmi métal, plastique, verre, textile, bois, caoutchouc, béton."
+  }
+]
+

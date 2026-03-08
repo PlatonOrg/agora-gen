@@ -1,0 +1,75 @@
+Lorsque le composant `wc-drag-drop` est séléctionné, il faut comprendre qu'il faut en définir plusieurs de cet élement pour construire plusieurs zones drag et plusieurs zones drop. ce composant à lui seul définit qu'une seule zone. voici un exemple de code pour utiliser drag-drop:
+
+```
+depart1 = :wc-drag-drop
+depart2 = :wc-drag-drop
+
+arrivee1 = :wc-drag-drop
+arrivee2 = :wc-drag-drop
+
+builder==
+pairs =  [
+    ("tomate", "tomate"),
+    ("oignon", "cebolla")
+]
+random.shuffle(pairs)
+
+arrivee_line = " <table><tr>"
+for i, zone in enumerate(zones_cible_uniques):
+    if i < n_arrivees:
+        arrivee_line += f"<td>{zone}:"+"{{"+f"{name('arrivee',i)}"+" }}</td>"
+
+arrivee_line += "</tr></table>"
+depart_line = "\n<table>\n<tr>"
+departs_per_line = (n_departs + n_arrivees - 1) // n_arrivees if n_arrivees > 0 else n_departs
+for i  in range(len(pairs)):
+    depart_line += "<td>{{"+ f" {name('depart',i)}"+" }}</td> "
+depart_line += "</tr></table>\n"
+form = arrivee_line + depart_line
+
+# Mise à jour du contenu et de la propriété draggable (ceci doit être fait après avoir déterminé les noms à utiliser)
+for i, (idee, _) in enumerate(pairs):
+    if i < n_departs:
+        globals()[f"{name('depart',i)}"]["content"] = idee
+        globals()[f"{name('depart',i)}"]["draggable"] = True
+
+
+for i, zone in enumerate(zones_cible_uniques):
+    if i < n_arrivees:
+        globals()[f"{name('arrivee',i)}"]["draggable"] = False
+        globals()[f"{name('arrivee',i)}"]["value"] = zone
+==
+
+grader==
+grade = 0
+n_correct = 0
+
+def name(nom,i):
+  return nom+str(i+1)
+
+
+
+for i in range(n_arrivees):
+      if dicsol[globals()[f"{name('arrivee',i)}"]["content"]] == globals()[f"{name('arrivee',i)}"]["value"]:
+          n_correct += 1
+
+score = (n_correct/n_arrivees)*100
+grade = score
+feedback["type"] = "error"
+feedback["content"] = "Mauvaise réponse"+str(score)
+if grade >90:
+  feedback["type"] = "success"
+  feedback["content"] = "Bonne réponse"+str(score)
+
+==
+```
+
+L'idée est que chaque composant `wc-drag-drop` représente une zone de drag ou de drop. Le builder initialise les propriétés `content`, `draggable` et `value` pour chaque zone, tandis que le grader lit la propriété `content` des zones d'arrivée pour évaluer la réponse de l'apprenant.
+
+Il faut être créatif quand à comment ranger les zones de drag et drop. cela dépends de la demande de l'utilisateur. Par exemple, si l'utilisateur veut un exercice sur le tableau des élements périodiques, on peut avoir des zones drag qui sont rangés dans un table désordonnées, et en bas, on peut avoir un tableau structuré (en html par exemple) avec des zones drop bien placées pour que l'apprenant puisse faire glisser les éléments vers les bonnes cases du tableau périodique.
+
+L'idée est que'il faut utiliser judicieusement le html dans la forme de l'exercise pour correctement structurer les zones de drag et drop (comme dans l'exemple ci-dessus, on a utilisé les balises `<table>` et `<td>` pour structurer les zones de drag et drop dans un tableau et pour forcer la structure, mais on peut imaginer d'autres structures). Il faut aussi exploiter si nécessaires la propriété `css` du composant pour ajouter du style. Tu peux par exemple donner des couleurs différentes aux zones pour un exercice de placement des elements du tableau périodque. par defaut, les zones occupent toute la largeur disponible, mais tu peux aussi utiliser la propriété `css` pour limiter la largeur de chaque zone et les faire occuper moins d'espace horizontalement.
+
+En général, il faut que l'exercice ne soit pas trop facile, donc les zones draggables ne doivent pas être glissable uniqument sur la bonne réponse, il faut (selon la requête de l'utilisateur) que les zones draggables puissent être glissées sur plusieurs zones droppables, pour que l'exercice soit plus difficile et que l'apprenant puisse faire des erreurs.
+
+n'instancie jamais les composants dasn le builder, il faut les instancier à l'éxtérieur du builder, et il faut affecter leur proprités dans le builder.

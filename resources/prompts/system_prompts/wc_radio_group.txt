@@ -1,0 +1,46 @@
+## Composant wc-radio-group
+
+`wc-radio-group` permet de créer un groupe de boutons radio pour une question à choix unique.
+
+## Markdown dans les items
+
+Il est possible d'utiliser du Markdown dans le contenu des éléments d'un `wc-radio-group`, notamment la syntaxe `$$` pour les formules mathématiques :
+
+```python
+radio_group["items"] = [
+    {"content": "$x = 2$", "value": "a"},
+    {"content": "$x = \\frac{1}{2}$", "value": "b"},
+    {"content": "$x = -3$", "value": "c"}
+]
+```
+
+## Mélange aléatoire
+
+Mélanger les items dans le builder pour éviter que la position révèle la bonne réponse :
+
+```python
+import random
+items = [
+    {"content": "Option correcte", "value": "correct"},
+    {"content": "Option incorrecte 1", "value": "wrong1"},
+]
+random.shuffle(items)
+radio_group["items"] = items
+```
+
+## Composant solution
+
+Réutiliser un composant `wc-radio-group` séparé pour la solution, avec la bonne option présélectionnée et `disabled: True` :
+
+```python
+radio_group_solution["items"] = items
+radio_group_solution["selection"] = "correct"
+radio_group_solution["disabled"] = True
+```
+
+Il faut utiliser `selection` pour pré-sélectionner et non `value`, la valeur de `selection` est le `content` de l'item et non `value`
+
+## Ne jamais pré-remplir la valeur dans `form`
+
+Le champ `value` du composant dans la `form` doit rester vide — ne jamais y mettre la bonne réponse.
+

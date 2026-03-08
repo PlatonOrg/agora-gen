@@ -1,0 +1,21 @@
+<div class="sort-bar">
+  <span class="sort-bar__label">Trier par :</span>
+  @for (opt of options(); track opt.field) {
+    <button
+      class="sort-bar__btn"
+      [class.sort-bar__btn--active]="activeField() === opt.field"
+      type="button"
+      (click)="select(opt.field)"
+    >
+      {{ opt.label }}
+      @if (activeField() === opt.field) {
+        <svg class="sort-bar__icon" [class.sort-bar__icon--asc]="direction() === 'asc'"
+          width="11" height="11" viewBox="0 0 24 24" fill="none"
+          stroke="currentColor" stroke-width="2.5" aria-hidden="true">
+          <polyline points="6 9 12 15 18 9"/>
+        </svg>
+      }
+    </button>
+  }
+</div>
+
