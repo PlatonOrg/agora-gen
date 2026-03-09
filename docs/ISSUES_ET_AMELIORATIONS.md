@@ -58,7 +58,6 @@
 ## 3. Dette technique
 
 - Certains composants Angular utilisent encore des patterns impératifs (Promises) au lieu de signaux
-- Le fichier `workflow.py` est volumineux (~855 lignes) et pourrait être découpé en modules plus petits
 - Les prompts système sont stockés en fichiers texte sans versioning sémantique
 - Pas de validation de schéma côté base de données pour les colonnes JSON
 - Le frontend ne gère pas l'expiration de session de manière proactive
