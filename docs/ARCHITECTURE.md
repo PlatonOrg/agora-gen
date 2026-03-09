@@ -23,7 +23,6 @@ Agora est une application fullstack qui permet aux enseignants de générer des 
 | `backend` | FastAPI + Uvicorn | 8000 | API REST + SSE streaming |
 | `db` | PostgreSQL 16 + pgvector | 5433 (dev) | Données métier + vecteurs RAG |
 | `redis` | Redis 7 | 6379 | Sessions, cache fichiers, signal stop |
-| `ollama` (dev only) | Ollama | 11434 | LLM local pour développement |
 
 ### 2.2 Réseau
 
@@ -39,65 +38,44 @@ Utilisateur → Nginx (Angular) → Backend FastAPI → LLM Provider
                               PLaTon API (sandbox)
 ```
 
+### 2.4 Séquence de démarrage du backend
+
+Le backend suit une séquence de démarrage en deux phases :
+
+**Phase critique (bloquante — doit compléter avant que `/health` réponde) :**
+1. Connexion PostgreSQL + Redis
+2. Création/vérification des tables de logs
+3. Setup DB (tables ressources, sync tracker)
+4. Chargement de la configuration runtime depuis la base
+
+**Phase de fond (non-bloquante — démarre en parallèle) :**
+1. Téléchargement du modèle d'embedding HuggingFace (si absent)
+2. Sync des docs PLaTon depuis GitHub (détection de changements par SHA)
+3. Reconstruction de `metadata.json` (si docs changées)
+4. Initialisation des services RAG (embedding + pgvector)
+5. Synchronisation des ressources PLaTon → base locale
+6. Population / mise à jour des vecteurs d'exercices
+7. Boucle de sync quotidienne (toutes les 24h)
+
 ---
 
 ## 3. Backend
 
-### 3.1 Structure des fichiers
-
-```
-back/src/
-├── main.py                          # Point d'entrée, lifespan, middlewares CORS
-├── api/v1/
-│   ├── api.py                       # Agrégation des routers
-│   ├── dependencies.py              # Injection (session DB, settings, session_id)
-│   └── endpoints/
-│       ├── auth.py                  # OAuth PLaTon (init, callback, user, logout)
-│       ├── chat.py                  # SSE streaming, upload fichiers, stop, delete fichier
-│       ├── context.py               # Cercles, topics, levels, templates, preview PLE
-│       ├── exercises.py             # Tags, save/load exercice, publication PLaTon
-│       ├── logs.py                  # Consultation logs de génération
-│       ├── admin.py                 # Statistiques, config runtime, LLM options
-│       └── platon_docs_qa.py        # Q&A documentation PLaTon (mode discussion)
-├── core/
-│   ├── config_app.py                # Settings centralisé (pydantic-settings, .env)
-│   ├── di.py                        # Registre LLM (LLMProviderRegistry)
-│   ├── logging_config.py            # Loggers rotatifs par fichier
-│   ├── path_constants.py            # Chemins absolus (prompts, modèles)
-│   └── sqlalchemy.py                # Engine asyncpg, session factory
-├── infra/
-│   ├── db/                          # Repositories (components, templates, settings)
-│   ├── llm/                         # Providers LLM, wrapper, JSON facility
-│   ├── files/                       # Parsing fichiers, résumés, stockage Redis
-│   ├── log/                         # Persistance logs en DB (db_logger.py, models.py)
-│   ├── platon/                      # Client HTTP PLaTon
-│   └── vector/                      # Service d'indexation vectorielle
-├── services/
-│   ├── generation_service.py        # Génération LLM (pur + template)
-│   ├── component_selection_service.py # Sélection de composants par LLM
-│   ├── template_service.py          # Gestion des templates PLaTon
-│   ├── sandbox_correction_service.py # Correction automatique sandbox
-│   ├── runtime_config_service.py    # Configuration runtime en mémoire (SettingKey enum)
-│   ├── logs_service.py              # Requêtes de consultation des logs
-│   ├── admin_stats_service.py       # Agrégation statistiques admin
-│   └── rag/                         # Service de retrieval vectoriel
-└── workflows/
-    ├── workflow.py                  # Orchestrateur principal (handle_chat)
-    └── retry_handler.py             # Mécanisme de retry sandbox
-```
-
-### 3.2 Flux de génération d'exercice
+### 3.1 Flux de génération d'exercice
 
 1. **Réception** : `POST /api/v1/chat/` reçoit un `ChatRequest` (SSE streaming)
-2. **Sélection de composants** : LLM sélectionne les composants PLaTon pertinents
-3. **Recherche RAG** : Récupération d'exercices similaires via pgvector
-4. **Décision template/pur** : Si le score RAG dépasse le seuil (`TEMPLATE_SCORE_THRESHOLD`), on utilise un template existant ; sinon, génération pure
-5. **Génération LLM** : Appel au LLM avec prompt système, exemples, et contexte
+2. **Détection première requête vs modification** : `_exercise_is_empty()` analyse l'état de l'exercice (titre, énoncé, composants, etc.) pour décider si c'est une première génération ou une modification. Cette logique est purement déterministe (pas de signal en mémoire).
+3. **Si modification (exercice non vide)** : Le workflow saute la recherche RAG et la sélection de composants. Le mode est verrouillé sur `"template"` ou `"pure"` selon l'état de l'exercice (`config_variables` présentes → template). ⚠️ *Voir ISSUES_ET_AMELIORATIONS.md — problème #8.*
+4. **Si première génération** :
+   - **Sélection de composants** : Le LLM sélectionne les composants PLaTon pertinents pour la requête
+   - **Recherche RAG** : Récupération d'exercices et templates similaires via pgvector
+   - **Décision template/pur** : Si le meilleur template RAG dépasse le seuil (`TEMPLATE_SCORE_THRESHOLD`), on utilise un template existant ; sinon, génération pure. Si `force_pure_exercise=true`, la sélection de template est ignorée
+5. **Génération LLM** : Appel au LLM avec prompt système, documentation des composants, exemples d'exercices, et contexte utilisateur
 6. **Sandbox** : Compilation et exécution sur PLaTon (builder + grader)
 7. **Retry** : Si erreur sandbox, le retry handler tente des corrections automatiques (jusqu'à `SANDBOX_RETRY_MAX_ATTEMPTS`)
 8. **Logging** : Chaque génération (succès ou échec) est enregistrée dans la table `exo_generation`
 
-### 3.3 Modèle de données (PostgreSQL)
+### 3.2 Modèle de données (PostgreSQL)
 
 Tables principales :
 - `log_conversation` : Conversations (regroupement de générations)
@@ -109,7 +87,7 @@ Tables principales :
 - `publish_event` : Publication d'exercice sur PLaTon
 - `app_setting` : Paramètres runtime configurables
 
-### 3.4 Paramètres runtime configurables
+### 3.3 Paramètres runtime configurables
 
 | Clé | Type | Défaut | Description |
 |-----|------|--------|-------------|
@@ -127,38 +105,7 @@ Tables principales :
 
 ## 4. Frontend
 
-### 4.1 Structure des fichiers
-
-```
-front/src/app/
-├── core/
-│   ├── api/api.service.ts           # Service HTTP de base (fetch wrapper)
-│   ├── auth/                        # Authentification OAuth
-│   ├── llm/                         # Capabilities LLM, polling options
-│   └── logging/logs.service.ts      # Service d'accès aux logs
-├── features/
-│   ├── workspace/                   # Espace de travail principal
-│   │   ├── components/
-│   │   │   ├── discussion/          # Panel de discussion (chat)
-│   │   │   ├── exercise-content/    # Éditeur d'exercice
-│   │   │   └── template-parameters/ # Paramètres template
-│   │   └── services/
-│   │       ├── chat.service.ts      # Communication SSE avec le backend
-│   │       └── exercise.service.ts  # État de l'exercice en cours
-│   ├── logging/                     # Pages de logs et détails
-│   │   ├── components/
-│   │   │   ├── log-conversations-view/    # Liste des conversations
-│   │   │   ├── session-detail-view/       # Détail d'une conversation
-│   │   │   ├── exo-generation-detail/     # Détail d'une génération
-│   │   │   └── log-stats-view/            # Configuration runtime
-│   │   └── models/log.model.ts            # Interfaces TypeScript
-│   └── admin/                       # Tableau de bord administrateur
-│       ├── components/admin-dashboard-page/ # Statistiques
-│       └── services/admin-statistics.service.ts
-└── shared/ui/                       # Composants réutilisables
-```
-
-### 4.2 Technologies clés
+### 4.1 Technologies clés
 
 - **Angular 19** : Standalone components, signals, control flow (@if, @for)
 - **Monaco Editor** : Édition de code PLaTon (builder, grader)
@@ -179,11 +126,17 @@ front/src/app/
 ## 6. Déploiement
 
 ### Production
-- Images Docker pré-buildées depuis GitHub Container Registry
-- `docker-compose.prod.yml` pour la production
-- Pas d'Ollama en production (fournisseur LLM distant requis)
+- Images Docker buildées automatiquement par GitHub Actions et poussées vers GHCR (`ghcr.io/salemsd/agora-gen/backend` et `.../frontend`)
+- Chaque image est taguée `:latest` ET avec le SHA du commit (rollback possible)
+- `docker-compose.prod.yml` pour la production : pas d'Ollama, ressources limitées, healthchecks
+- Le frontend est servi sur le port `8080` du conteneur — Nginx (hôte) proxifie vers ce port
+- Les modèles d'embedding sont montés depuis `/opt/models` sur l'hôte
+- Les docs PLaTon sont montées depuis `/opt/agora/resources/docs`
+
+Pour le guide de déploiement complet (VPS, Nginx, HTTPS, CI/CD), voir [`MANUEL_DEVELOPPEUR.md`](MANUEL_DEVELOPPEUR.md#6-déploiement-en-production).
 
 ### Développement
 - `docker-compose.yml` avec hot-reload et volumes montés
-- Ollama local pour les tests LLM
+- Base de données exposée sur le port `5433` de l'hôte
+
 

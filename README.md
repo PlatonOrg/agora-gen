@@ -1,137 +1,215 @@
-# fullstack
-The front and backend of the agora project, the platon exercise generator using AI
+# Agora AI Agent — Générateur d'exercices PLaTon
 
-## Commands
+Agora est une application fullstack permettant aux enseignants de générer des exercices [PLaTon](https://platon.univ-eiffel.fr) à l'aide d'un agent IA conversationnel. Elle combine un frontend Angular 19, un backend FastAPI, une base de données PostgreSQL+pgvector pour le RAG vectoriel, et Redis pour les sessions.
 
-launch and build all containers
+---
+
+## Table des matières
+
+- [Architecture](#architecture)
+- [Prérequis](#prérequis)
+- [Lancement rapide (développement)](#lancement-rapide-développement)
+- [Configuration](#configuration)
+  - [Variables d'environnement](#variables-denvironnement)
+  - [Fournisseurs LLM](#fournisseurs-llm)
+- [Commandes Docker utiles](#commandes-docker-utiles)
+- [Scripts utilitaires](#scripts-utilitaires)
+- [Tests](#tests)
+- [Déploiement en production](#déploiement-en-production)
+- [URLs et ports](#urls-et-ports)
+- [Documentation complète](#documentation-complète)
+
+---
+
+## Architecture
+
+| Service | Technologie | Rôle |
+|---------|-------------|------|
+| `frontend` | Angular 19 + Nginx | Interface utilisateur, proxy API |
+| `api` | FastAPI + Uvicorn (Python 3.11) | API REST + SSE streaming |
+| `db` | PostgreSQL 16 + pgvector | Données métier + embeddings RAG |
+| `redis` | Redis 7 | Sessions, cache, signal d'arrêt |
+
+Pour l'architecture détaillée, voir [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md).
+
+---
+
+## Prérequis
+
+- [Docker](https://docs.docker.com/get-docker/) 24+
+- [Docker Compose](https://docs.docker.com/compose/) v2
+
+---
+
+## Lancement rapide (développement)
 
 ```bash
-docker compose up --build -d
+# 1. Cloner le dépôt
+git clone <url-du-repo> agora-gen
+cd agora-gen
+
+# 2. Créer le fichier d'environnement
+cp .env.example .env.dev
+# Éditer .env.dev et renseigner les valeurs (voir SECRETS.md)
+
+# 3. Lancer tous les services avec hot-reload
+docker compose --env-file .env.dev up --build -d
 ```
 
-stop all containers
+L'application est ensuite accessible sur **http://localhost**.
+
+> **Base de données :** Toute l'initialisation (tables, migrations, prompts, synchronisation des ressources PLaTon, population des vecteurs RAG) est effectuée **automatiquement** par le backend au démarrage. Aucune commande manuelle n'est nécessaire.
+
+---
+
+## Configuration
+
+### Variables d'environnement
+
+Copier le fichier d'exemple correspondant à votre environnement et le remplir :
 
 ```bash
-docker compose down
+# Développement
+cp .env.example .env.dev
+
+# Production
+cp .env.prod.example .env.prod
 ```
 
-To access the database inside container, run :
+Toutes les variables sont décrites et commentées dans ces fichiers. Les secrets sensibles (clés API, tokens) sont documentés dans [`SECRETS.md`](SECRETS.md).
 
-```bash
-docker compose exec db psql -U agora -d agora_db
-```
+### Fournisseurs LLM
 
-To dump database content to a file, run :
+Les fournisseurs LLM sont déclarés dans `resources/llm_providers.json`. Une entrée doit avoir `"default": true`.
 
-```bash
-docker compose exec db pg_dump -U agora -d agora_db -f dump.sql
-```
+Les clés API ne sont **jamais** écrites directement dans ce fichier (il est commité). Elles sont référencées via des placeholders `${VAR_NAME}` qui sont résolus depuis les variables d'environnement au démarrage.
 
-To list the models inside ollama
-
-```bash
-docker compose exec ollama ollama list
-```
-
-## Set up
-
-you will have to do the following things the frist time you launch the backend
-
-- set up the `.env` file
-- configure LLM providers in `resources/llm_providers.json`
-- set up the database
-
-### LLM Provider Configuration
-
-LLM providers are declared in `resources/llm_providers.json`. Each entry specifies a provider name, kind, credentials, and default model. One entry must have `"default": true` to designate the system-wide active provider.
-
-Example:
 ```json
 [
+  {
+    "name": "cerebras",
+    "kind": "cerebras",
+    "api_key": "${CEREBRAS_API_KEY}",
+    "default_model": "gpt-oss-120b",
+    "default": true
+  },
   {
     "name": "groq",
     "kind": "openai_compatible",
     "base_url": "https://api.groq.com/openai/v1",
-    "api_key": "${ENV_API_KEY}",
-    "default_model": "openai/gpt-oss-120b",
-    "default": true
-  },
-  {
-    "name": "ragustave",
-    "kind": "ragustave",
-    "base_url": "https://ragarenn.eskemm-numerique.fr/demo@univ-eiffel/api",
-    "api_key": "${ENV_API_KEY}",
-    "default_model": "RedHatAI/Llama-3.3-70B-Instruct-FP8-dynamic"
+    "api_key": "${GROQ_API_KEY}",
+    "default_model": "llama-3.3-70b-versatile"
   }
 ]
 ```
 
-Supported kinds: `openai_compatible`, `ragustave`, `gemini`, `ollama`, `openrouter`, `cerebras`.
+Les variables correspondantes (`CEREBRAS_API_KEY`, `GROQ_API_KEY`, `RAGUSTAVE_API_KEY`, `OPENROUTER_API_KEY`, etc.) sont à définir dans `.env.dev` ou `.env.prod` — voir les fichiers d'exemple.
 
-### To set up the database from scratch
+Kinds supportés : `openai_compatible`, `ragustave`, `gemini`, `openrouter`, `cerebras`.
 
-```bash
-docker compose exec api python scripts/db/db_static_content.py
-```
+> Le fournisseur et le modèle actifs peuvent être changés à chaud depuis le panneau d'administration, sans redémarrage.
 
-To populate the vector database for RAG :
+---
 
-```bash
-docker compose exec api python scripts/db/db_populate_vectors.py
-```
-
-### To populate the database from a database dump (`database.dump`)
+## Commandes Docker utiles
 
 ```bash
-python .\back\scripts\db\db_restore.py .\back\resources\backups\agora_db_timestamp.dump
+# Démarrer tous les services (build inclus)
+docker compose --env-file .env.dev up --build -d
+
+# Arrêter tous les services
+docker compose down
+
+# Voir les logs d'un service
+docker compose logs -f api
+docker compose logs -f frontend
+
+# Accéder à la base de données
+docker compose exec db psql -U agora -d agora_db
+
+# Créer un dump de la base de données
+docker compose exec db pg_dump -U agora -d agora_db -f dump.sql
+
+# Réinitialiser complètement la base (destructif)
+docker compose exec db psql -U agora -d agora_db -c "DROP SCHEMA public CASCADE; CREATE SCHEMA public;"
 ```
- 
-## urls and ports
 
-the backend is available at `http://localhost:8000`
+---
 
-the swagger api is available at `http://localhost:8000/docs`
+## Scripts utilitaires
 
-## benchmark 
+### Benchmarks
 
-run a benchmark for the multilingual-e5-large-instruct embedding model with weighted tests and dimension 1024, skipping LLM benchmarks:
+| Script | Commande | Description |
+|--------|----------|-------------|
+| `run_benchmark.py` | `docker compose exec api python scripts/benchmarks/run_benchmark.py` | Benchmark du modèle d'embedding |
+| `run_tests.py` | `docker compose exec api python scripts/benchmarks/run_tests.py` | Tests de performance |
+
+Exemple d'utilisation :
+
 ```bash
-docker compose exec api python scripts/benchmarks/run_benchmark.py --embed-model /opt/models/multilingual-e5-large-instruct -j weighted/simple.json --dimension 1024 --skip-llm
+docker compose exec api python scripts/benchmarks/run_benchmark.py \
+  --embed-model /opt/models/multilingual-e5-large-instruct \
+  -j weighted/simple.json \
+  --dimension 1024 \
+  --skip-llm
 ```
 
-download an embedding model :
+### Restauration de base de données
 
 ```bash
-docker compose exec api python scripts/benchmarks/download_models.py OrdalieTech/Solon-embeddings-large-0.1 
+# Depuis un fichier .sql dans le conteneur
+docker compose exec db psql -U agora -d agora_db -f dump.sql
 ```
+
+---
 
 ## Tests
 
-To run the tests, you can use the following command:
-
 ```bash
+# Lancer tous les tests
 docker compose exec api pytest -v
+
+# Lancer un package de tests spécifique
+docker compose exec api pytest -v tests/services/
+
+# Lancer les tests avec couverture de code
+docker compose exec api pytest --cov=src -v
 ```
 
-To run a specific package of tests, you can use the following command:
+---
 
-```bash
-docker compose exec api pytest -v tests/package_name
-```
+## Déploiement en production
 
-To update the log db tables (this deletes all previous log data !):
+Le déploiement en production est géré via le pipeline CI/CD GitHub Actions (`.github/workflows/deploy.yml`). Tout push sur la branche `main` déclenche :
 
-```bash
-docker compose exec api python scripts/db/db_setup_log_tables.py
-```
+1. Le build et le push des images Docker vers GitHub Container Registry (GHCR)
+2. Le déploiement automatique sur le VPS via SSH
 
-```SQL
-DROP SCHEMA public CASCADE;
-CREATE SCHEMA public;
-```
+Pour la configuration complète du VPS et du pipeline CI/CD, voir [`docs/MANUEL_DEVELOPPEUR.md`](docs/MANUEL_DEVELOPPEUR.md#6-déploiement-en-production).
 
-to restore dump.sql : 
+Pour la gestion des secrets GitHub Actions, voir [`SECRETS.md`](SECRETS.md).
 
-```bash
-docker compose exec db psql -U agora -d agora_db -f dump.sql
-```
+---
+
+## URLs et ports
+
+| Service | URL (développement) |
+|---------|---------------------|
+| Application (frontend) | http://localhost |
+| API backend | http://localhost:8000 |
+| Documentation Swagger | http://localhost:8000/docs |
+| Base de données | `docker compose exec db psql -U agora -d agora_db` |
+
+---
+
+## Documentation complète
+
+| Document | Description |
+|----------|-------------|
+| [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) | Architecture technique détaillée |
+| [`docs/MANUEL_DEVELOPPEUR.md`](docs/MANUEL_DEVELOPPEUR.md) | Guide développeur, setup, déploiement production |
+| [`docs/MANUEL_UTILISATEUR.md`](docs/MANUEL_UTILISATEUR.md) | Guide d'utilisation de l'application |
+| [`docs/ISSUES_ET_AMELIORATIONS.md`](docs/ISSUES_ET_AMELIORATIONS.md) | Problèmes connus et pistes d'amélioration |
+| [`SECRETS.md`](SECRETS.md) | Configuration des secrets GitHub Actions |
+
