@@ -61,7 +61,7 @@
 
     @if (statsService.loading()) {
       <div class="summary-cards">
-        @for (i of [1, 2, 3, 4]; track i) {
+        @for (i of [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]; track i) {
           <div class="card card--skeleton">
             <div class="skeleton-line skeleton-icon"></div>
             <div class="skeleton-line skeleton-label"></div>
@@ -81,7 +81,7 @@
     } @else {
       <div class="summary-cards">
 
-        <div class="card card--conversations">
+        <div class="card card--conversations" title="Nombre total de conversations enregistrées dans les journaux (chaque conversation regroupe un ou plusieurs échanges utilisateur/système).">
           <div class="card-header">
             <div class="card-icon">
               <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
@@ -93,7 +93,7 @@
           <div class="card-value">{{ statsService.stats()?.summary?.total_conversations ?? 0 }}</div>
         </div>
 
-        <div class="card card--exercises">
+        <div class="card card--exercises" title="Nombre d'exercices publiés avec succès sur PLaTon.">
           <div class="card-header">
             <div class="card-icon">
               <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
@@ -107,7 +107,47 @@
           <div class="card-value">{{ statsService.stats()?.summary?.total_published_exercises ?? 0 }}</div>
         </div>
 
-        <div class="card card--failures">
+        <div class="card card--clean" title="Générations qui se sont terminées avec succès dès le premier essai, sans aucune erreur de compilation ou d'exécution sandbox.">
+          <div class="card-header">
+            <div class="card-icon">
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+                <polyline points="22 4 12 14.01 9 11.01"/>
+              </svg>
+            </div>
+            <span class="card-label">Générations sans erreur</span>
+          </div>
+          <div class="card-value">{{ statsService.stats()?.summary?.clean_generations ?? 0 }}</div>
+        </div>
+
+        <div class="card card--recovered" title="Générations qui ont rencontré au moins une erreur sandbox, mais qui ont été automatiquement corrigées grâce au mécanisme de retry.">
+          <div class="card-header">
+            <div class="card-icon">
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/>
+                <path d="M3 3v5h5"/>
+              </svg>
+            </div>
+            <span class="card-label">Erreurs corrigées (retry)</span>
+          </div>
+          <div class="card-value">{{ statsService.stats()?.summary?.recovered_generations ?? 0 }}</div>
+        </div>
+
+        <div class="card card--fatal" title="Générations qui ont échoué définitivement à cause d'erreurs sandbox (compilation ou exécution) que le mécanisme de retry n'a pas pu corriger.">
+          <div class="card-header">
+            <div class="card-icon">
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <circle cx="12" cy="12" r="10"/>
+                <line x1="15" y1="9" x2="9" y2="15"/>
+                <line x1="9" y1="9" x2="15" y2="15"/>
+              </svg>
+            </div>
+            <span class="card-label">Échecs fatals (sandbox)</span>
+          </div>
+          <div class="card-value">{{ statsService.stats()?.summary?.fatal_generations ?? 0 }}</div>
+        </div>
+
+        <div class="card card--internal-error" title="Générations qui ont échoué à cause d'une erreur interne du système (problème réseau, erreur LLM, erreur de parsing…) — non liée au sandbox.">
           <div class="card-header">
             <div class="card-icon">
               <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
@@ -116,12 +156,12 @@
                 <line x1="12" y1="17" x2="12.01" y2="17"/>
               </svg>
             </div>
-            <span class="card-label">Échecs</span>
+            <span class="card-label">Erreurs internes</span>
           </div>
-          <div class="card-value">{{ statsService.stats()?.summary?.total_failures ?? 0 }}</div>
+          <div class="card-value">{{ statsService.stats()?.summary?.internal_error_generations ?? 0 }}</div>
         </div>
 
-        <div class="card card--response-time">
+        <div class="card card--response-time" title="Temps moyen entre la réception de la requête et la fin de la génération (incluant RAG, LLM et sandbox).">
           <div class="card-header">
             <div class="card-icon">
               <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
@@ -132,6 +172,44 @@
             <span class="card-label">Temps de réponse moyen</span>
           </div>
           <div class="card-value">{{ formatResponseTime(statsService.stats()?.summary?.avg_response_time_ms ?? null) }}</div>
+        </div>
+
+        <div class="card card--tokens-in" title="Nombre total de tokens envoyés au modèle LLM (prompts système + contenu utilisateur).">
+          <div class="card-header">
+            <div class="card-icon">
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <polyline points="22 12 16 12 14 15 10 9 8 12 2 12"/>
+              </svg>
+            </div>
+            <span class="card-label">Tokens en entrée</span>
+          </div>
+          <div class="card-value">{{ formatNumber(statsService.stats()?.summary?.total_input_tokens ?? 0) }}</div>
+        </div>
+
+        <div class="card card--tokens-out" title="Nombre total de tokens générés par le modèle LLM (code, texte, JSON).">
+          <div class="card-header">
+            <div class="card-icon">
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <polyline points="22 12 16 12 14 15 10 9 8 12 2 12"/>
+              </svg>
+            </div>
+            <span class="card-label">Tokens en sortie</span>
+          </div>
+          <div class="card-value">{{ formatNumber(statsService.stats()?.summary?.total_output_tokens ?? 0) }}</div>
+        </div>
+
+        <div class="card card--tokens-avg" title="Moyenne de tokens (entrée + sortie) consommés par génération sur la période sélectionnée.">
+          <div class="card-header">
+            <div class="card-icon">
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <line x1="18" y1="20" x2="18" y2="10"/>
+                <line x1="12" y1="20" x2="12" y2="4"/>
+                <line x1="6" y1="20" x2="6" y2="14"/>
+              </svg>
+            </div>
+            <span class="card-label">Tokens moy. / génération</span>
+          </div>
+          <div class="card-value">{{ formatNumber(statsService.stats()?.summary?.avg_tokens_per_generation ?? 0) }}</div>
         </div>
 
       </div>

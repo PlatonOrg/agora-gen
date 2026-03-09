@@ -198,7 +198,7 @@ class Settings(BaseSettings):
     # ==================================================================
     # Template and Workspace Constants
     # ==================================================================
-    TEMPLATE_SCORE_THRESHOLD: float = 0.9
+    TEMPLATE_SCORE_THRESHOLD: float = 0.89
     REQUIRED_FIELDS_MAX_LENGTH: int = 700
     OTHER_FIELDS_MAX_LENGTH: int = 200
 

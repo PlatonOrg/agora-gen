@@ -192,12 +192,7 @@ export interface GenerationStats {
 }
 
 export interface AppConfig {
-  exo_embedding_model: string;
-  exo_llm_provider: string;
-  exo_llm_model: string;
-  discussion_embedding_model: string;
-  discussion_llm_provider: string;
-  discussion_llm_model: string;
+  embedding_model: string;
 }
 
 export interface LLMOptionEntry {

@@ -1,5 +1,6 @@
 import { Component, OnInit, signal, inject, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { LogsService } from '../../../../core/logging/logs.service';
 import { ConversationSummary } from '../../models/log.model';
 import { LogStatusViewComponent, LoadingState } from '../log-status-view/log-status-view.component';
@@ -22,7 +23,7 @@ const SORT_OPTIONS: SortOption[] = [
   selector: 'app-log-conversations-view',
   standalone: true,
   imports: [
-    CommonModule,
+    CommonModule, FormsModule,
     LogStatusViewComponent, LogBadgeComponent,
     LogPaginationComponent, LogSortBarComponent,
     SessionDetailViewComponent,
@@ -43,19 +44,39 @@ export class LogConversationsViewComponent implements OnInit {
   protected readonly sortField = signal<SortField>('last_at');
   protected readonly sortDirection = signal<SortDir>('desc');
 
+  protected readonly dateFrom = signal('');
+  protected readonly dateTo = signal('');
+
+  /** Tracks which conversation is pending delete confirmation. */
+  protected readonly pendingDeleteId = signal<string | null>(null);
+
   protected readonly sortOptions = SORT_OPTIONS;
 
   protected readonly processed = computed<ConversationSummary[]>(() => {
     const q = this.searchQuery().trim().toLowerCase();
     const field = this.sortField();
     const dir = this.sortDirection();
+    const from = this.dateFrom();
+    const to = this.dateTo();
 
-    let list = q
-      ? this.conversations().filter(c =>
-          (c.username ?? '').toLowerCase().includes(q) ||
-          (c.conversation_id ?? '').toLowerCase().includes(q)
-        )
-      : this.conversations();
+    let list = this.conversations();
+
+    // Text search filter
+    if (q) {
+      list = list.filter((c: ConversationSummary) =>
+        (c.username ?? '').toLowerCase().includes(q) ||
+        (c.conversation_id ?? '').toLowerCase().includes(q)
+      );
+    }
+
+    // Date window filter
+    if (from) {
+      list = list.filter((c: ConversationSummary) => (c.started_at ?? '') >= from);
+    }
+    if (to) {
+      const toExclusive = to + 'T23:59:59';
+      list = list.filter((c: ConversationSummary) => (c.started_at ?? '') <= toExclusive);
+    }
 
     list = [...list].sort((a, b) => {
       let va: string | number;
@@ -81,6 +102,9 @@ export class LogConversationsViewComponent implements OnInit {
     paginate(this.processed(), this.page(), PAGE_SIZE)
   );
 
+  /** Raw unfiltered count — used to distinguish "no data at all" from "filters excluded everything". */
+  protected readonly totalCount = computed(() => this.conversations().length);
+
   async ngOnInit(): Promise<void> {
     try {
       const data = await this.logsService.getConversations();
@@ -97,10 +121,48 @@ export class LogConversationsViewComponent implements OnInit {
     this.page.set(1);
   }
 
+  protected onDateFromChange(value: string): void {
+    this.dateFrom.set(value);
+    this.page.set(1);
+  }
+
+  protected onDateToChange(value: string): void {
+    this.dateTo.set(value);
+    this.page.set(1);
+  }
+
+  protected clearDateFilter(): void {
+    this.dateFrom.set('');
+    this.dateTo.set('');
+    this.page.set(1);
+  }
+
   protected onSortChanged(event: { field: SortField; direction: SortDir }): void {
     this.sortField.set(event.field);
     this.sortDirection.set(event.direction);
     this.page.set(1);
+  }
+
+  protected confirmDelete(conversationId: string, event: MouseEvent): void {
+    event.stopPropagation();
+    this.pendingDeleteId.set(conversationId);
+  }
+
+  protected cancelDelete(event: MouseEvent): void {
+    event.stopPropagation();
+    this.pendingDeleteId.set(null);
+  }
+
+  protected async executeDelete(conversationId: string, event: MouseEvent): Promise<void> {
+    event.stopPropagation();
+    try {
+      await this.logsService.deleteConversation(conversationId);
+      this.conversations.update((list: ConversationSummary[]) => list.filter((c: ConversationSummary) => c.conversation_id !== conversationId));
+    } catch (err: unknown) {
+      console.error('Failed to delete conversation', err);
+    } finally {
+      this.pendingDeleteId.set(null);
+    }
   }
 
   protected formatDate(iso: string): string { return fmtDateTime(iso); }

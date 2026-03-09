@@ -1,8 +1,6 @@
-import { Component, input, signal, computed } from '@angular/core';
+import { Component, input, computed, output } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { AnyGeneration, ExoGenerationDetail, DiscussionGenerationDetail } from '../../../models/log.model';
-import { ExoGenerationDetailComponent } from '../../exo-generation-detail/exo-generation-detail.component';
-import { DiscussionGenerationDetailComponent } from '../../discussion-generation-detail/discussion-generation-detail.component';
 import { truncate, fmtTime } from '../../../utils/log-format.utils';
 
 const STATUS_LABELS: Record<string, string> = {
@@ -17,13 +15,14 @@ const STATUS_LABELS: Record<string, string> = {
 @Component({
   selector: 'app-generation-list-item',
   standalone: true,
-  imports: [CommonModule, ExoGenerationDetailComponent, DiscussionGenerationDetailComponent],
+  imports: [CommonModule],
   templateUrl: './generation-list-item.component.html',
   styleUrl: './generation-list-item.component.scss',
 })
 export class GenerationListItemComponent {
   gen = input.required<AnyGeneration>();
-  protected readonly open = signal(false);
+  readonly selected = output<AnyGeneration>();
+
   protected readonly isDiscussion = computed(() => this.gen().kind === 'discussion');
   protected readonly preview = computed(() => {
     const g = this.gen();
@@ -42,8 +41,10 @@ export class GenerationListItemComponent {
     return status === 'error' || status === 'failed';
   }
 
-  protected asExo(): ExoGenerationDetail { return this.gen() as ExoGenerationDetail; }
-  protected asDisc(): DiscussionGenerationDetail { return this.gen() as DiscussionGenerationDetail; }
+  protected onSelect(): void {
+    this.selected.emit(this.gen());
+  }
+
   protected fmt(iso: string | null | undefined): string { return fmtTime(iso); }
 }
 

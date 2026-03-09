@@ -6,7 +6,6 @@ import { LlmCapabilitiesService } from '../../../../core/llm/llm-capabilities.se
 import { LlmOptionsPollingService } from '../../../../core/llm/llm-options-polling.service';
 import { AppConfig, LLMOptionEntry, RuntimeSettingEntry } from '../../models/log.model';
 import { LogStatusViewComponent, LoadingState } from '../log-status-view/log-status-view.component';
-import { LogBadgeComponent } from '../shared/log-badge/log-badge.component';
 
 interface EditableSetting {
   key: string;
@@ -23,7 +22,7 @@ interface EditableSetting {
 @Component({
   selector: 'app-log-stats-view',
   standalone: true,
-  imports: [CommonModule, FormsModule, LogStatusViewComponent, LogBadgeComponent],
+  imports: [CommonModule, FormsModule, LogStatusViewComponent],
   templateUrl: './log-stats-view.component.html',
   styleUrl: './log-stats-view.component.scss',
 })
@@ -48,9 +47,10 @@ export class LogStatsViewComponent implements OnInit, OnDestroy {
 
   /** Derived: true when the selected option differs from the current config. */
   protected readonly hasUnsavedChanges = computed(() => {
-    const cfg = this.config();
-    if (!cfg) return false;
-    const currentKey = this.buildOptionKey(cfg.exo_llm_provider, cfg.exo_llm_model);
+    const currentProvider = this.llmPolling.currentProviderName();
+    const currentModel = this.llmPolling.currentModelName();
+    if (!currentProvider || !currentModel) return false;
+    const currentKey = this.buildOptionKey(currentProvider, currentModel);
     return this.selectedOptionKey() !== currentKey;
   });
 
@@ -283,5 +283,20 @@ export class LogStatsViewComponent implements OnInit, OnDestroy {
 
   private clearSettingsSaveMessage(): void {
     this.settingsSaveMessage.set(null);
+  }
+
+  /**
+   * Extracts just the model name from a potentially full path.
+   * e.g. "/opt/models/intfloat_multilingual-e5-large-instruct" → "intfloat_multilingual-e5-large-instruct"
+   * e.g. "intfloat/multilingual-e5-large-instruct" → "intfloat/multilingual-e5-large-instruct"
+   */
+  protected extractModelName(value: string): string {
+    if (!value) return value;
+    // If it looks like an absolute path, extract the last segment
+    if (value.startsWith('/') || value.startsWith('\\') || value.includes('\\')) {
+      const parts = value.replace(/\\/g, '/').split('/');
+      return parts[parts.length - 1] || value;
+    }
+    return value;
   }
 }

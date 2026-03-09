@@ -1,2 +1,11 @@
 .disc-detail { display: flex; flex-direction: column; gap: 8px; padding: 12px; }
 
+.collapsible-section { width: 100%; }
+
+.detail-label--clickable {
+  cursor: pointer;
+  user-select: none;
+  &:hover { color: var(--brand-color-secondary, #3b82f6); }
+  &::marker { color: var(--brand-text-tertiary, #94a3b8); }
+}
+

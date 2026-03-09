@@ -94,69 +94,59 @@ def _build_selection_user_prompt(
 ) -> str:
     parts: List[str] = []
 
+    # Available components — short description only
     parts.append("## Composants disponibles")
-    parts.append("La description courte de chaque composant que tu peux sélectionner suit ci-dessous.")
     parts.append(_build_component_docs_block(available_tags, metadata, full=False))
     parts.append("")
 
-    if user_priority_tags:
-        parts.append("## Composants imposés par l'utilisateur (obligatoires)")
-        parts.append(
-            "Les composants suivants ont été explicitement sélectionnés par l'utilisateur. "
-            "Ils DOIVENT figurer dans ta sélection finale sans exception. "
-            "Ton raisonnement doit expliquer précisément comment chacun sera utilisé dans l'exercice "
-            "(en te référant à ses propriétés documentées), et tu dois sélectionner les composants additionnels "
-            "nécessaires pour compléter l'exercice et répondre pleinement à la demande."
-        )
-        mandatory_docs = _build_component_docs_block(user_priority_tags, metadata, full=True)
-        if mandatory_docs:
-            parts.append(mandatory_docs)
-        else:
-            parts.append(", ".join(user_priority_tags))
-        parts.append("")
-
+    # User request
     parts.append("## Demande de l'utilisateur")
     parts.append(user_request)
     parts.append("")
 
+    # Mandatory components (user-chosen) — full docs so LLM knows how to use them
+    if user_priority_tags:
+        parts.append("## Composants imposés par l'utilisateur (obligatoires)")
+        parts.append(
+            "Les composants suivants ont été explicitement choisis par l'utilisateur. "
+            "Ils DOIVENT figurer dans la sélection finale sans exception."
+        )
+        mandatory_docs = _build_component_docs_block(user_priority_tags, metadata, full=True)
+        parts.append(mandatory_docs if mandatory_docs else ", ".join(user_priority_tags))
+        parts.append("")
+
+    # Attached files
     if file_summaries:
-        relevant_summaries = [s for s in file_summaries if s and s.strip()]
-        if relevant_summaries:
+        relevant = [s for s in file_summaries if s and s.strip()]
+        if relevant:
             parts.append("## Résumés des fichiers joints")
-            parts.append(
-                "L'utilisateur a joint les fichiers suivants. "
-                "Utilise leur contenu pour mieux comprendre le sujet traité, "
-                "les données à injecter dans l'exercice ou le format de réponse attendu."
-            )
-            for i, summary in enumerate(relevant_summaries, start=1):
+            for i, summary in enumerate(relevant, start=1):
                 parts.append(f"- Fichier {i} : {summary}")
             parts.append("")
 
+    # Existing components in the exercise (for modification requests)
     if current_components:
         parts.append("## Composants déjà présents dans l'exercice")
-        parts.append(
-            "L'exercice en cours de modification utilise déjà les composants suivants. "
-            "Assure-toi que ta sélection est cohérente avec la structure existante. "
-            "Ne supprime pas les composants qui restent pertinents."
-        )
         parts.append(", ".join(current_components))
         parts.append("")
 
+    # Task instruction — direct, no verbose scaffold
     parts.append("## Tâche")
     if user_priority_tags:
         parts.append(
-            f"L'utilisateur a imposé : {', '.join(user_priority_tags)}. "
-            "Ces composants font déjà partie de la conception de l'exercice. "
-            "Détermine quels COMPOSANTS ADDITIONNELS de la liste disponible sont nécessaires "
-            "pour réaliser pleinement l'exercice. "
-            "Retourne TOUS les composants requis — ceux imposés par l'utilisateur ET tes ajouts. "
-            "Applique la structure de raisonnement complète définie dans le prompt système."
+            f"Les composants imposés sont : {', '.join(user_priority_tags)}. "
+            "Sélectionne les composants additionnels nécessaires (liste disponible ci-dessus) "
+            "et retourne la liste complète (imposés + additionnels). "
+            "Dans ton raisonnement, explique uniquement comment les composants "
+            "sélectionnés (hors imposés) répondent à la demande et comment ils seront "
+            "utilisés concrètement dans l'exercice."
         )
     else:
         parts.append(
-            "Détermine l'ensemble minimal de composants de la liste disponible "
-            "qui prennent ensemble en charge cet exercice. "
-            "Applique la structure de raisonnement complète définie dans le prompt système."
+            "Sélectionne l'ensemble minimal de composants de la liste disponible "
+            "qui permet de construire cet exercice. "
+            "Dans ton raisonnement, explique comment les composants sélectionnés "
+            "seront utilisés concrètement dans l'exercice."
         )
 
     return "\n".join(parts)

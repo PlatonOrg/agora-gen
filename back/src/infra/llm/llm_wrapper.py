@@ -34,6 +34,9 @@ async def chat_with_llm(
     llm_calls_accumulator: Optional[List[Dict[str, Any]]] = None,
     call_type: str = "generation",
 ) -> LLMResult:
+
+    logger.info(f"system prompt : {system_prompt}")
+
     registry = get_llm_registry()
     provider = registry.default_provider
     model = registry.default_model_for(provider.name)

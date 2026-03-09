@@ -589,7 +589,12 @@ export class ExerciseContentPanelComponent implements AfterViewInit {
   public openPublishDialog(): void { this.showPublishDialog.set(true); }
   protected closePublishDialog(): void { this.showPublishDialog.set(false); }
 
+  /** True while a publish request is in flight. */
+  isPublishing = signal<boolean>(false);
+
   protected async onPublishRequest(request: PublishExerciseRequest): Promise<void> {
+    if (this.isPublishing()) return;
+    this.isPublishing.set(true);
     try {
       await this.chatService.publishExercise(this.exerciseId(), request);
       this.closePublishDialog();
@@ -598,6 +603,8 @@ export class ExerciseContentPanelComponent implements AfterViewInit {
       this.closePublishDialog();
       const msg = error instanceof Error ? error.message : 'La publication a échoué.';
       this.showPublishFeedback({ type: 'error', message: msg });
+    } finally {
+      this.isPublishing.set(false);
     }
   }
 

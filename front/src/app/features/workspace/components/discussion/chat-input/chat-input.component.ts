@@ -24,6 +24,7 @@ export class ChatInputComponent implements AfterViewInit {
   parameterBadges = input<{ name: string; type: string }[]>([]);
   fieldBadges = input<{ name: string }[]>([]);
   attachedFiles = input<File[]>([]);
+  processingFiles = input<string[]>([]);
 
   modeChange = output<AssistantMode>();
   send = output<string>();
@@ -75,7 +76,8 @@ export class ChatInputComponent implements AfterViewInit {
     this.componentBadges().length > 0 ||
     this.parameterBadges().length > 0 ||
     this.fieldBadges().length > 0 ||
-    this.attachedFiles().length > 0
+    this.attachedFiles().length > 0 ||
+    this.processingFiles().length > 0
   );
 
   protected readonly componentNames = computed(() => this.componentBadges().map(b => b.name));

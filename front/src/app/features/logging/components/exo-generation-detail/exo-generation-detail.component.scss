@@ -43,3 +43,54 @@
   &__type { display: flex; align-items: center; }
   &__model { color: var(--text-secondary, #475569); font-family: monospace; font-size: 11px; }
 }
+
+// ── Pretty conversation history ──────────────────────────────────────
+
+.history-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-top: 6px;
+}
+
+.history-item {
+  padding: 8px 12px;
+  border-radius: 6px;
+  background: var(--brand-background-secondary, #f8fafc);
+  border: 1px solid var(--brand-border-color, #e2e8f0);
+}
+
+.history-item__content {
+  font-size: 0.8125rem;
+  color: var(--brand-text-primary, #0f172a);
+  line-height: 1.5;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.history-item__components {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-top: 4px;
+}
+
+// ── Collapsible sections for long content ────────────────────────────
+
+.collapsible-section {
+  width: 100%;
+}
+
+.detail-label--clickable {
+  cursor: pointer;
+  user-select: none;
+
+  &:hover {
+    color: var(--brand-color-secondary, #3b82f6);
+  }
+
+  &::marker {
+    color: var(--brand-text-tertiary, #94a3b8);
+  }
+}
+

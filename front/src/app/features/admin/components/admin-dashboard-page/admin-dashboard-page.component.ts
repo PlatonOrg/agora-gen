@@ -68,6 +68,11 @@ export class AdminDashboardPageComponent implements OnInit {
     this.router.navigate(['/workspace']);
   }
 
+  protected formatNumber(n: number | null): string {
+    if (n === null || n === undefined) return '0';
+    return n.toLocaleString('fr-FR');
+  }
+
   private formatDate(d: Date): string {
     return d.toISOString().split('T')[0];
   }

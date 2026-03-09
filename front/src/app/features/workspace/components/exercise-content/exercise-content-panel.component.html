@@ -618,6 +618,7 @@
       [exerciseName]="currentExerciseData().name"
       [exerciseDescription]="currentExerciseData().description"
       [exerciseTemplateId]="currentExerciseData().template_id"
+      [isLoading]="isPublishing()"
       (publishRequest)="onPublishRequest($event)"
       (cancelRequest)="closePublishDialog()">
     </app-publish-dialog>

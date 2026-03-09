@@ -2,11 +2,13 @@ import { Component, input, OnInit, signal, inject, computed, output } from '@ang
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { LogsService } from '../../../../core/logging/logs.service';
-import { SessionDetail, ConversationDetail, AnyGeneration } from '../../models/log.model';
+import { SessionDetail, ConversationDetail, AnyGeneration, ExoGenerationDetail, DiscussionGenerationDetail } from '../../models/log.model';
 import { LogStatusViewComponent, LoadingState } from '../log-status-view/log-status-view.component';
 import { LogBadgeComponent } from '../shared/log-badge/log-badge.component';
 import { LogPaginationComponent } from '../shared/log-pagination/log-pagination.component';
 import { GenerationListItemComponent } from '../shared/generation-list-item/generation-list-item.component';
+import { ExoGenerationDetailComponent } from '../exo-generation-detail/exo-generation-detail.component';
+import { DiscussionGenerationDetailComponent } from '../discussion-generation-detail/discussion-generation-detail.component';
 import { fmtDateTime } from '../../utils/log-format.utils';
 import { paginate, totalPages } from '../../utils/pagination.utils';
 
@@ -30,6 +32,7 @@ interface DetailData {
     CommonModule, FormsModule,
     LogStatusViewComponent, LogBadgeComponent,
     LogPaginationComponent, GenerationListItemComponent,
+    ExoGenerationDetailComponent, DiscussionGenerationDetailComponent,
   ],
   templateUrl: './session-detail-view.component.html',
   styleUrls: ['../../logging.shared.scss', './session-detail-view.component.scss'],
@@ -46,6 +49,7 @@ export class SessionDetailViewComponent implements OnInit {
   protected readonly filter = signal<GenFilter>('all');
   protected readonly sortDirection = signal<SortDir>('asc');
   protected readonly page = signal(1);
+  protected readonly selectedGeneration = signal<AnyGeneration | null>(null);
 
   protected readonly allGenerations = computed<AnyGeneration[]>(() => {
     const d = this.detail();
@@ -59,7 +63,7 @@ export class SessionDetailViewComponent implements OnInit {
     const dir = this.sortDirection();
     let list = f === 'all'
       ? this.allGenerations()
-      : this.allGenerations().filter(g => g.kind === f);
+      : this.allGenerations().filter((g: AnyGeneration) => g.kind === f);
     return dir === 'desc' ? [...list].reverse() : list;
   });
 
@@ -100,6 +104,26 @@ export class SessionDetailViewComponent implements OnInit {
   protected toggleSort(): void {
     this.sortDirection.set(this.sortDirection() === 'asc' ? 'desc' : 'asc');
     this.page.set(1);
+  }
+
+  protected openGeneration(gen: AnyGeneration): void {
+    this.selectedGeneration.set(gen);
+  }
+
+  protected closeGeneration(): void {
+    this.selectedGeneration.set(null);
+  }
+
+  protected isExoGeneration(gen: AnyGeneration): gen is ExoGenerationDetail {
+    return gen.kind === 'exercise';
+  }
+
+  protected asExo(gen: AnyGeneration): ExoGenerationDetail {
+    return gen as ExoGenerationDetail;
+  }
+
+  protected asDisc(gen: AnyGeneration): DiscussionGenerationDetail {
+    return gen as DiscussionGenerationDetail;
   }
 
   protected fmtFull(iso: string | null | undefined): string { return fmtDateTime(iso); }

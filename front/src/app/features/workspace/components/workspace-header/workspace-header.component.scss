@@ -1,6 +1,10 @@
 :host {
   display: block;
   width: 100%;
+  // Register a container so child elements can react to available width
+  // rather than the viewport width (which doesn't change when panels open).
+  container-type: inline-size;
+  container-name: workspace-header;
 }
 
 .workspace-header {
@@ -26,7 +30,10 @@
   display: flex;
   align-items: center;
   gap: 2px;
-  flex-shrink: 0;
+  // Allow actions area to shrink when panels eat into available space.
+  flex-shrink: 1;
+  min-width: 0;
+  overflow: hidden;
 }
 
 .header-spacer {
@@ -70,8 +77,17 @@
 
   svg { flex-shrink: 0; color: inherit; }
 
+  // Hide labels when the header container is too narrow (panels open).
+  // Using a container query means this responds to actual available space,
+  // not the viewport width.
   .btn-label {
+    // Viewport fallback (kept for browsers without container query support)
     @media (max-width: 900px) { display: none; }
+  }
+
+  // Container query: hide labels when header itself is narrower than 760 px.
+  @container workspace-header (max-width: 760px) {
+    .btn-label { display: none; }
   }
 
   &:hover:not(:disabled) {
@@ -126,6 +142,13 @@
       color: var(--brand-text-primary);
       background-color: var(--brand-background-hover);
     }
+  }
+}
+
+// Also collapse the template badge label when narrow.
+.template-badge {
+  @container workspace-header (max-width: 760px) {
+    &__label, &__name { display: none; }
   }
 }
 
@@ -258,6 +281,10 @@
   gap: 0;
 
   @media (max-width: 800px) { display: none; }
+
+  @container workspace-header (max-width: 760px) {
+    display: none;
+  }
 }
 
 .user-name {

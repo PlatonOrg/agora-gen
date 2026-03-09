@@ -404,6 +404,42 @@ async def get_conversation_detail(conversation_id: str, db: AsyncSession) -> Opt
     )
 
 
+async def delete_conversation(conversation_id: str, db: AsyncSession) -> bool:
+    """Delete a conversation and all its associated generations.
+
+    Returns True if the conversation was found and deleted, False otherwise.
+    For __orphan__, deletes all generations with conversation_fk IS NULL.
+    """
+    if conversation_id == "__orphan__":
+        # Delete all orphaned exercise generations
+        orphan_exo = await db.execute(
+            select(ExoGeneration).where(ExoGeneration.conversation_fk.is_(None))
+        )
+        for row in orphan_exo.scalars().all():
+            await db.delete(row)
+
+        # Delete all orphaned discussion generations
+        orphan_disc = await db.execute(
+            select(DiscussionGeneration).where(DiscussionGeneration.conversation_fk.is_(None))
+        )
+        for row in orphan_disc.scalars().all():
+            await db.delete(row)
+
+        await db.commit()
+        return True
+
+    conv_result = await db.execute(
+        select(LogConversation).where(LogConversation.conversation_id == conversation_id)
+    )
+    conv = conv_result.scalar_one_or_none()
+    if not conv:
+        return False
+
+    await db.delete(conv)
+    await db.commit()
+    return True
+
+
 async def get_session_summaries(session: AsyncSession) -> List[SessionSummary]:
     exo_q = await session.execute(
         select(
@@ -556,23 +592,8 @@ async def get_generation_stats(db: AsyncSession) -> GenerationStats:
 
 
 def get_app_config() -> AppConfig:
-    from src.core.di import get_llm_registry
-    from src.services.rag.retrieval_service import get_embed_model
     from src.core.config_app import settings
-    from src.core import path_constants
-
-    registry = get_llm_registry()
-    provider_name = registry.default_provider_name
-    llm_model = registry.default_model_for(provider_name)
-
-    embed = get_embed_model()
-    exo_embed_model = getattr(embed, "model_name", str(embed))
 
     return AppConfig(
-        exo_embedding_model=exo_embed_model,
-        exo_llm_provider=provider_name,
-        exo_llm_model=llm_model,
-        discussion_embedding_model=str(path_constants.PLATON_DOCS_EMBED_MODEL),
-        discussion_llm_provider=provider_name,
-        discussion_llm_model=llm_model,
+        embedding_model=settings.EMBED_MODEL_HF_REPO_ID,
     )

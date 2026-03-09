@@ -57,13 +57,17 @@ import { ExerciseStatus, PublishExerciseRequest } from '../../models/publish.mod
         </div>
 
         <div class="dialog-footer">
-          <button type="button" class="btn btn--cancel" (click)="onCancel()">Annuler</button>
+          <button type="button" class="btn btn--cancel" (click)="onCancel()" [disabled]="isLoading()">Annuler</button>
           <button
             type="button"
             class="btn btn--primary"
             (click)="onPublish()"
-            [disabled]="!canPublish()">
-            Publier
+            [disabled]="!canPublish() || isLoading()">
+            @if (isLoading()) {
+              <span class="publish-spinner"></span> Publication…
+            } @else {
+              Publier
+            }
           </button>
         </div>
       </div>
@@ -209,7 +213,21 @@ import { ExerciseStatus, PublishExerciseRequest } from '../../models/publish.mod
     .btn--primary {
       background: var(--brand-color-primary);
       color: #fff;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
     }
+
+    .publish-spinner {
+      display: inline-block;
+      width: 12px;
+      height: 12px;
+      border: 2px solid rgba(255,255,255,0.35);
+      border-top-color: #fff;
+      border-radius: 50%;
+      animation: pub-spin 0.6s linear infinite;
+    }
+    @keyframes pub-spin { to { transform: rotate(360deg); } }
   `],
 })
 export class PublishDialogComponent {
@@ -218,6 +236,7 @@ export class PublishDialogComponent {
   exerciseName = input<string>('');
   exerciseDescription = input<string>('');
   exerciseTemplateId = input<string | null | undefined>(null);
+  isLoading = input<boolean>(false);
 
   publishRequest = output<PublishExerciseRequest>();
   cancelRequest = output<void>();

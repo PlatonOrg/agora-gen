@@ -28,8 +28,8 @@ Demande originale : {user_request}
 ## TYPES D'ERREUR
 
 - **compilation** : syntaxe PLE invalide (bloc `== ... ==` mal fermé, `==` littéraux dans les scripts, `\n` non résolus, nom de variable invalide avec `-`).
-- **runtime** : erreur Python/JS dans le **builder**. Le numéro de ligne est décalé par rapport au JSON — cherche par nom de variable ou type d'erreur.
-- **grader_runtime** : erreur Python/JS dans le **grader** uniquement. Correction lancée avec réponses vides — le grader doit gérer les valeurs par défaut des composants sans crasher.
+- **runtime** : erreur Python/JS dans le **builder**. Le numéro de ligne est décalé par rapport au JSON — cherche par nom de variable ou type d'erreur. cherche la cause dans le builder et corrige.
+- **grader_runtime** : erreur Python/JS dans le **grader** uniquement. Correction lancée avec réponses vides — le grader doit gérer les valeurs par défaut des composants sans crasher. cherche la cause dans le grader et corrige.
 
 ## RÈGLES DE CORRECTION
 
@@ -49,3 +49,8 @@ Demande originale : {user_request}
    - Noms de composants : pas de `-`, utilise `_`.
 5. **Retourne exactement les mêmes clés JSON** (name, description, title, statement, form, solution, sandbox, builder, grader, hint, theories, metadata). Ne supprime pas de clés, n'en ajoute pas.
 6. **JSON valide** — pas de commentaires, pas de trailing commas.
+7. Utilise pas du code dans une f-string, ce code est faux:
+```
+solution = f"Le nombre {n} {'est' if prime_flag else "n'est pas"} premier"
+```
+Il faut cacluler la partie dynamique à l'éxtérieur du f-string et l'injecter ensuite.

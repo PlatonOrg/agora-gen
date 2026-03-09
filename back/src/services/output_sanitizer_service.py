@@ -168,26 +168,69 @@ _MAX_HINTS = 5
 _MAX_THEORIES = 5
 
 
+def _coerce_to_list(value: object, field_name: str) -> list:
+    """Return *value* as a list.
+
+    Handles the case where a malformed LLM response emits a JSON array
+    field as a plain string (e.g. ``"[\"a\", \"b\"]"``).  Logs a warning
+    when coercion is required.
+    """
+    if isinstance(value, list):
+        return value
+    if isinstance(value, str):
+        import json as _json
+        stripped = value.strip()
+        # Try direct JSON parse of the string
+        if stripped.startswith("["):
+            try:
+                parsed = _json.loads(stripped)
+                if isinstance(parsed, list):
+                    logger.warning(
+                        "Field '%s' arrived as a JSON-encoded string — coerced to list.", field_name
+                    )
+                    return parsed
+            except _json.JSONDecodeError:
+                pass
+        # Fall back: split on common delimiters if it looks like a list of sentences/items
+        if stripped:
+            logger.warning(
+                "Field '%s' arrived as a plain string instead of an array — wrapping in list.", field_name
+            )
+            return [stripped]
+    logger.warning("Field '%s' has unexpected type %s — resetting to empty list.", field_name, type(value))
+    return []
+
+
 def _sanitize_metadata_arrays(exercise: GeneratedExercise) -> None:
     if exercise.topics is not None:
+        items = _coerce_to_list(exercise.topics, "topics")
         seen: dict[str, None] = {}
-        for t in exercise.topics:
+        for t in items:
             if isinstance(t, str) and t.strip():
                 seen[t.strip()] = None
         exercise.topics = list(seen.keys())[:_MAX_TOPICS]
 
     if exercise.levels is not None:
+        items = _coerce_to_list(exercise.levels, "levels")
         seen_levels: dict[str, None] = {}
-        for lv in exercise.levels:
+        for lv in items:
             if isinstance(lv, str) and lv.strip():
                 seen_levels[lv.strip()] = None
         exercise.levels = list(seen_levels.keys())[:_MAX_LEVELS]
 
-    if exercise.hint is not None and len(exercise.hint) > _MAX_HINTS:
-        exercise.hint = exercise.hint[:_MAX_HINTS]
+    if exercise.hint is not None:
+        items = _coerce_to_list(exercise.hint, "hint")
+        exercise.hint = [h for h in items if isinstance(h, str)][:_MAX_HINTS]
 
-    if exercise.theories is not None and len(exercise.theories) > _MAX_THEORIES:
-        exercise.theories = exercise.theories[:_MAX_THEORIES]
+    if exercise.theories is not None:
+        items = _coerce_to_list(exercise.theories, "theories")
+        # Each theory must be a dict with 'title' and 'url'
+        valid_theories = []
+        for t in items:
+            if isinstance(t, dict) and "title" in t and "url" in t:
+                valid_theories.append(t)
+        exercise.theories = valid_theories[:_MAX_THEORIES]
+
 
 
 def sanitize_generated_exercise(exercise: GeneratedExercise) -> GeneratedExercise:

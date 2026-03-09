@@ -129,7 +129,9 @@ async def log_exo_generation(payload: ExoGenerationLog) -> None:
                     llm_provider=payload.llm_provider,
                     llm_model=payload.llm_model,
                     preview_url=payload.preview_url or None,
-                    retry_count=payload.retry_count or None,
+                    # retry_count: NULL means no retry happened (first attempt succeeded).
+                    # Only store a value >= 2 when actual sandbox retries occurred.
+                    retry_count=payload.retry_count if (payload.retry_count is not None and payload.retry_count >= 2) else None,
                     retry_errors=payload.retry_errors or None,
                     request_received_at=payload.request_received_at,
                     input_tokens=payload.input_tokens,

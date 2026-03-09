@@ -37,7 +37,7 @@ def _load_workflow_config() -> WorkflowConfig:
 
     return WorkflowConfig(
         platon_base_url=settings.PLATON_BASE_URL,
-        template_score_threshold=settings.TEMPLATE_SCORE_THRESHOLD,
+        template_score_threshold=runtime_config.get_float(SettingKey.TEMPLATE_SCORE_THRESHOLD),
         num_example_exercises=runtime_config.get_int(SettingKey.NUM_EXAMPLE_EXERCISES),
         rag_table_name=settings.RAG_TABLE_NAME,
         rag_log_top_k=runtime_config.get_int(SettingKey.RAG_LOG_TOP_K),
@@ -208,6 +208,86 @@ async def _generate_pure_exercise(
     query = chat_request.user_request + " " + " ".join(exercise_data.components or [])
 
     llm_calls: List[Dict[str, Any]] = []
+
+    selection_result = None
+    component_selection_log = None
+    gen_result = None
+
+    try:
+        return await _generate_pure_exercise_inner(
+            exercise_data, chat_request, platon, user_token, progress_callback,
+            retrieved, session_id, is_modification, conversation_id, username,
+            cancellation_event, request_received_at, query, llm_calls,
+        )
+    except asyncio.CancelledError:
+        raise  # Let cancellation propagate without logging
+    except Exception as exc:
+        logger.error("Internal error during pure exercise generation: %s", exc, exc_info=True)
+        # Log the failed generation for audit/statistics purposes
+        try:
+            embed_model = get_embed_model()
+            embed_model_name = getattr(embed_model, "model_name", str(embed_model))
+        except Exception:
+            embed_model_name = "unknown"
+        asyncio.ensure_future(log_exo_generation(ExoGenerationLog(
+            user_request=chat_request.user_request,
+            components=exercise_data.components or [],
+            fields_to_modify=chat_request.fields_to_modify or [],
+            variables=None,
+            file_names=list(chat_request.file_ids or []),
+            file_summaries=list(chat_request.file_infos or []),
+            conversation_history=list(chat_request.conversation_history or []),
+            current_exercise_state=exercise_data.model_dump(),
+            retrieved_chunks=retrieved,
+            embedding_model=embed_model_name,
+            vector_table=_get_config().rag_table_name,
+            rag_query=query,
+            examples_used=[],
+            system_prompt_name="pure_exercise_modification" if is_modification else "pure_exercise",
+            llm_raw_output=None,
+            llm_output=None,
+            llm_provider="unknown",
+            llm_model="unknown",
+            session_id=session_id,
+            conversation_id=conversation_id,
+            username=username,
+            preview_url=None,
+            retry_count=None,
+            retry_errors=[str(exc)],
+            request_received_at=request_received_at,
+            status="error",
+            input_tokens=None,
+            output_tokens=None,
+            llm_request_count=0,
+            llm_calls=llm_calls or None,
+        )))
+        raise
+
+
+async def _generate_pure_exercise_inner(
+    exercise_data,
+    chat_request: ChatRequest,
+    platon,
+    user_token: str,
+    progress_callback: ProgressCallback,
+    retrieved: list,
+    session_id: str,
+    is_modification: bool,
+    conversation_id: str,
+    username: str,
+    cancellation_event: asyncio.Event,
+    request_received_at: datetime,
+    query: str,
+    llm_calls: List[Dict[str, Any]],
+) -> ChatResponse:
+    from src.services.generation_service import GenerationService
+    from src.services.rag.retrieval_service import get_embed_model
+    from src.services.component_selection_service import select_components_for_request
+    from src.infra.log.models import ComponentSelectionLog
+
+    def _check_cancelled() -> None:
+        if cancellation_event is not None and cancellation_event.is_set():
+            raise asyncio.CancelledError("Generation cancelled by user.")
 
     selection_result = None
     component_selection_log = None
@@ -488,6 +568,8 @@ async def handle_chat(
                 session_id=session_id,
                 is_modification=True,
                 cancellation_event=cancellation_event,
+                conversation_id=conversation_id,
+                username=username,
             )
             return _workflow_result_to_response(result, exercise_data, conversation_mode=locked_mode)
 
@@ -560,6 +642,8 @@ async def handle_chat(
             session_id=session_id,
             is_modification=False,
             cancellation_event=cancellation_event,
+            conversation_id=conversation_id,
+            username=username,
         )
         return _workflow_result_to_response(result, exercise_data, conversation_mode="template")
 
@@ -644,6 +728,8 @@ async def generate_and_process_template(
     session_id: str = None,
     is_modification: bool = False,
     cancellation_event: asyncio.Event = None,
+    conversation_id: str = None,
+    username: str = None,
 ) -> WorkflowResult:
     from src.services.generation_service import GenerationService
     from src.services.rag.retrieval_service import retrieval_service, get_embed_model
@@ -652,67 +738,117 @@ async def generate_and_process_template(
         if cancellation_event is not None and cancellation_event.is_set():
             raise asyncio.CancelledError("Generation cancelled by user.")
 
-    generation_service = GenerationService(temperature=_get_config().generation_temperature)
-    await _emit_progress(progress_callback, "llm_generation_started", {"value": "Generating template parameters with AI..."})
-    gen_result = await generation_service.generate_config_variables(
-        exercise_data=exercise_data,
-        user_request=user_request,
-        conversation_history=conversation_history,
-        fields_to_modify=fields_to_modify,
-        is_modification=is_modification,
-    )
-    await _emit_progress(
-        progress_callback,
-        "llm_generation_completed",
-        {"value": "Template parameter generation completed.", "generated_keys": list(gen_result.variables.keys()) if isinstance(gen_result.variables, dict) else []},
-    )
-    logger.info("Generated config variables: %s", gen_result.variables)
+    request_received_at = datetime.now(timezone.utc)
 
-    _check_cancelled()
+    try:
+        generation_service = GenerationService(temperature=_get_config().generation_temperature)
+        await _emit_progress(progress_callback, "llm_generation_started", {"value": "Generating template parameters with AI..."})
+        gen_result = await generation_service.generate_config_variables(
+            exercise_data=exercise_data,
+            user_request=user_request,
+            conversation_history=conversation_history,
+            fields_to_modify=fields_to_modify,
+            is_modification=is_modification,
+        )
+        await _emit_progress(
+            progress_callback,
+            "llm_generation_completed",
+            {"value": "Template parameter generation completed.", "generated_keys": list(gen_result.variables.keys()) if isinstance(gen_result.variables, dict) else []},
+        )
+        logger.info("Generated config variables: %s", gen_result.variables)
 
-    query = user_request + " " + " ".join(exercise_data.components or [])
-    retrieve_k = max(_get_config().rag_log_top_k, _get_config().num_example_exercises)
-    retrieved = retrieval_service.retrieve_resources(query=query, top_k=retrieve_k)
+        _check_cancelled()
 
-    embed_model = get_embed_model()
-    embed_model_name = getattr(embed_model, "model_name", str(embed_model))
+        query = user_request + " " + " ".join(exercise_data.components or [])
+        retrieve_k = max(_get_config().rag_log_top_k, _get_config().num_example_exercises)
+        retrieved = retrieval_service.retrieve_resources(query=query, top_k=retrieve_k)
 
-    workflow_result = await process_exercise_generation(
-        exercise_data,
-        gen_result.variables,
-        user_request=user_request,
-        user_token=user_token,
-        progress_callback=progress_callback,
-    )
+        embed_model = get_embed_model()
+        embed_model_name = getattr(embed_model, "model_name", str(embed_model))
 
-    system_prompt_name = "template_exercise_modification" if is_modification else "template_exercise"
-    asyncio.ensure_future(log_exo_generation(ExoGenerationLog(
-        user_request=user_request,
-        components=exercise_data.components or [],
-        fields_to_modify=fields_to_modify or [],
-        variables=exercise_data.config_variables,
-        file_names=[],
-        file_summaries=[],
-        conversation_history=list(conversation_history or []),
-        current_exercise_state=exercise_data.model_dump(),
-        retrieved_chunks=retrieved,
-        embedding_model=embed_model_name,
-        vector_table=_get_config().rag_table_name,
-        rag_query=query,
-        examples_used=[],
-        system_prompt_name=system_prompt_name,
-        llm_raw_output=gen_result.llm.raw_text or None,
-        llm_output=gen_result.variables if isinstance(gen_result.variables, dict) else None,
-        llm_provider=gen_result.llm.provider,
-        llm_model=gen_result.llm.model,
-        session_id=session_id,
-        preview_url=workflow_result.url if not workflow_result.error else None,
-        retry_count=workflow_result.retry_count,
-        retry_errors=workflow_result.retry_errors,
-        status="completed" if not workflow_result.error else "failed",
-        input_tokens=gen_result.llm.input_tokens,
-        output_tokens=gen_result.llm.output_tokens,
-        llm_request_count=gen_result.llm.request_count,
-    )))
+        workflow_result = await process_exercise_generation(
+            exercise_data,
+            gen_result.variables,
+            user_request=user_request,
+            user_token=user_token,
+            progress_callback=progress_callback,
+        )
 
-    return workflow_result
+        system_prompt_name = "template_exercise_modification" if is_modification else "template_exercise"
+        asyncio.ensure_future(log_exo_generation(ExoGenerationLog(
+            user_request=user_request,
+            components=exercise_data.components or [],
+            fields_to_modify=fields_to_modify or [],
+            variables=exercise_data.config_variables,
+            file_names=[],
+            file_summaries=[],
+            conversation_history=list(conversation_history or []),
+            current_exercise_state=exercise_data.model_dump(),
+            retrieved_chunks=retrieved,
+            embedding_model=embed_model_name,
+            vector_table=_get_config().rag_table_name,
+            rag_query=query,
+            examples_used=[],
+            system_prompt_name=system_prompt_name,
+            llm_raw_output=gen_result.llm.raw_text or None,
+            llm_output=gen_result.variables if isinstance(gen_result.variables, dict) else None,
+            llm_provider=gen_result.llm.provider,
+            llm_model=gen_result.llm.model,
+            session_id=session_id,
+            conversation_id=conversation_id,
+            username=username,
+            preview_url=workflow_result.url if not workflow_result.error else None,
+            retry_count=workflow_result.retry_count,
+            retry_errors=workflow_result.retry_errors,
+            request_received_at=request_received_at,
+            status="completed" if not workflow_result.error else "failed",
+            input_tokens=gen_result.llm.input_tokens,
+            output_tokens=gen_result.llm.output_tokens,
+            llm_request_count=gen_result.llm.request_count,
+        )))
+
+        return workflow_result
+
+    except asyncio.CancelledError:
+        raise
+    except Exception as exc:
+        logger.error("Internal error during template generation: %s", exc, exc_info=True)
+        try:
+            embed_model = get_embed_model()
+            embed_model_name = getattr(embed_model, "model_name", str(embed_model))
+        except Exception:
+            embed_model_name = "unknown"
+        query = user_request + " " + " ".join(exercise_data.components or [])
+        asyncio.ensure_future(log_exo_generation(ExoGenerationLog(
+            user_request=user_request,
+            components=exercise_data.components or [],
+            fields_to_modify=fields_to_modify or [],
+            variables=exercise_data.config_variables,
+            file_names=[],
+            file_summaries=[],
+            conversation_history=list(conversation_history or []),
+            current_exercise_state=exercise_data.model_dump(),
+            retrieved_chunks=[],
+            embedding_model=embed_model_name,
+            vector_table=_get_config().rag_table_name,
+            rag_query=query,
+            examples_used=[],
+            system_prompt_name="template_exercise_modification" if is_modification else "template_exercise",
+            llm_raw_output=None,
+            llm_output=None,
+            llm_provider="unknown",
+            llm_model="unknown",
+            session_id=session_id,
+            conversation_id=conversation_id,
+            username=username,
+            preview_url=None,
+            retry_count=None,
+            retry_errors=[str(exc)],
+            request_received_at=request_received_at,
+            status="error",
+            input_tokens=None,
+            output_tokens=None,
+            llm_request_count=0,
+        )))
+        raise
+

@@ -63,9 +63,13 @@
 
 .summary-cards {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
+  grid-template-columns: repeat(3, 1fr);
   gap: 1.5rem;
-  max-width: 900px;
+  max-width: 1100px;
+
+  @media (max-width: 900px) {
+    grid-template-columns: repeat(2, 1fr);
+  }
 
   @media (max-width: 768px) {
     grid-template-columns: 1fr;
@@ -107,7 +111,25 @@
   }
 }
 
-.card--failures {
+.card--clean {
+  border-left-color: var(--brand-success);
+
+  .card-icon {
+    background: rgba(var(--brand-success-rgb), 0.1);
+    color: var(--brand-success);
+  }
+}
+
+.card--recovered {
+  border-left-color: var(--brand-warning);
+
+  .card-icon {
+    background: rgba(var(--brand-warning-rgb), 0.1);
+    color: var(--brand-warning);
+  }
+}
+
+.card--fatal {
   border-left-color: var(--brand-error);
 
   .card-icon {
@@ -116,12 +138,48 @@
   }
 }
 
-.card--response-time {
-  border-left-color: var(--brand-warning);
+.card--internal-error {
+  border-left-color: #dc2626;
 
   .card-icon {
-    background: rgba(var(--brand-warning-rgb), 0.1);
-    color: var(--brand-warning);
+    background: rgba(220, 38, 38, 0.1);
+    color: #dc2626;
+  }
+}
+
+.card--response-time {
+  border-left-color: #8b5cf6;
+
+  .card-icon {
+    background: rgba(139, 92, 246, 0.1);
+    color: #8b5cf6;
+  }
+}
+
+.card--tokens-in {
+  border-left-color: #06b6d4;
+
+  .card-icon {
+    background: rgba(6, 182, 212, 0.1);
+    color: #06b6d4;
+  }
+}
+
+.card--tokens-out {
+  border-left-color: #f97316;
+
+  .card-icon {
+    background: rgba(249, 115, 22, 0.1);
+    color: #f97316;
+  }
+}
+
+.card--tokens-avg {
+  border-left-color: #ec4899;
+
+  .card-icon {
+    background: rgba(236, 72, 153, 0.1);
+    color: #ec4899;
   }
 }
 
@@ -216,7 +274,7 @@
   color: var(--brand-error);
   font-size: 0.875rem;
   font-family: var(--brand-font);
-  max-width: 900px;
+  max-width: 1100px;
 }
 
 // ─── Date range controls ─────────────────────────────────────────────────
@@ -227,7 +285,7 @@
   flex-wrap: wrap;
   gap: 12px;
   margin-bottom: 1.5rem;
-  max-width: 900px;
+  max-width: 1100px;
 }
 
 .date-presets {
@@ -311,7 +369,7 @@
 
 .chart-section {
   margin-top: 2rem;
-  max-width: 900px;
+  max-width: 1100px;
 }
 
 .chart-section__title {

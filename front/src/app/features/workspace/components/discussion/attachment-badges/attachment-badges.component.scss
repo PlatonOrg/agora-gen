@@ -73,4 +73,29 @@
   max-width: 200px;
 }
 
+.badge--processing {
+  opacity: 0.7;
+  animation: badge-pulse 1.2s ease-in-out infinite;
+}
+
+.badge__spinner {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  border: 2px solid rgba(255, 255, 255, 0.35);
+  border-top-color: #fff;
+  border-radius: 50%;
+  animation: badge-spin 0.6s linear infinite;
+  flex-shrink: 0;
+}
+
+@keyframes badge-spin {
+  to { transform: rotate(360deg); }
+}
+
+@keyframes badge-pulse {
+  0%, 100% { opacity: 0.7; }
+  50% { opacity: 0.4; }
+}
+
 

@@ -157,6 +157,12 @@ export class DiscussionPanelComponent implements AfterViewInit, OnDestroy {
    */
   private readonly _onBeforeUnload = (): void => this._stopIfGenerating();
 
+  /** Maps attached file name → file_id returned by backend upload. */
+  private readonly pendingFileIds = new Map<string, string>();
+
+  /** Signal tracking which files are currently being processed/uploaded. */
+  protected readonly processingFiles = signal<string[]>([]);
+
   constructor(
     private readonly chatService: ChatService,
     private readonly exerciseService: ExerciseService,
@@ -214,22 +220,34 @@ export class DiscussionPanelComponent implements AfterViewInit, OnDestroy {
 
   protected async onFilesDropped(files: File[]): Promise<void> {
     for (const file of files) {
+      this.processingFiles.update(pf => [...pf, file.name]);
       try {
-        await this.llmCapabilities.uploadFile(file);
+        const fileId = await this.llmCapabilities.uploadFile(file);
+        this.pendingFileIds.set(file.name, fileId);
         this.attachedFiles.update(c => [...c, file]);
       } catch (error) {
         if (this.isTokenLimitExceededError(error)) {
           this.showUploadError(
-            `Le fichier « ${file.name} » est trop volumineux et ne peut pas être joint. Veuillez utiliser un fichier plus petit.`
+            `Le fichier « ${file.name} » dépasse la limite de taille autorisée. Veuillez utiliser un fichier plus petit.`
+          );
+        } else if (this.isBinaryFormatError(error)) {
+          this.showUploadError(
+            `Le type du fichier « ${file.name} » n'est pas supporté. Seuls les documents textuels sont acceptés (pas de fichiers binaires).`
           );
         } else {
           this.showUploadError(
-            `Le fichier « ${file.name} » est trop volumineux ou n’a pas pu être chargé.`
+            `Le fichier « ${file.name} » n'a pas pu être chargé.`
           );
-          throw error;
         }
+      } finally {
+        this.processingFiles.update(pf => pf.filter(n => n !== file.name));
       }
     }
+  }
+
+  private isBinaryFormatError(error: unknown): boolean {
+    if (!(error instanceof Error)) return false;
+    return /binary format|type.*not.*support/i.test(error.message);
   }
 
   protected async handleSendMessage(messageContent: string): Promise<void> {
@@ -287,6 +305,7 @@ export class DiscussionPanelComponent implements AfterViewInit, OnDestroy {
       this.fieldBadges.set([]);
       this.attachedFiles.set([]);
       this.uploadedFiles.set([]);
+      this.pendingFileIds.clear();
       this.llmCapabilities.resetSessionFileCount();
       this.inputText.set('');
       this.userHasScrolledUp = false;
@@ -592,7 +611,16 @@ export class DiscussionPanelComponent implements AfterViewInit, OnDestroy {
   protected removeComponentBadge(tag: string): void { this.componentBadges.update(b => b.filter(x => x.tag !== tag)); this.saveCache(); }
   protected removeParameterBadge(name: string): void { this.parameterBadges.update(p => p.filter(x => x.name !== name)); this.saveCache(); }
   protected removeFieldBadge(name: string): void { this.fieldBadges.update(f => f.filter(x => x.name !== name)); this.saveCache(); }
-  protected removeAttachedFile(name: string): void { this.attachedFiles.update(c => c.filter(f => f.name !== name)); }
+  protected removeAttachedFile(name: string): void {
+    this.attachedFiles.update(c => c.filter(f => f.name !== name));
+    const fileId = this.pendingFileIds.get(name);
+    if (fileId) {
+      this.pendingFileIds.delete(name);
+      this.llmCapabilities.deleteSingleFile(fileId).catch(err =>
+        console.warn('[DiscussionPanel] Could not delete file from backend:', err)
+      );
+    }
+  }
 
   addMessage(message: Message): void { this.messages.update(msgs => [...msgs, message]); this.saveCache(); this.scrollToBottom(); }
 
@@ -661,6 +689,7 @@ export class DiscussionPanelComponent implements AfterViewInit, OnDestroy {
     this._activeGenerationId = null;
     this.messages.set([]); this.componentBadges.set([]); this.parameterBadges.set([]);
     this.fieldBadges.set([]); this.attachedFiles.set([]); this.uploadedFiles.set([]);
+    this.pendingFileIds.clear();
     this.inputText.set('');
     this.conversationMode.set(null);
     this.forcePureExercise.set(false);

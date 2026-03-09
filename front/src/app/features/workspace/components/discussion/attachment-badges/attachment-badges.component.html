@@ -49,5 +49,12 @@
       }
     </span>
   }
+
+  @for (pname of processingFileNames(); track pname) {
+    <span class="badge badge--file badge--processing" [title]="pname + ' (en cours de traitement…)'">
+      <span class="badge__spinner"></span>
+      <span class="badge__label">{{ truncate(pname) }}</span>
+    </span>
+  }
 </div>
 

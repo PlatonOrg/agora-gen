@@ -34,7 +34,8 @@
     "api_key": "${CEREBRAS_API_KEY}",
     "default_model": "gpt-oss-120b",
     "models": [
-      "gpt-oss-120b"
+      "gpt-oss-120b",
+      "llama3.1-8b"
     ],
     "default": true
   }

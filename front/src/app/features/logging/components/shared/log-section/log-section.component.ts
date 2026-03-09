@@ -1,4 +1,4 @@
-import { Component, input, signal, inject } from '@angular/core';
+import { Component, input, signal, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 
@@ -9,12 +9,19 @@ import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
   templateUrl: './log-section.component.html',
   styleUrl: './log-section.component.scss',
 })
-export class LogSectionComponent {
+export class LogSectionComponent implements OnInit {
   title = input.required<string>();
   icon = input<string>('');
+  initialCollapsed = input<boolean>(false);
   protected readonly collapsed = signal(false);
   private readonly sanitizer = inject(DomSanitizer);
   protected safe(html: string): SafeHtml { return this.sanitizer.bypassSecurityTrustHtml(html); }
+
+  ngOnInit(): void {
+    if (this.initialCollapsed()) {
+      this.collapsed.set(true);
+    }
+  }
 }
 
 

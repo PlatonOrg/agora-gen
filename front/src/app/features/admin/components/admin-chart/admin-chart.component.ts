@@ -22,7 +22,7 @@ export class AdminChartComponent {
     name: 'custom',
     selectable: true,
     group: ScaleType.Ordinal,
-    domain: ['#3b82f6', '#10b981', '#ef4444', '#f59e0b'],
+    domain: ['#3b82f6', '#10b981', '#22c55e', '#f59e0b', '#ef4444', '#dc2626', '#8b5cf6'],
   };
 
   readonly chartData = computed<ChartSeries[]>(() => {
@@ -32,28 +32,49 @@ export class AdminChartComponent {
     return [
       {
         name: 'Conversations',
-        series: data.map((d) => ({
+        series: data.map((d: DailyMetrics) => ({
           name: new Date(d.date),
           value: d.conversations,
         })),
       },
       {
         name: 'Exercices publiés',
-        series: data.map((d) => ({
+        series: data.map((d: DailyMetrics) => ({
           name: new Date(d.date),
           value: d.published_exercises,
         })),
       },
       {
-        name: 'Échecs',
-        series: data.map((d) => ({
+        name: 'Sans erreur',
+        series: data.map((d: DailyMetrics) => ({
           name: new Date(d.date),
-          value: d.failures,
+          value: d.clean_generations,
+        })),
+      },
+      {
+        name: 'Corrigées (retry)',
+        series: data.map((d: DailyMetrics) => ({
+          name: new Date(d.date),
+          value: d.recovered_generations,
+        })),
+      },
+      {
+        name: 'Échecs fatals',
+        series: data.map((d: DailyMetrics) => ({
+          name: new Date(d.date),
+          value: d.fatal_generations,
+        })),
+      },
+      {
+        name: 'Erreurs internes',
+        series: data.map((d: DailyMetrics) => ({
+          name: new Date(d.date),
+          value: d.internal_error_generations,
         })),
       },
       {
         name: 'Temps de réponse (s)',
-        series: data.map((d) => ({
+        series: data.map((d: DailyMetrics) => ({
           name: new Date(d.date),
           value: d.avg_response_time_ms != null ? d.avg_response_time_ms / 1000 : 0,
         })),
