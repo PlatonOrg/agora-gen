@@ -127,7 +127,7 @@ jobs:
 
             # Authenticate to the container registry using the PAT passed via envs.
             # The username is the org account, never a personal actor variable.
-            echo "$GH_PAT" | docker login ghcr.io -u agoraplaton --password-stdin
+            echo "$GH_PAT" | docker login ghcr.io -u salemsd --password-stdin
 
             # Pull the exact image digests built in this pipeline run, not :latest.
             # This guarantees the deployed image matches exactly what was built in CI.
