@@ -209,7 +209,6 @@ Pour la gestion des secrets GitHub Actions, voir [`SECRETS.md`](SECRETS.md).
 |----------|-------------|
 | [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) | Architecture technique détaillée |
 | [`docs/MANUEL_DEVELOPPEUR.md`](docs/MANUEL_DEVELOPPEUR.md) | Guide développeur, setup, déploiement production |
-| [`docs/MANUEL_UTILISATEUR.md`](docs/MANUEL_UTILISATEUR.md) | Guide d'utilisation de l'application |
 | [`docs/ISSUES_ET_AMELIORATIONS.md`](docs/ISSUES_ET_AMELIORATIONS.md) | Problèmes connus et pistes d'amélioration |
 | [`SECRETS.md`](SECRETS.md) | Configuration des secrets GitHub Actions |
 
