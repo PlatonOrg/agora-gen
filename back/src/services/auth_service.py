@@ -99,7 +99,7 @@ class AuthService:
     @staticmethod
     def get_permissions(role: str) -> List[str]:
         base = ['CREATE_EX', 'EDIT_EX', 'VIEW_DASHBOARD']
-        return base + ['DELETE_EX', 'ADMIN_CONFIG'] if role == 'ADMIN' else base
+        return base + ['DELETE_EX', 'ADMIN_CONFIG'] if role.lower() == 'admin' else base
 
 
 def _create_auth_service() -> AuthService:

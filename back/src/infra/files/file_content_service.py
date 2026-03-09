@@ -62,6 +62,7 @@ class FileContentService:
 
         try:
             raw_text = extract_text(file_path, filename)
+            logger.info(f"FileContentService: extracted text from '{filename}' ({raw_text})")
         except Exception as exc:
             logger.warning(
                 "FileContentService: failed to extract text from '%s': %s",

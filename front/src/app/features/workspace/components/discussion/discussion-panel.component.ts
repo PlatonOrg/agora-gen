@@ -264,6 +264,7 @@ export class DiscussionPanelComponent implements AfterViewInit, OnDestroy {
     const attachedParameters = this.parameterBadges().map(p => p.name);
     const filesToUpload = [...this.attachedFiles()];
     const acceptedFileNames = [...this.uploadedFiles().map(e => e.filename)];
+    const currentFileIds = [...this.pendingFileIds.values()];
     const fieldsToModify = [
       ...this.fieldBadges().map(f => this.FIELD_NAME_MAP[f.name] || f.name),
       ...this.parameterBadges().map(p => p.name),
@@ -339,7 +340,7 @@ export class DiscussionPanelComponent implements AfterViewInit, OnDestroy {
         conversationHistory,
         fieldsToModify,
         (event) => this.handleChatEvent(event, generationId),
-        undefined,
+        currentFileIds.length > 0 ? currentFileIds : undefined,
         this.conversationMode() ?? undefined,
         this.forcePureExercise(),
         this.conversationId(),
@@ -498,7 +499,7 @@ export class DiscussionPanelComponent implements AfterViewInit, OnDestroy {
         const sandboxMsg = this.extractSandboxMessage(rawValue);
         const errorText = sandboxMsg
           ? sandboxMsg
-          : 'Une erreur interne est survenue. Veuillez r茅essayer.';
+          : (rawValue.trim() || 'Une erreur interne est survenue. Veuillez réessayer.');
         this.enqueueDetail(errorText, 'error');
         this.timeline.markStep('analysis', 'completed');
         this.timeline.markStep('generation', 'completed');
@@ -526,9 +527,13 @@ export class DiscussionPanelComponent implements AfterViewInit, OnDestroy {
   private extractSandboxMessage(raw: string | undefined): string | null {
     if (!raw) return null;
 
-    const responseMatch = raw.match(/['"]message['"]:\s*['"]([^'"]+)['"]/);
-    if (responseMatch?.[1]) {
-      return this.timeline.sanitize(responseMatch[1]);
+    const responseMatchDouble = raw.match(/"message"\s*:\s*"((?:[^"\\]|\\.)*)"/);
+    if (responseMatchDouble?.[1]) {
+      return this.timeline.sanitize(responseMatchDouble[1]);
+    }
+    const responseMatchSingle = raw.match(/'message'\s*:\s*'((?:[^'\\]|\\.)*)'/);
+    if (responseMatchSingle?.[1]) {
+      return this.timeline.sanitize(responseMatchSingle[1]);
     }
 
     const previewMatch = raw.match(/Preview failed[^:]*:\s*(.+)$/i);

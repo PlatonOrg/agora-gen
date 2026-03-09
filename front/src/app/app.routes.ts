@@ -4,6 +4,7 @@ import { AuthenticationPageComponent } from './features/auth/components/authenti
 import { WorkspacePageComponent } from './features/workspace/components/workspace-page/workspace-page.component';
 import { LoggingPageComponent } from './features/logging/components/logging-page/logging-page.component';
 import { AdminDashboardPageComponent } from './features/admin/components/admin-dashboard-page/admin-dashboard-page.component';
+import { adminGuard } from './core/auth/admin.guard';
 
 export const routes: Routes = [
   {
@@ -25,11 +26,12 @@ export const routes: Routes = [
   },
   {
     path: 'logs',
-    component: LoggingPageComponent
-  }
-  ,
+    component: LoggingPageComponent,
+    canActivate: [adminGuard],
+  },
   {
     path: 'admin',
-    component: AdminDashboardPageComponent
+    component: AdminDashboardPageComponent,
+    canActivate: [adminGuard],
   }
 ];

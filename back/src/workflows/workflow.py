@@ -292,7 +292,11 @@ async def _generate_pure_exercise_inner(
     selection_result = None
     component_selection_log = None
 
-    if not is_modification:
+    # Run component selection only when no components are already attached
+    # (neither historical components on the exercise nor user-selected ones).
+    has_components = bool(exercise_data.components) or bool(chat_request.user_selected_components)
+
+    if not has_components:
         await _emit_progress(progress_callback, "component_selection_started", {"value": "Selecting best components for this exercise..."})
         try:
             file_summaries = [
@@ -302,7 +306,7 @@ async def _generate_pure_exercise_inner(
             ]
             selection_result = await select_components_for_request(
                 user_request=chat_request.user_request,
-                user_priority_tags=chat_request.user_selected_components or [],
+                user_priority_tags=[],
                 file_summaries=file_summaries or None,
                 current_components=None,
                 llm_calls_accumulator=llm_calls,
@@ -332,17 +336,16 @@ async def _generate_pure_exercise_inner(
             logger.warning("Component selection step failed, continuing without it: %s", exc)
             selection_result = None
             component_selection_log = None
+    else:
+        logger.info(
+            "Skipping component selection — components already present "
+            "(exercise=%s, user_selected=%s).",
+            exercise_data.components,
+            chat_request.user_selected_components,
+        )
 
     _check_cancelled()
 
-    if is_modification:
-        established = list(exercise_data.components or [])
-        newly_attached = [t for t in (chat_request.user_selected_components or []) if t not in established]
-        if newly_attached:
-            exercise_data.components = established + newly_attached
-            logger.info("Modification: merged %d newly attached component(s): %s", len(newly_attached), newly_attached)
-        mandatory_tags = newly_attached
-        historical_tags = established
 
     examples = []
     if not is_modification:
@@ -375,9 +378,9 @@ async def _generate_pure_exercise_inner(
         fields_to_modify=chat_request.fields_to_modify or [],
         file_ids=chat_request.file_ids or [],
         file_contents=chat_request.file_contents or [],
-        mandatory_tags=mandatory_tags if is_modification else (selection_result.user_priority_tags if selection_result else []),
-        indicative_tags=historical_tags if is_modification else (selection_result.llm_only_tags if selection_result else []),
-        llm_reasoning="" if is_modification else (selection_result.reasoning if selection_result else ""),
+        mandatory_tags=selection_result.user_priority_tags if selection_result else [],
+        indicative_tags=selection_result.llm_only_tags if selection_result else [],
+        llm_reasoning=selection_result.reasoning if selection_result else "",
         is_modification=is_modification,
         llm_calls_accumulator=llm_calls,
     )

@@ -32,7 +32,7 @@ export class WorkspaceHeaderComponent implements OnInit {
   private readonly router = inject(Router);
 
   protected isUserMenuOpen = signal<boolean>(false);
-  protected isAdmin = computed(() => this.userProfile.profile()?.role === 'ADMIN');
+  protected isAdmin = computed(() => this.userProfile.profile()?.role?.toLowerCase() === 'admin');
 
   ngOnInit(): void {
     this.userProfile.load();

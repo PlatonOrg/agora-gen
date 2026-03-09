@@ -38,8 +38,8 @@ async def get_current_admin_user(
     if not session_data:
         raise HTTPException(status_code=401, detail="Session expired")
 
-    role = auth_service.determine_role(session_data["username"])
-    if role != "ADMIN":
+    role = (session_data.get("role") or "").lower()
+    if role != "admin":
         raise HTTPException(status_code=403, detail="Admin access required")
 
     return session_data
