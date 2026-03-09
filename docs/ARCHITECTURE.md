@@ -128,7 +128,7 @@ Tables principales :
 ### Production
 - Images Docker buildées automatiquement par GitHub Actions et poussées vers GHCR (`ghcr.io/salemsd/agora-gen/backend` et `.../frontend`)
 - Chaque image est taguée `:latest` ET avec le SHA du commit (rollback possible)
-- `docker-compose.prod.yml` pour la production : pas d'Ollama, ressources limitées, healthchecks
+- `docker-compose.prod.yml` pour la production : ressources limitées, healthchecks
 - Le frontend est servi sur le port `8080` du conteneur — Nginx (hôte) proxifie vers ce port
 - Les modèles d'embedding sont montés depuis `/opt/models` sur l'hôte
 - Les docs PLaTon sont montées depuis `/opt/agora/resources/docs`
