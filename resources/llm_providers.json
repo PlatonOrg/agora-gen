@@ -35,7 +35,6 @@
     "default_model": "gpt-oss-120b",
     "models": [
       "gpt-oss-120b",
-      "qwen-3-235b-a22b-instruct-2507",
       "llama3.1-8b"
     ],
     "default": true
