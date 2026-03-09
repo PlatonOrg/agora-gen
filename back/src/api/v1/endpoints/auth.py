@@ -1,5 +1,6 @@
 from fastapi import APIRouter, HTTPException, Response, Request, Depends
 from redis.asyncio import Redis
+import logging
 
 from src.api.v1.dependencies import get_settings, get_session_id
 from src.api.v1.schemas import AuthInitResponse, AuthCallbackRequest, UserProfile
@@ -8,6 +9,7 @@ from src.services.auth_service import auth_service
 from src.infra.db.redis import get_redis
 
 router = APIRouter()
+logger = logging.getLogger(__name__)
 
 
 @router.post("/platon/init", response_model=AuthInitResponse)
@@ -41,15 +43,28 @@ async def platon_callback(
     if not payload:
         raise HTTPException(status_code=401, detail="Invalid Token")
 
-    # 3. User Logic (No DB storage)
+    # 3. User Logic — fetch real role from PLaTon
     username = payload.get('username', 'unknown')
-    role = auth_service.determine_role(username)
+
+    # Try to get the actual user profile (including role) from PLaTon
+    platon_role = None
+    try:
+        from src.services.platon_service import platon_service
+        platon_user = await platon_service.get_user_profile(
+            username, data.platonAccessToken
+        )
+        platon_role = platon_user.role  # e.g. "admin", "teacher", "student"
+        logger.info("Fetched PLaTon role for %s: %s", username, platon_role)
+    except Exception as e:
+        logger.warning("Could not fetch PLaTon user profile for %s: %s — falling back to 'teacher'", username, e)
+
+    role = platon_role or "teacher"
 
     user_profile = {
         "id": payload.get('sub'),
         "username": username,
         "email": f"{username.replace('.', '')}@univ-eiffel.fr",
-        "role": role
+        "role": role,
     }
 
     # 4. Create Session in Redis
