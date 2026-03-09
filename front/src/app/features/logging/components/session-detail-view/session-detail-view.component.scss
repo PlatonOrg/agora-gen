@@ -145,3 +145,11 @@
   font-family: var(--brand-font);
   color: var(--brand-text-tertiary);
 }
+
+.generation-detail-page {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  padding: 12px 20px;
+}
+

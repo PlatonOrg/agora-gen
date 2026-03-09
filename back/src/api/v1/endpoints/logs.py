@@ -14,6 +14,7 @@ from src.services.logs_service import (
     get_app_config,
     get_conversation_summaries,
     get_conversation_detail,
+    delete_conversation,
 )
 from src.services.models.logs import (
     PromptEntry,
@@ -58,6 +59,20 @@ async def get_conversation(conversation_id: str, session=Depends(get_db_session)
         raise
     except Exception as exc:
         logger.exception("Failed to get conversation detail for %s", conversation_id)
+        raise HTTPException(status_code=500, detail=str(exc)) from exc
+
+
+@router.delete("/conversations/{conversation_id}")
+async def remove_conversation(conversation_id: str, session=Depends(get_db_session)):
+    try:
+        deleted = await delete_conversation(conversation_id, session)
+        if not deleted:
+            raise HTTPException(status_code=404, detail="Conversation not found")
+        return {"status": "deleted"}
+    except HTTPException:
+        raise
+    except Exception as exc:
+        logger.exception("Failed to delete conversation %s", conversation_id)
         raise HTTPException(status_code=500, detail=str(exc)) from exc
 
 

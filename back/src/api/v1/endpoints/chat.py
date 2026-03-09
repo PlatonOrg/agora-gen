@@ -240,6 +240,43 @@ async def delete_session_files_endpoint(
     return DeleteFilesResponse(deleted=deleted, failed=failed)
 
 
+@router.delete("/files/{file_id}")
+async def delete_single_file_endpoint(
+    file_id: str,
+    session_id: Optional[str] = Depends(get_session_id),
+    redis=Depends(get_redis),
+    app_settings: Settings = Depends(get_settings),
+) -> dict:
+    """Remove a single uploaded file from the session."""
+    from src.core.di import get_llm_registry
+    from src.infra.llm.providers import RagustaveProvider
+
+    if not session_id:
+        raise HTTPException(status_code=401, detail="No active session")
+
+    files = await _get_session_files(redis, session_id)
+    target = next((f for f in files if f.file_id == file_id), None)
+    if not target:
+        raise HTTPException(status_code=404, detail="File not found in session")
+
+    registry = get_llm_registry()
+    provider = registry.default_provider
+    fcs = _make_fcs(redis, app_settings)
+
+    try:
+        if isinstance(provider, RagustaveProvider):
+            await provider.delete_file(target.file_id, target.filename)
+        await fcs.delete(target.file_id)
+    except Exception as exc:
+        logger.warning("Could not delete file id=%s: %s", file_id, exc)
+
+    remaining = [f for f in files if f.file_id != file_id]
+    await _save_session_files(redis, session_id, remaining, app_settings.SESSION_TTL_SECONDS)
+    logger.info("Session %s: removed file %s, %d file(s) remaining", session_id, file_id, len(remaining))
+
+    return {"deleted": True, "file_id": file_id}
+
+
 _STOP_KEY_PREFIX = "generation_stop:"
 _STOP_KEY_TTL = 600
 

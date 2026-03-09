@@ -1,6 +1,6 @@
-<article class="gen-item" [class.gen-item--open]="open()">
+<article class="gen-item">
 
-  <button class="gen-item__header" type="button" (click)="open.set(!open())">
+  <button class="gen-item__header" type="button" (click)="onSelect()">
     <div class="gen-item__type-bar" [class.gen-item__type-bar--disc]="isDiscussion()"></div>
 
     <div class="gen-item__meta">
@@ -22,22 +22,13 @@
       <span class="gen-item__time">{{ fmt(gen().created_at) }}</span>
     </div>
 
-    <svg class="gen-item__chevron" [class.gen-item__chevron--open]="open()"
+    <svg class="gen-item__chevron"
       xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24"
       fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true">
-      <polyline points="6 9 12 15 18 9"/>
+      <path d="M9 18l6-6-6-6"/>
     </svg>
   </button>
 
-  @if (open()) {
-    <div class="gen-item__body">
-      @if (isDiscussion()) {
-        <app-discussion-generation-detail [gen]="asDisc()" />
-      } @else {
-        <app-exo-generation-detail [gen]="asExo()" />
-      }
-    </div>
-  }
 
 </article>
 

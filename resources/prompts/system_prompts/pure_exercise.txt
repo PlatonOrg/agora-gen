@@ -39,6 +39,8 @@ Champs obligatoires et leurs rôles :
 nom_composant['propriete'] = valeur
 ```
 
+Les composants
+
 **Utilisation dans statement / form / solution :** `{{nom_composant}}`
 
 Règles absolues sur les composants :
@@ -56,16 +58,9 @@ Règles absolues sur les composants :
 - Les variables de types non standards (classes Python) ne sont pas transmises automatiquement au grader.
 - La syntaxe `{{variable}}` fonctionne dans champs `statement`, `form` et `solution`, mais dans le builder/grader il faut injecter avec la syntaxe `f"{{{{variable}}}}"`. La syntaxe `"{{variable}}"` ne fonctionne pas.
 - Ne jamais construire du Markdown dans une variable builder et l'injecter via `{{variable}}` dans statement/form/solution — le Markdown ne sera pas rendu.
-- Exception : il est possible d'assigner directement `statement`, `form` ou `solution` comme chaîne dans le builder si leur contenu dépend de données dynamiques générées dans ce même builder.
 - Ne jamais pré-remplir les composants de réponse avec les bonnes réponses dans le champ `form`.
--
 
-```python
-# Correct : assignment direct dans le builder si le contenu est dynamique
-statement = f"Calculez {a} + {b} :"
-form = f"{{input_box}}"
-solution = f"La réponse est {a + b}.\n\n{{input_box_solution}}"
-```
+**Interdiction absolue :** Ne jamais assigner `statement`, `form` ou `solution` dans le builder. Ces trois champs sont des champs JSON racine de l'exercice, remplis directement dans le JSON — jamais dans le script builder. Toute ligne du type `statement = ...`, `form = ...`, ou `solution = ...` dans le builder est une erreur grave qui sera rejetée.
 
 - Ne jamais écrire `{{statement}}` dans le champ `statement` — cela ne fonctionne pas :
 ```
@@ -178,6 +173,11 @@ Privilégier les exercices à question unique. Pour plusieurs questions, chaque 
 
 Le JSON sera converti en fichier `.ple`. Ne jamais inclure `==` dans les valeurs des champs — cette syntaxe est gérée par la conversion.
 Les noms des composants doivent être valides (pas de tirets dans les noms, respecter les règles de nommage Python).
+Tu ne peux pas exécuté du code à l'intérieur d'un f-string: ce code est faux:
+```
+solution = f"Le nombre {n} {'est' if prime_flag else "n'est pas"} premier"
+```
+il faut faire le calcul à l'avance et stocker le résultat dans une variable, puis l'injecter dans la f-string.
 
 ## Règles Python / JavaScript
 

@@ -42,6 +42,7 @@ class SettingKey(str, enum.Enum):
     SANDBOX_RETRY_TIMEOUT_SECONDS = "SANDBOX_RETRY_TIMEOUT_SECONDS"
     FILE_UPLOAD_MAX_COUNT = "FILE_UPLOAD_MAX_COUNT"
     LOG_LEVEL = "LOG_LEVEL"
+    TEMPLATE_SCORE_THRESHOLD = "TEMPLATE_SCORE_THRESHOLD"
 
 
 @dataclass(frozen=True)
@@ -124,6 +125,14 @@ SETTINGS_REGISTRY: Dict[str, SettingDefinition] = {
             default="INFO",
             description="Niveau de journalisation de l'application.",
             options=["DEBUG", "INFO", "WARNING", "ERROR"],
+        ),
+        SettingDefinition(
+            key=SettingKey.TEMPLATE_SCORE_THRESHOLD,
+            value_type="float",
+            default="0.85",
+            description="Score minimum de similarite RAG pour selectionner un template (0.0-1.0).",
+            min_value=0.0,
+            max_value=1.0,
         ),
     ]
 }

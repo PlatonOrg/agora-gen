@@ -13,6 +13,7 @@ export class AttachmentBadgesComponent {
   fields = input<string[]>([]);
   parameters = input<string[]>([]);
   fileNames = input<string[]>([]);
+  processingFileNames = input<string[]>([]);
   compact = input<boolean>(false);
 
   removable = input<boolean>(false);

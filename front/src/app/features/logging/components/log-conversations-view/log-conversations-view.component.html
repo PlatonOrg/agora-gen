@@ -6,14 +6,15 @@
 } @else {
   <div class="view-shell">
 
+    <!-- Loading / error / truly-empty (no conversations at all, not filtered) -->
     <app-log-status-view
       [state]="state()"
-      [empty]="processed().length === 0"
+      [empty]="state() === 'success' && totalCount() === 0"
       [errorMessage]="errorMessage()"
       emptyMessage="Aucune conversation enregistrée."
     />
 
-    @if (state() === 'success' && conversations().length > 0) {
+    @if (state() === 'success' && totalCount() > 0) {
       <div class="conversations-toolbar">
         <input
           type="search"
@@ -24,6 +25,29 @@
         <span class="conversations-count">{{ processed().length }} conversation(s)</span>
       </div>
 
+      <div class="conversations-date-filter">
+        <label class="date-filter-field">
+          <span class="date-filter-label">Du</span>
+          <input type="date" class="date-filter-input"
+                 [value]="dateFrom()"
+                 (change)="onDateFromChange($any($event.target).value)" />
+        </label>
+        <label class="date-filter-field">
+          <span class="date-filter-label">Au</span>
+          <input type="date" class="date-filter-input"
+                 [value]="dateTo()"
+                 (change)="onDateToChange($any($event.target).value)" />
+        </label>
+        @if (dateFrom() || dateTo()) {
+          <button class="date-filter-clear" type="button" (click)="clearDateFilter()">
+            <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+              <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+            </svg>
+            Effacer
+          </button>
+        }
+      </div>
+
       <app-log-sort-bar
         [options]="sortOptions"
         [activeField]="sortField()"
@@ -31,55 +55,84 @@
         (sortChanged)="onSortChanged($event)"
       />
 
-      <div class="view-list">
-        @for (conv of paginated(); track conv.conversation_id) {
-          <button class="session-card"
-            type="button"
-            (click)="selectedConversationId.set(conv.conversation_id)">
-            <div class="session-card__left">
-              <span class="session-card__icon" aria-hidden="true">
-                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                  <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+      @if (processed().length === 0) {
+        <!-- Filters are active but no conversation matches -->
+        <div class="view-empty-filtered">
+          <p class="view-empty-filtered__text">Aucune conversation ne correspond aux filtres sélectionnés.</p>
+        </div>
+      } @else {
+        <div class="view-list">
+          @for (conv of paginated(); track conv.conversation_id) {
+            <div class="session-card-wrapper">
+              <button class="session-card"
+                type="button"
+                (click)="selectedConversationId.set(conv.conversation_id)">
+                <div class="session-card__left">
+                  <span class="session-card__icon" aria-hidden="true">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+                    </svg>
+                  </span>
+                </div>
+                <div class="session-card__body">
+                  <div class="session-card__id">
+                    @if (conv.username) {
+                      <span class="session-card__username">{{ conv.username }}</span>
+                      <span class="session-card__sep">·</span>
+                    }
+                    <span class="session-card__conv-id">{{ conv.conversation_id.substring(0, 8) }}…</span>
+                  </div>
+                  <div class="session-card__meta">
+                    @if (conv.started_at) {
+                      <span>Créée le {{ formatDate(conv.started_at) }}</span>
+                    }
+                    @if (conv.last_at && conv.last_at !== conv.started_at) {
+                      <span class="session-card__sep">·</span>
+                      <span>Active le {{ formatDate(conv.last_at) }}</span>
+                    }
+                  </div>
+                  <div class="session-card__stats">
+                    @if (conv.exo_generation_count > 0) {
+                      <app-log-badge [label]="conv.exo_generation_count + ' exercice' + (conv.exo_generation_count !== 1 ? 's' : '')" variant="exercise" />
+                    }
+                    @if (conv.discussion_generation_count > 0) {
+                      <app-log-badge [label]="conv.discussion_generation_count + ' discussion' + (conv.discussion_generation_count !== 1 ? 's' : '')" variant="discussion" />
+                    }
+                    @if (conv.total_generation_count > 0) {
+                      <app-log-badge [label]="conv.total_generation_count + ' au total'" variant="neutral" />
+                    }
+                  </div>
+                </div>
+                <svg class="session-card__arrow" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                  <path d="M9 18l6-6-6-6"/>
                 </svg>
-              </span>
+              </button>
+              @if (pendingDeleteId() === conv.conversation_id) {
+                <div class="delete-confirm">
+                  <span class="delete-confirm__text">Supprimer ?</span>
+                  <button class="delete-confirm__yes" type="button" (click)="executeDelete(conv.conversation_id, $event)">Oui</button>
+                  <button class="delete-confirm__no" type="button" (click)="cancelDelete($event)">Non</button>
+                </div>
+              } @else {
+                <button class="session-card__delete" type="button"
+                        title="Supprimer cette conversation"
+                        (click)="confirmDelete(conv.conversation_id, $event)">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="3 6 5 6 21 6"/>
+                    <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+                  </svg>
+                </button>
+              }
             </div>
-            <div class="session-card__body">
-              <div class="session-card__id">
-                @if (conv.username) {
-                  <span class="session-card__username">{{ conv.username }}</span>
-                  <span class="session-card__sep">·</span>
-                }
-                <span class="session-card__conv-id">{{ conv.conversation_id.substring(0, 8) }}…</span>
-              </div>
-              <div class="session-card__meta">
-                @if (conv.started_at) {
-                  <span>Créée le {{ formatDate(conv.started_at) }}</span>
-                }
-                @if (conv.last_at && conv.last_at !== conv.started_at) {
-                  <span class="session-card__sep">·</span>
-                  <span>Active le {{ formatDate(conv.last_at) }}</span>
-                }
-              </div>
-              <div class="session-card__stats">
-                <app-log-badge [label]="conv.exo_generation_count + ' exercice' + (conv.exo_generation_count !== 1 ? 's' : '')" variant="exercise" />
-                <app-log-badge [label]="conv.discussion_generation_count + ' discussion' + (conv.discussion_generation_count !== 1 ? 's' : '')" variant="discussion" />
-                <app-log-badge [label]="conv.total_generation_count + ' au total'" variant="neutral" />
-              </div>
-            </div>
-            <svg class="session-card__arrow" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-              <path d="M9 18l6-6-6-6"/>
-            </svg>
-          </button>
-        }
-      </div>
+          }
+        </div>
 
-      <app-log-pagination
-        [page]="page()"
-        [totalPages]="totalPages()"
-        (pageChanged)="page.set($event)"
-      />
+        <app-log-pagination
+          [page]="page()"
+          [totalPages]="totalPages()"
+          (pageChanged)="page.set($event)"
+        />
+      }
     }
   </div>
 }
-
-

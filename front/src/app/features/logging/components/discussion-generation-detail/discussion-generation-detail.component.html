@@ -65,8 +65,10 @@
       </div>
       @if (llm.system_prompt_content) {
         <div class="detail-row">
-          <span class="detail-label">Contenu du prompt système</span>
-          <pre class="prompt-content">{{ llm.system_prompt_content }}</pre>
+          <details class="collapsible-section">
+            <summary class="detail-label detail-label--clickable">Contenu du prompt système</summary>
+            <pre class="prompt-content">{{ llm.system_prompt_content }}</pre>
+          </details>
         </div>
       }
       @if (llm.llm_output) {

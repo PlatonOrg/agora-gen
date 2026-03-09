@@ -5,7 +5,7 @@ import { ExoGenerationDetail, LlmCallRecord } from '../../models/log.model';
 import { LogSectionComponent } from '../shared/log-section/log-section.component';
 import { LogKvComponent } from '../shared/log-kv/log-kv.component';
 import { LogJsonComponent } from '../shared/log-json/log-json.component';
-import { LogBadgeComponent } from '../shared/log-badge/log-badge.component';
+import { BadgeVariant, LogBadgeComponent } from '../shared/log-badge/log-badge.component';
 import { LOG_ICONS } from '../../utils/log-icons';
 import { fmtDateTime } from '../../utils/log-format.utils';
 
@@ -29,6 +29,19 @@ export class ExoGenerationDetailComponent {
       const output = c.output_tokens ?? 0;
       return sum + (kind === 'input' ? input : kind === 'output' ? output : input + output);
     }, 0);
+  }
+
+  classifyError(err: string): string {
+    if (/syntax|parse error|expecting|unexpected/i.test(err)) return 'Syntaxe';
+    if (/grader/i.test(err)) return 'Grader (runtime)';
+    if (/builder/i.test(err)) return 'Builder (runtime)';
+    if (/sandbox|compilation|runtime/i.test(err)) return 'Sandbox (runtime)';
+    return 'Autre';
+  }
+
+  classifyErrorVariant(err: string): BadgeVariant {
+    if (/syntax|parse error/i.test(err)) return 'warn';
+    return 'neutral';
   }
 }
 

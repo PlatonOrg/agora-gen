@@ -71,7 +71,7 @@ def build_fixed_exercise_json_schema(
                 "topics": {
                     "type": "array",
                     "items": {"type": "string"},
-                    "maxItems": 8,
+                    "maxItems": 5,
                     "uniqueItems": True,
                 },
                 "objectifs_pedagogiques": {"type": "string"},
@@ -132,14 +132,7 @@ def build_component_selection_schema(available_tags: List[str]) -> Dict[str, Any
         "properties": {
             "reasoning": {
                 "type": "string",
-                "description": (
-                    "Raisonnement structuré suivant exactement ce format : "
-                    "1. Analyse de l'interaction — ce que l'apprenant doit faire (2 à 3 phrases). "
-                    "2. Composants imposés par l'utilisateur — pour chacun, comment il sera utilisé "
-                    "(initialisation builder, lecture grader). "
-                    "3. Composants additionnels sélectionnés — pour chacun, justifier (a) l'interaction "
-                    "ou le besoin d'affichage, (b) comment le builder l'initialisera, "
-                    "(c) comment le grader le lira. "                ),
+                "description": "Raisonnement justifiant la sélection des composants et leur utilisation concrète dans l'exercice.",
             },
             "selected_tags": {
                 "type": "array",

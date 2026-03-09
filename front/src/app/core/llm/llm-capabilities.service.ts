@@ -102,6 +102,26 @@ export class LlmCapabilitiesService {
     this.sessionFileCount.set(0);
   }
 
+  async deleteSingleFile(fileId: string): Promise<void> {
+    if (!this.isBrowser) return;
+
+    console.log('[LlmCapabilitiesService] Deleting single file:', fileId);
+
+    const response = await fetch(`${this.API_BASE_URL}/chat/files/${encodeURIComponent(fileId)}`, {
+      method: 'DELETE',
+      credentials: 'include',
+    });
+
+    if (!response.ok) {
+      const error = await response.json().catch(() => ({}));
+      console.error('[LlmCapabilitiesService] Failed to delete file:', error);
+      throw new Error(error.detail || `HTTP ${response.status}`);
+    }
+
+    this.sessionFileCount.update(n => Math.max(0, n - 1));
+    console.log('[LlmCapabilitiesService] File deleted:', fileId);
+  }
+
   async deleteAllSessionFiles(): Promise<void> {
     if (!this.isBrowser) return;
 

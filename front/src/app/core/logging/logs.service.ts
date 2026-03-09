@@ -32,6 +32,10 @@ export class LogsService {
     return this.api.get<ConversationDetail>(`/logs/conversations/${encodeURIComponent(conversationId)}`);
   }
 
+  async deleteConversation(conversationId: string): Promise<void> {
+    await this.api.delete(`/logs/conversations/${encodeURIComponent(conversationId)}`);
+  }
+
   async getSessions(): Promise<SessionSummary[]> {
     return this.api.get<SessionSummary[]>('/logs/sessions');
   }

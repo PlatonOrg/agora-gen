@@ -209,6 +209,44 @@ class SandboxCorrectionService:
 
     # -- LLM correction calls -------------------------------------------
 
+    @staticmethod
+    def _fill_repair_prompt(
+        template: str,
+        *,
+        attempt_number: int,
+        max_attempts: int,
+        sandbox_error: str,
+        error_type: str,
+        current_exercise_json: str,
+        user_request: str,
+        ple_language_doc: str,
+        ple_workflow_doc: str,
+        component_docs: str,
+        conversation_history: str,
+    ) -> str:
+        """Substitute all placeholders in the repair prompt template.
+
+        Uses sequential ``str.replace()`` instead of ``str.format()`` so that
+        values which contain curly-brace sequences (e.g. Python f-strings
+        like ``f"result = {n}"`` inside builder code, or PLE syntax like
+        ``{{input_box}}``) are never misinterpreted as format placeholders.
+
+        Each replacement is done exactly once on the known placeholder name.
+        """
+        return (
+            template
+            .replace("{ple_language_doc}", ple_language_doc)
+            .replace("{ple_workflow_doc}", ple_workflow_doc)
+            .replace("{component_docs}", component_docs)
+            .replace("{user_request}", user_request)
+            .replace("{conversation_history}", conversation_history)
+            .replace("{current_exercise_json}", current_exercise_json)
+            .replace("{attempt_number}", str(attempt_number))
+            .replace("{max_attempts}", str(max_attempts))
+            .replace("{error_type}", error_type)
+            .replace("{sandbox_error}", sandbox_error)
+        )
+
     async def _correct_pure_exercise(
         self,
         original_generated: GeneratedExercise,
@@ -228,7 +266,8 @@ class SandboxCorrectionService:
             attempt_number,
             max_attempts,
         )
-        system_prompt = self._load_repair_prompt().format(
+        system_prompt = self._fill_repair_prompt(
+            self._load_repair_prompt(),
             attempt_number=attempt_number,
             max_attempts=max_attempts,
             sandbox_error=sandbox_error,
@@ -269,9 +308,8 @@ class SandboxCorrectionService:
             attempt_number,
             max_attempts,
         )
-        # Template exercises only produce compilation errors (not runtime sandbox errors),
-        # so error_type is always "compilation" for this code path.
-        system_prompt = self._load_repair_prompt().format(
+        system_prompt = self._fill_repair_prompt(
+            self._load_repair_prompt(),
             attempt_number=attempt_number,
             max_attempts=max_attempts,
             sandbox_error=sandbox_error,

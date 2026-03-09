@@ -8,15 +8,26 @@ class DailyMetrics(BaseModel):
     date: str
     conversations: int
     published_exercises: int
-    failures: int
+    clean_generations: int
+    recovered_generations: int
+    fatal_generations: int
+    internal_error_generations: int
     avg_response_time_ms: Optional[float]
+    total_input_tokens: int
+    total_output_tokens: int
 
 
 class SummaryMetrics(BaseModel):
     total_conversations: int
     total_published_exercises: int
-    total_failures: int
+    clean_generations: int
+    recovered_generations: int
+    fatal_generations: int
+    internal_error_generations: int
     avg_response_time_ms: Optional[float]
+    total_input_tokens: int
+    total_output_tokens: int
+    avg_tokens_per_generation: Optional[float]
 
 
 class AdminStatsResponse(BaseModel):

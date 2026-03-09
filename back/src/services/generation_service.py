@@ -32,7 +32,6 @@ _COMPONENT_EXTRA_DOCS: Dict[str, str] = {
 
 class GenerationService:
     def __init__(self, temperature: float = 0.0) -> None:
-        self._system_prompt = self._load_system_prompt()
         self._temperature = temperature
         self._logger = logging.getLogger(__name__)
 
@@ -255,7 +254,7 @@ class GenerationService:
         self._logger.info("Starting config variable generation (modification=%s)", is_modification)
 
         schema_config = exercise_data.config_variables["inputs"]
-        base_system_prompt = self._load_template_modification_prompt() if is_modification else self._system_prompt
+        base_system_prompt = self._load_template_modification_prompt() if is_modification else self._load_system_prompt()
 
         if fields_to_modify:
             filtered_schema = [var for var in schema_config if var.get("name") in fields_to_modify]

@@ -151,12 +151,7 @@ class GenerationStats(BaseModel):
 
 
 class AppConfig(BaseModel):
-    exo_embedding_model: str
-    exo_llm_provider: str
-    exo_llm_model: str
-    discussion_embedding_model: str
-    discussion_llm_provider: str
-    discussion_llm_model: str
+    embedding_model: str
 
 
 class DiscussionRequestInfo(BaseModel):

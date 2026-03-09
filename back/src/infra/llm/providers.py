@@ -56,7 +56,10 @@ def _resolve_json_content(
        extractor from mistakenly grabbing a code block that appears
        *inside* a valid JSON string (e.g. inside a ``reasoning`` field).
     3. Structural repair of truncated JSON.
-    4. Return raw string and log an error so the caller can decide.
+    4. Extract the first complete top-level JSON object by brace-matching —
+       recovers from cases where the LLM appended trailing garbage text or
+       commentary after the closing brace.
+    5. Return raw string and log an error so the caller can decide.
     """
     stripped = content.strip()
 
@@ -82,6 +85,21 @@ def _resolve_json_content(
         except json.JSONDecodeError as exc:
             logger.error("[%s] JSON repair attempt failed: %s", provider_name, exc)
 
+    # Strategy 4: brace-match to extract the first complete top-level object.
+    # Handles cases where the LLM appended trailing commentary after the JSON
+    # closing brace (e.g. "(Note: the JSON above is the final output)").
+    extracted = _extract_first_json_object(stripped)
+    if extracted is not None:
+        try:
+            result = json.loads(extracted)
+            logger.info(
+                "[%s] Brace-extraction recovered a parseable JSON object (%d chars).",
+                provider_name, len(extracted),
+            )
+            return result
+        except json.JSONDecodeError as exc:
+            logger.error("[%s] Brace-extraction parse failed: %s", provider_name, exc)
+
     logger.error(
         "[%s] Could not parse LLM response as JSON — returning raw string. "
         "Content (first 500 chars): %s",
@@ -89,6 +107,43 @@ def _resolve_json_content(
         content[:500],
     )
     return content
+
+
+def _extract_first_json_object(content: str) -> Optional[str]:
+    """Return the first complete balanced ``{ ... }`` block found in *content*.
+
+    Uses a simple state machine that respects string boundaries and escape
+    sequences.  Does NOT attempt to parse nested structures — it only tracks
+    brace depth so it works even when string values contain ``{`` / ``}``.
+    """
+    start = content.find("{")
+    if start == -1:
+        return None
+
+    depth = 0
+    in_string = False
+    escape_next = False
+    for i, ch in enumerate(content[start:], start=start):
+        if escape_next:
+            escape_next = False
+            continue
+        if ch == "\\" and in_string:
+            escape_next = True
+            continue
+        if ch == '"':
+            in_string = not in_string
+            continue
+        if in_string:
+            continue
+        if ch == "{":
+            depth += 1
+        elif ch == "}":
+            depth -= 1
+            if depth == 0:
+                return content[start : i + 1]
+    return None
+
+
 
 
 def _repair_truncated_json(content: str) -> Optional[str]:

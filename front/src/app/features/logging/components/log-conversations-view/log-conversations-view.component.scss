@@ -139,3 +139,173 @@
   font-family: var(--brand-font);
 }
 
+// ── Date filter bar ──────────────────────────────────────────────────────
+
+.conversations-date-filter {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 20px;
+  border-bottom: 1px solid var(--brand-border-color);
+  background: var(--brand-background-components);
+  flex-shrink: 0;
+}
+
+.date-filter-field {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.date-filter-label {
+  font-size: 0.6875rem;
+  font-weight: 600;
+  font-family: var(--brand-font);
+  color: var(--brand-text-tertiary);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.date-filter-input {
+  padding: 5px 10px;
+  border: 1px solid var(--brand-border-color);
+  border-radius: 4px;
+  background: var(--brand-background-components);
+  color: var(--brand-text-primary);
+  font-size: 0.8125rem;
+  font-family: var(--brand-font);
+  outline: none;
+  transition: border-color 0.15s;
+
+  &:focus {
+    border-color: var(--brand-color-secondary);
+  }
+}
+
+.date-filter-clear {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 5px 10px;
+  border: 1px solid var(--brand-border-color);
+  border-radius: 4px;
+  background: transparent;
+  color: var(--brand-text-secondary);
+  font-size: 0.75rem;
+  font-family: var(--brand-font);
+  cursor: pointer;
+  transition: color 0.15s, border-color 0.15s;
+
+  &:hover {
+    color: var(--brand-error);
+    border-color: var(--brand-error);
+  }
+}
+
+// ── Session card wrapper (with delete) ──────────────────────────────────
+
+.session-card-wrapper {
+  display: flex;
+  align-items: stretch;
+  gap: 0;
+  position: relative;
+}
+
+.session-card-wrapper .session-card {
+  flex: 1;
+  min-width: 0;
+}
+
+.session-card__delete {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  flex-shrink: 0;
+  border: 1px solid var(--brand-border-color);
+  border-left: none;
+  border-radius: 0 4px 4px 0;
+  background: var(--brand-background-components);
+  color: var(--brand-text-tertiary);
+  cursor: pointer;
+  transition: color 0.15s, background 0.15s;
+
+  &:hover {
+    color: var(--brand-error);
+    background: rgba(var(--brand-error-rgb, 239 68 68), 0.06);
+  }
+}
+
+.session-card-wrapper .session-card {
+  border-radius: 4px 0 0 4px;
+}
+
+.session-card-wrapper:not(:has(.session-card__delete)):not(:has(.delete-confirm)) .session-card {
+  border-radius: 4px;
+}
+
+.delete-confirm {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 0 10px;
+  border: 1px solid var(--brand-border-color);
+  border-left: none;
+  border-radius: 0 4px 4px 0;
+  background: var(--brand-background-components);
+  flex-shrink: 0;
+}
+
+.delete-confirm__text {
+  font-size: 0.75rem;
+  font-family: var(--brand-font);
+  color: var(--brand-text-secondary);
+  white-space: nowrap;
+}
+
+.delete-confirm__yes {
+  padding: 3px 8px;
+  border: none;
+  border-radius: 3px;
+  background: var(--brand-error);
+  color: #fff;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  font-family: var(--brand-font);
+  cursor: pointer;
+
+  &:hover { opacity: 0.85; }
+}
+
+.delete-confirm__no {
+  padding: 3px 8px;
+  border: 1px solid var(--brand-border-color);
+  border-radius: 3px;
+  background: transparent;
+  color: var(--brand-text-secondary);
+  font-size: 0.6875rem;
+  font-weight: 600;
+  font-family: var(--brand-font);
+  cursor: pointer;
+
+  &:hover {
+    background: var(--brand-background-hover);
+  }
+}
+
+// ── Empty filtered message ──────────────────────────────────────────────
+
+.view-empty-filtered {
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding: 40px 20px;
+}
+
+.view-empty-filtered__text {
+  font-size: 0.875rem;
+  color: var(--brand-text-tertiary);
+  font-family: var(--brand-font);
+  text-align: center;
+}
+

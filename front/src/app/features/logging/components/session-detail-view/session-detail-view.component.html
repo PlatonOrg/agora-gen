@@ -1,86 +1,110 @@
 <div class="view-shell">
 
-  <div class="topbar">
-    <button class="back-btn" type="button" (click)="backRequested.emit()">
-      <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true">
-        <path d="M19 12H5"/><polyline points="12 19 5 12 12 5"/>
-      </svg>
-      Retour
-    </button>
-  </div>
+  @if (selectedGeneration()) {
+    <!-- Generation detail sub-page -->
+    <div class="topbar">
+      <button class="back-btn" type="button" (click)="closeGeneration()">
+        <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true">
+          <path d="M19 12H5"/><polyline points="12 19 5 12 12 5"/>
+        </svg>
+        Retour à la conversation
+      </button>
+    </div>
+    <div class="generation-detail-page">
+      @if (isExoGeneration(selectedGeneration()!)) {
+        <app-exo-generation-detail [gen]="asExo(selectedGeneration()!)" />
+      } @else {
+        <app-discussion-generation-detail [gen]="asDisc(selectedGeneration()!)" />
+      }
+    </div>
+  } @else {
+    <!-- Conversation list view -->
+    <div class="topbar">
+      <button class="back-btn" type="button" (click)="backRequested.emit()">
+        <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true">
+          <path d="M19 12H5"/><polyline points="12 19 5 12 12 5"/>
+        </svg>
+        Retour
+      </button>
+    </div>
 
-  <app-log-status-view [state]="state()" [empty]="false" [errorMessage]="errorMessage()" />
+    <app-log-status-view [state]="state()" [empty]="false" [errorMessage]="errorMessage()" />
 
-  @if (state() === 'success' && detail()) {
-    <div class="session-content">
+    @if (state() === 'success' && detail()) {
+      <div class="session-content">
 
-      <div class="session-header">
-        <div class="session-header__identity">
-          <div class="session-header__icon" aria-hidden="true">
-            <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
-            </svg>
-          </div>
-          <div class="session-header__text">
-            @if (detail()!.username) {
-              <span class="session-header__username">{{ detail()!.username }}</span>
-            }
-            <div class="session-header__dates">
-              @if (detail()!.started_at) {
-                <span>Début : {{ fmtFull(detail()!.started_at) }}</span>
+        <div class="session-header">
+          <div class="session-header__identity">
+            <div class="session-header__icon" aria-hidden="true">
+              <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+              </svg>
+            </div>
+            <div class="session-header__text">
+              @if (detail()!.username) {
+                <span class="session-header__username">{{ detail()!.username }}</span>
               }
-              @if (detail()!.last_at) {
-                <span class="session-header__sep">–</span>
-                <span>Fin : {{ fmtFull(detail()!.last_at) }}</span>
-              }
+              <div class="session-header__dates">
+                @if (detail()!.started_at) {
+                  <span>Début : {{ fmtFull(detail()!.started_at) }}</span>
+                }
+                @if (detail()!.last_at) {
+                  <span class="session-header__sep">–</span>
+                  <span>Fin : {{ fmtFull(detail()!.last_at) }}</span>
+                }
+              </div>
             </div>
           </div>
-        </div>
-        <div class="session-header__badges">
-          <app-log-badge [label]="detail()!.exo_generations.length + ' exercice(s)'" variant="exercise" />
-          <app-log-badge [label]="detail()!.discussion_generations.length + ' discussion(s)'" variant="discussion" />
-        </div>
-      </div>
-
-      <div class="filter-bar">
-        <div class="filter-bar__filters">
-          <button class="filter-btn" [class.filter-btn--active]="filter() === 'all'" (click)="setFilter('all')">
-            Tout ({{ allGenerations().length }})
-          </button>
-          <button class="filter-btn" [class.filter-btn--active]="filter() === 'exercise'" (click)="setFilter('exercise')">
-            Exercices ({{ detail()!.exo_generations.length }})
-          </button>
-          <button class="filter-btn" [class.filter-btn--active]="filter() === 'discussion'" (click)="setFilter('discussion')">
-            Discussions ({{ detail()!.discussion_generations.length }})
-          </button>
-        </div>
-        <button class="sort-btn" type="button" (click)="toggleSort()" title="Inverser l'ordre chronologique">
-          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            @if (sortDirection() === 'asc') {
-              <line x1="12" y1="5" x2="12" y2="19"/><polyline points="19 12 12 19 5 12"/>
-            } @else {
-              <line x1="12" y1="19" x2="12" y2="5"/><polyline points="5 12 12 5 19 12"/>
+          <div class="session-header__badges">
+            @if (detail()!.exo_generations.length > 0) {
+              <app-log-badge [label]="detail()!.exo_generations.length + ' exercice(s)'" variant="exercise" />
             }
-          </svg>
-          {{ sortDirection() === 'asc' ? 'Plus ancien en premier' : 'Plus récent en premier' }}
-        </button>
+            @if (detail()!.discussion_generations.length > 0) {
+              <app-log-badge [label]="detail()!.discussion_generations.length + ' discussion(s)'" variant="discussion" />
+            }
+          </div>
+        </div>
+
+        <div class="filter-bar">
+          <div class="filter-bar__filters">
+            <button class="filter-btn" [class.filter-btn--active]="filter() === 'all'" (click)="setFilter('all')">
+              Tout ({{ allGenerations().length }})
+            </button>
+            <button class="filter-btn" [class.filter-btn--active]="filter() === 'exercise'" (click)="setFilter('exercise')">
+              Exercices ({{ detail()!.exo_generations.length }})
+            </button>
+            <button class="filter-btn" [class.filter-btn--active]="filter() === 'discussion'" (click)="setFilter('discussion')">
+              Discussions ({{ detail()!.discussion_generations.length }})
+            </button>
+          </div>
+          <button class="sort-btn" type="button" (click)="toggleSort()" title="Inverser l'ordre chronologique">
+            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              @if (sortDirection() === 'asc') {
+                <line x1="12" y1="5" x2="12" y2="19"/><polyline points="19 12 12 19 5 12"/>
+              } @else {
+                <line x1="12" y1="19" x2="12" y2="5"/><polyline points="5 12 12 5 19 12"/>
+              }
+            </svg>
+            {{ sortDirection() === 'asc' ? 'Plus ancien en premier' : 'Plus récent en premier' }}
+          </button>
+        </div>
+
+        <div class="session-list">
+          @for (gen of paginated(); track gen.id) {
+            <app-generation-list-item [gen]="gen" (selected)="openGeneration($event)" />
+          } @empty {
+            <p class="session-empty">Aucune génération pour ce filtre.</p>
+          }
+        </div>
+
+        <app-log-pagination
+          [page]="page()"
+          [totalPages]="totalPages()"
+          (pageChanged)="page.set($event)"
+        />
+
       </div>
-
-      <div class="session-list">
-        @for (gen of paginated(); track gen.id) {
-          <app-generation-list-item [gen]="gen" />
-        } @empty {
-          <p class="session-empty">Aucune génération pour ce filtre.</p>
-        }
-      </div>
-
-      <app-log-pagination
-        [page]="page()"
-        [totalPages]="totalPages()"
-        (pageChanged)="page.set($event)"
-      />
-
-    </div>
+    }
   }
 
 </div>
