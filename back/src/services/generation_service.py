@@ -297,7 +297,7 @@ Vous etes donne des exemples complets pour le contexte, mais vous devez generer 
 
         variables = llm_result.parsed
         if isinstance(variables, dict) and variables.get("name"):
-            exercise_data.name = variables.pop("name")
+            exercise_data.name = variables.pop("name").replace("_", " ")
         if isinstance(variables, dict) and variables.get("description"):
             exercise_data.description = variables.pop("description")
         if isinstance(variables, dict) and variables.get("metadata"):

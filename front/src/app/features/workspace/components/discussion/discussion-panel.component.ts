@@ -227,16 +227,25 @@ export class DiscussionPanelComponent implements AfterViewInit, OnDestroy {
         this.attachedFiles.update(c => [...c, file]);
       } catch (error) {
         if (this.isTokenLimitExceededError(error)) {
+          const limits = this.extractTokenLimits(error);
+          const detail = limits
+            ? ` (${limits.count.toLocaleString('fr-FR')} tokens extraits, limite : ${limits.max.toLocaleString('fr-FR')} tokens)`
+            : '';
           this.showUploadError(
-            `Le fichier « ${file.name} » dépasse la limite de taille autorisée. Veuillez utiliser un fichier plus petit.`
+            `Le fichier « ${file.name} » dépasse la limite de taille autorisée${detail}. Veuillez utiliser un fichier plus petit.`
+          );
+        } else if (this.isFileTooLargeError(error)) {
+          this.showUploadError(
+            `Le fichier « ${file.name} » est trop volumineux pour être envoyé au serveur. Veuillez utiliser un fichier plus petit.`
           );
         } else if (this.isBinaryFormatError(error)) {
           this.showUploadError(
             `Le type du fichier « ${file.name} » n'est pas supporté. Seuls les documents textuels sont acceptés (pas de fichiers binaires).`
           );
         } else {
+          const reason = error instanceof Error ? error.message : '';
           this.showUploadError(
-            `Le fichier « ${file.name} » n'a pas pu être chargé.`
+            `Le fichier « ${file.name} » n'a pas pu être chargé.${reason ? ' Raison : ' + reason : ''}`
           );
         }
       } finally {
@@ -611,6 +620,17 @@ export class DiscussionPanelComponent implements AfterViewInit, OnDestroy {
     if (!(error instanceof Error)) return false;
     return /FILE_CONTENT_MAX_TOKENS/i.test(error.message) ||
       /limite de tokens|token limit/i.test(error.message);
+  }
+
+  private extractTokenLimits(error: unknown): { count: number; max: number } | null {
+    if (!(error instanceof Error)) return null;
+    const match = error.message.match(/has\s+(\d+)\s+tokens.*?\((\d+)\)/);
+    return match ? { count: parseInt(match[1], 10), max: parseInt(match[2], 10) } : null;
+  }
+
+  private isFileTooLargeError(error: unknown): boolean {
+    if (!(error instanceof Error)) return false;
+    return /FILE_TOO_LARGE|HTTP 413/i.test(error.message);
   }
 
   protected removeComponentBadge(tag: string): void { this.componentBadges.update(b => b.filter(x => x.tag !== tag)); this.saveCache(); }

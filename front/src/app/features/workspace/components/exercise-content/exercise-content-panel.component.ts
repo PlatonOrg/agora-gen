@@ -473,7 +473,9 @@ export class ExerciseContentPanelComponent implements AfterViewInit {
       const result = await this.chatService.getPleContent(this.exerciseData());
       this.openPlePopup(result.ple_content);
     } catch (error) {
-      console.error('Error fetching PLE content:', error);
+      const message = error instanceof Error ? error.message : 'Erreur inconnue lors de la génération du code PLE.';
+      this.publishFeedback.set({ type: 'error', message });
+      setTimeout(() => this.publishFeedback.set(null), 6000);
     } finally {
       this.isViewPleLoading.set(false);
     }

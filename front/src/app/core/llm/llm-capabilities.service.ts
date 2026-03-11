@@ -70,6 +70,9 @@ export class LlmCapabilitiesService {
     if (!response.ok) {
       const error = await response.json().catch(() => ({}));
       console.error('[LlmCapabilitiesService] File upload failed:', error);
+      if (response.status === 413) {
+        throw new Error(`FILE_TOO_LARGE: Le fichier dépasse la taille maximale autorisée par le serveur.`);
+      }
       throw new Error(error.detail || `HTTP ${response.status}`);
     }
 

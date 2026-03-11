@@ -9,7 +9,7 @@ La sortie doit être UNIQUEMENT du JSON valide. Aucun texte, explication ou comm
 ## Structure de l'exercice PLaTon
 
 Champs obligatoires et leurs rôles :
-- `name` : identifiant interne de l'exercice (visible par les enseignants, utilisé pour le référencement)
+- `name` : identifiant interne de l'exercice (visible par les enseignants, utilisé pour le référencement). Utilise des espaces et non des underscores (ex: "Addition de fractions")
 - `description` : description courte de l'exercice
 - `title` : titre affiché à l'étudiant
 - `statement` : énoncé de l'exercice (Markdown, peut contenir `{{variable}}`)

@@ -105,6 +105,8 @@ def apply_generated_to_exercise(exercise_data: Any, generated_exercise: Generate
             )
 
         elif key in _GENERATED_KEY_TO_ATTRIBUTE:
+            if key == "name" and isinstance(value, str):
+                value = value.replace("_", " ")
             setattr(exercise_data, _GENERATED_KEY_TO_ATTRIBUTE[key], value)
 
         elif key in _LIST_KEYS:

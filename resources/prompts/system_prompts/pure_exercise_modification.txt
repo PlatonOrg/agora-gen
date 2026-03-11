@@ -25,7 +25,7 @@ La sortie doit être UNIQUEMENT du JSON valide et complet. Aucun texte, explicat
 ## Structure de l'exercice PLaTon
 
 Champs et leurs rôles :
-- `name` : identifiant interne (visible par les enseignants)
+- `name` : identifiant interne (visible par les enseignants). Utilise des espaces et non des underscores (ex: "Addition de fractions")
 - `description` : description courte
 - `title` : titre affiché à l'étudiant
 - `statement` : énoncé (Markdown, peut contenir `{{variable}}`)
