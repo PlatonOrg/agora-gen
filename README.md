@@ -166,8 +166,9 @@ docker compose exec api pytest --cov=src -v
 
 Le déploiement en production est géré via le pipeline CI/CD GitHub Actions (`.github/workflows/deploy.yml`). Tout push sur la branche `main` déclenche :
 
-1. Le build et le push des images Docker vers GitHub Container Registry (GHCR)
-2. Le déploiement automatique sur le VPS via SSH
+1. Les tests unitaires
+2. Le build et le push des images Docker vers GitHub Container Registry (GHCR)
+3. Le déploiement automatique sur le VPS via SSH
 
 Pour la configuration complète du VPS et du pipeline CI/CD, voir [`docs/MANUEL_DEVELOPPEUR.md`](docs/MANUEL_DEVELOPPEUR.md#6-déploiement-en-production).
 
