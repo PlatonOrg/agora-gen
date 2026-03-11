@@ -138,23 +138,6 @@ docker compose exec db psql -U agora -d agora_db -c "DROP SCHEMA public CASCADE;
 
 ## Scripts utilitaires
 
-### Benchmarks
-
-| Script | Commande | Description |
-|--------|----------|-------------|
-| `run_benchmark.py` | `docker compose exec api python scripts/benchmarks/run_benchmark.py` | Benchmark du modèle d'embedding |
-| `run_tests.py` | `docker compose exec api python scripts/benchmarks/run_tests.py` | Tests de performance |
-
-Exemple d'utilisation :
-
-```bash
-docker compose exec api python scripts/benchmarks/run_benchmark.py \
-  --embed-model /opt/models/multilingual-e5-large-instruct \
-  -j weighted/simple.json \
-  --dimension 1024 \
-  --skip-llm
-```
-
 ### Restauration de base de données
 
 ```bash
