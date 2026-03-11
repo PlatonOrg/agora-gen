@@ -2,6 +2,7 @@ import { Injectable, signal, PLATFORM_ID, Inject } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
 import { ApiService } from '../../../core/api/api.service';
 import {FilterTemplatesRequest, TemplateResponse} from '../models/template.model';
+import { ComponentsMetadataService } from './components-metadata.service';
 
 /**
  * Interfaces for context data
@@ -86,6 +87,7 @@ export class ContextService {
 
   constructor(
     private apiService: ApiService,
+    private componentsMetadataService: ComponentsMetadataService,
     @Inject(PLATFORM_ID) platformId: Object
   ) {
     this.isBrowser = isPlatformBrowser(platformId);
@@ -289,6 +291,12 @@ export class ContextService {
    * Get component tag by name (for backend API calls)
    */
   getComponentTag(componentName: string): string | null {
+    // First try ComponentsMetadataService (loaded from API endpoint)
+    const comp = this.componentsMetadataService.getComponentByName(componentName);
+    if (comp?.tag) {
+      return comp.tag;
+    }
+    // Fallback to local metadata signal
     const metadata = this.componentMetadataSignal().find(m => m.name === componentName);
     return metadata?.tag || null;
   }

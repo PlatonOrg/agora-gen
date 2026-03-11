@@ -49,7 +49,26 @@ async def filter_templates(
         raw_templates = await find_templates_by_component_tags(session, request.composants)
     elif request.composants:
         logger.info("Using Platon filtering with component post-filtering")
-        raw_templates = await find_templates_by_component_tags(session, request.composants)
+        # First get templates matching the Platon filters (sujets, niveaux, cercle, search)
+        platon_results = await platon_service.get_filtered_resources(
+            types="EXERCISE",
+            status="READY",
+            configurable=True,
+            topics=request.sujets if request.sujets else None,
+            levels=request.niveaux if request.niveaux else None,
+            parents=[request.cercle] if request.cercle else None,
+            search=request.search if request.search else None,
+            token=user_token
+        )
+        platon_ids = {str(t.get("id", "")) for t in platon_results if t.get("id")}
+
+        # Then get templates matching the component filter from DB
+        component_templates = await find_templates_by_component_tags(session, request.composants)
+        # Intersect: keep only templates that match both Platon filters and component filters
+        raw_templates = [
+            t for t in component_templates
+            if t.get("platon_id") and t["platon_id"] in platon_ids
+        ]
     else:
         logger.info("Using Platon API for filtering")
         platon_results = await platon_service.get_filtered_resources(

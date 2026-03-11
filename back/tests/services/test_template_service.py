@@ -91,21 +91,53 @@ class TestFilterTemplatesRouting:
         mock_platon.get_filtered_resources.assert_awaited_once()
 
     @pytest.mark.asyncio
-    async def test_components_plus_other_filter_uses_db_component_tags(self):
-        """When composants is set alongside other filters, still uses DB component lookup."""
+    async def test_components_plus_other_filter_uses_both_platon_and_db(self):
+        """When composants is set alongside other filters, both Platon API and DB component lookup are used."""
         session = _make_session()
         request = _make_request(composants=["tag-quiz"], sujets=["math"])
 
-        with patch("src.services.template_service.find_templates_by_component_tags",
-                   new_callable=AsyncMock) as mock_db:
-            with patch("src.services.template_service._enrich_template_with_platon_data",
-                       new_callable=AsyncMock) as mock_enrich:
-                mock_db.return_value = []
-                mock_enrich.return_value = None
+        with patch("src.services.template_service.platon_service") as mock_platon:
+            with patch("src.services.template_service.find_templates_by_component_tags",
+                       new_callable=AsyncMock) as mock_db:
+                with patch("src.services.template_service._enrich_template_with_platon_data",
+                           new_callable=AsyncMock) as mock_enrich:
+                    mock_platon.get_filtered_resources = AsyncMock(return_value=[])
+                    mock_db.return_value = []
+                    mock_enrich.return_value = None
 
-                await filter_templates(request, session)
+                    await filter_templates(request, session)
 
+        mock_platon.get_filtered_resources.assert_awaited_once()
         mock_db.assert_awaited_once()
+
+    @pytest.mark.asyncio
+    async def test_components_plus_other_filter_intersects_results(self):
+        """When composants + other filters, only templates matching both are returned."""
+        session = _make_session()
+        request = _make_request(composants=["tag-quiz"], sujets=["math"])
+        enriched = _make_template_response("tpl-shared")
+
+        with patch("src.services.template_service.platon_service") as mock_platon:
+            with patch("src.services.template_service.find_templates_by_component_tags",
+                       new_callable=AsyncMock) as mock_db:
+                with patch("src.services.template_service._enrich_template_with_platon_data",
+                           new_callable=AsyncMock) as mock_enrich:
+                    # Platon returns two templates
+                    mock_platon.get_filtered_resources = AsyncMock(
+                        return_value=[{"id": "tpl-shared"}, {"id": "tpl-platon-only"}]
+                    )
+                    # DB returns two templates (one overlapping)
+                    mock_db.return_value = [
+                        {"platon_id": "tpl-shared"},
+                        {"platon_id": "tpl-db-only"},
+                    ]
+                    mock_enrich.return_value = enriched
+
+                    result = await filter_templates(request, session)
+
+        # Only the intersecting template should be enriched
+        assert len(result) == 1
+        assert result[0].id == "tpl-shared"
 
 
 # ---------------------------------------------------------------------------
