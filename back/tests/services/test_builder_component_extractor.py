@@ -42,8 +42,10 @@ class TestExtractComponentsFromBuilder:
         result = extract_components_from_builder(source)
         assert "my_input" in result.extracted_components
         assert result.extracted_components["my_input"]["selector"] == "wc-input-box"
-        assert result.extracted_components["my_input"]["placeholder"] == "Enter answer"
-        assert "my_input" not in result.cleaned_builder
+        # The cleaned builder replaces the dict with individual property assignments
+        assert "my_input['placeholder']" in result.cleaned_builder
+        # The original dict literal should no longer be present
+        assert "'selector': 'wc-input-box'" not in result.cleaned_builder
         assert "x = 1" in result.cleaned_builder
         assert "y = x + 1" in result.cleaned_builder
 
@@ -58,8 +60,9 @@ class TestExtractComponentsFromBuilder:
         assert "answer_input" in result.extracted_components
         assert result.extracted_components["question"]["selector"] == "wc-text-block"
         assert result.extracted_components["answer_input"]["selector"] == "wc-input-box"
-        assert "question" not in result.cleaned_builder
-        assert "answer_input" not in result.cleaned_builder
+        # Property assignments replace the dict literals
+        assert "question['content']" in result.cleaned_builder
+        assert "answer_input['placeholder']" in result.cleaned_builder
         assert "expected = 4" in result.cleaned_builder
 
     def test_dict_without_selector_not_extracted(self):
@@ -72,7 +75,7 @@ class TestExtractComponentsFromBuilder:
         assert "real_comp" in result.extracted_components
         assert "config" in result.cleaned_builder
 
-    def test_multiline_component_dict_fully_removed(self):
+    def test_multiline_component_dict_replaced_with_assignments(self):
         source = (
             "import random\n"
             "a = random.randint(1, 10)\n"
@@ -87,9 +90,11 @@ class TestExtractComponentsFromBuilder:
         result = extract_components_from_builder(source)
         assert "answer_field" in result.extracted_components
         assert result.extracted_components["answer_field"]["selector"] == "wc-input-box"
-        assert result.extracted_components["answer_field"]["type"] == "number"
-        assert "answer_field" not in result.cleaned_builder
-        assert "selector" not in result.cleaned_builder
+        # Non-selector properties are moved to individual assignments in the cleaned builder
+        assert "answer_field['placeholder']" in result.cleaned_builder
+        assert "answer_field['type']" in result.cleaned_builder
+        # The original dict literal should be gone
+        assert "'selector': 'wc-input-box'" not in result.cleaned_builder
         assert "import random" in result.cleaned_builder
         assert "result = a + b" in result.cleaned_builder
 
@@ -163,9 +168,10 @@ class TestExtractComponentsFromBuilder:
         comp = result.extracted_components.get("widget")
         assert comp is not None
         assert comp["selector"] == "wc-code-editor"
-        assert comp["language"] == "python"
-        assert comp["height"] == "300px"
-        assert comp["readonly"] is False
+        # Non-selector properties are turned into individual assignments
+        assert "widget['language']" in result.cleaned_builder
+        assert "widget['height']" in result.cleaned_builder
+        assert "widget['readonly']" in result.cleaned_builder
 
     def test_returns_extraction_result_type(self):
         result = extract_components_from_builder("x = 1\n")
@@ -202,9 +208,12 @@ class TestExtractComponentsFromBuilder:
         assert result.extracted_components["comp_a"]["selector"] == "wc-input-box"
         assert result.extracted_components["comp_b"]["selector"] == "wc-radio"
         assert result.extracted_components["comp_c"]["selector"] == "wc-feedback"
-        assert "comp_a" not in result.cleaned_builder
-        assert "comp_b" not in result.cleaned_builder
-        assert "comp_c" not in result.cleaned_builder
+        # Non-selector properties become individual assignments
+        assert "comp_a['placeholder']" in result.cleaned_builder
+        assert "comp_b['choices']" in result.cleaned_builder
+        assert "comp_c['type']" in result.cleaned_builder
+        # Original dict literals should be gone
+        assert "'selector': 'wc-input-box'" not in result.cleaned_builder
         assert "import random" in result.cleaned_builder
         assert "expected = n * 2" in result.cleaned_builder
 
@@ -222,7 +231,8 @@ class TestExtractComponentsFromBuilder:
         assert "a = 1" in result.cleaned_builder
         assert "b = 2" in result.cleaned_builder
         assert "c = a + b" in result.cleaned_builder
-        assert "first" not in result.cleaned_builder
-        assert "second" not in result.cleaned_builder
-        assert "third" not in result.cleaned_builder
+        # Non-selector properties become individual assignments
+        assert "first['content']" in result.cleaned_builder
+        assert "second['placeholder']" in result.cleaned_builder
+        assert "third['choices']" in result.cleaned_builder
 

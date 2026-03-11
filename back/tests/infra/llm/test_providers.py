@@ -27,6 +27,7 @@ from src.infra.llm.providers import (
     OpenAICompatibleProvider,
     RagustaveProvider,
 )
+from src.infra.llm.llm import LLMChatResult
 
 
 # ---------------------------------------------------------------------------
@@ -126,7 +127,8 @@ class TestOpenAICompatibleChat:
             temperature=0.0,
         )
 
-        assert result == {"key": "value"}
+        assert isinstance(result, LLMChatResult)
+        assert result.content == {"key": "value"}
 
     @pytest.mark.asyncio
     @respx.mock
@@ -144,7 +146,8 @@ class TestOpenAICompatibleChat:
             temperature=0.0,
         )
 
-        assert result == "Hello world"
+        assert isinstance(result, LLMChatResult)
+        assert result.content == "Hello world"
 
     @pytest.mark.asyncio
     @respx.mock
@@ -162,7 +165,7 @@ class TestOpenAICompatibleChat:
             json_schema=schema, temperature=0.0,
         )
 
-        assert result == {"answer": 42}
+        assert result.content == {"answer": 42}
 
     @pytest.mark.asyncio
     @respx.mock
@@ -179,7 +182,7 @@ class TestOpenAICompatibleChat:
             json_schema=schema, temperature=0.0,
         )
 
-        assert result == "not-json"
+        assert result.content == "not-json"
 
     @pytest.mark.asyncio
     @respx.mock
@@ -235,7 +238,7 @@ class TestOpenAICompatibleChat:
                 model="llama3", system_prompt="s", user_prompt="u", temperature=0.0
             )
 
-        assert result == "ok"
+        assert result.content == "ok"
         assert call_count == 2
 
     @pytest.mark.asyncio
@@ -280,7 +283,7 @@ class TestGeminiProviderChat:
             json_schema=schema,
             temperature=0.0,
         )
-        assert result == {"key": "v"}
+        assert result.content == {"key": "v"}
 
     @pytest.mark.asyncio
     @respx.mock
@@ -296,11 +299,11 @@ class TestGeminiProviderChat:
         result = await provider.chat(
             model="gemini-pro", system_prompt="s", user_prompt="u", temperature=0.0
         )
-        assert result == "plain response"
+        assert result.content == "plain response"
 
     @pytest.mark.asyncio
     @respx.mock
-    async def test_raises_value_error_on_bad_json(self):
+    async def test_returns_raw_string_on_bad_json(self):
         provider = self._make_provider()
         payload = {
             "candidates": [{"content": {"parts": [{"text": "not-json"}]}}]
@@ -310,11 +313,12 @@ class TestGeminiProviderChat:
         )
 
         schema = provider.wrap_json_schema({"type": "object"})
-        with pytest.raises(ValueError, match="invalid JSON"):
-            await provider.chat(
-                model="gemini-pro", system_prompt="s", user_prompt="u",
-                json_schema=schema, temperature=0.0,
-            )
+        result = await provider.chat(
+            model="gemini-pro", system_prompt="s", user_prompt="u",
+            json_schema=schema, temperature=0.0,
+        )
+        assert isinstance(result, LLMChatResult)
+        assert result.content == "not-json"
 
     @pytest.mark.asyncio
     @respx.mock
@@ -352,7 +356,8 @@ class TestOllamaProviderChat:
             model="llama3", system_prompt="s", user_prompt="u",
             json_schema=schema, temperature=0.0,
         )
-        assert result == {"result": True}
+        assert isinstance(result, LLMChatResult)
+        assert result.content == {"result": True}
 
     @pytest.mark.asyncio
     @respx.mock
@@ -372,7 +377,7 @@ class TestOllamaProviderChat:
 
     @pytest.mark.asyncio
     @respx.mock
-    async def test_raises_on_invalid_json(self):
+    async def test_returns_raw_string_on_invalid_json(self):
         provider = self._make_provider()
         payload = {"message": {"content": "bad-json"}}
         respx.post("http://localhost:11434/api/chat").mock(
@@ -380,11 +385,12 @@ class TestOllamaProviderChat:
         )
         schema = provider.wrap_json_schema({"type": "object"})
 
-        with pytest.raises(ValueError, match="invalid JSON"):
-            await provider.chat(
-                model="llama3", system_prompt="s", user_prompt="u",
-                json_schema=schema, temperature=0.0,
-            )
+        result = await provider.chat(
+            model="llama3", system_prompt="s", user_prompt="u",
+            json_schema=schema, temperature=0.0,
+        )
+        assert isinstance(result, LLMChatResult)
+        assert result.content == "bad-json"
 
 
 # ---------------------------------------------------------------------------

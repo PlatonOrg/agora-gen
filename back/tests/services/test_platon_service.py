@@ -209,12 +209,14 @@ class TestEvaluateExercise:
         assert result.feedbacks[0].content == "Good job!"
 
     @pytest.mark.asyncio
-    async def test_raises_when_exercise_key_missing(self):
+    async def test_returns_empty_result_when_exercise_key_missing(self):
         service = _make_service()
         service._request = AsyncMock(return_value={})
 
-        with pytest.raises(SandboxError, match="Invalid evaluate response"):
-            await service.evaluate_exercise("s1")
+        result = await service.evaluate_exercise("s1")
+        assert isinstance(result, EvaluateResult)
+        assert result.session_id == "s1"
+        assert result.feedbacks == []
 
     @pytest.mark.asyncio
     async def test_ignores_non_dict_feedbacks(self):

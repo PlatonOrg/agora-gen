@@ -18,6 +18,7 @@ from src.services.models.api import ChatResponse, ExerciseData, WorkflowResult
 from src.services.models.platon import ExerciseState, PreviewResult
 from src.services.models.rag import RetrievedChunk
 from src.workflows.workflow import (
+    WorkflowConfig,
     _build_resource_overview_url,
     _extract_top_resources,
     _find_best_template,
@@ -26,33 +27,42 @@ from src.workflows.workflow import (
 )
 
 
+def _mock_config(platon_base_url: str = "https://platon.univ.fr/api/v1",
+                 template_score_threshold: float = 0.9) -> WorkflowConfig:
+    """Return a WorkflowConfig with sensible defaults for tests."""
+    return WorkflowConfig(
+        platon_base_url=platon_base_url,
+        template_score_threshold=template_score_threshold,
+        num_example_exercises=3,
+        rag_table_name="test_table",
+        rag_log_top_k=5,
+        generation_temperature=0.0,
+    )
+
+
 # ---------------------------------------------------------------------------
 # _build_resource_overview_url
 # ---------------------------------------------------------------------------
 
 class TestBuildResourceOverviewUrl:
     def test_api_prefix_is_stripped(self):
-        with patch("src.workflows.workflow.settings") as mock_settings:
-            mock_settings.PLATON_BASE_URL = "https://platon.univ.fr/api/v1"
+        with patch("src.workflows.workflow._get_config", return_value=_mock_config("https://platon.univ.fr/api/v1")):
             url = _build_resource_overview_url("r123")
         assert url == "https://platon.univ.fr/resources/r123/overview"
         assert "/api/" not in url
 
     def test_no_api_prefix_leaves_base_intact(self):
-        with patch("src.workflows.workflow.settings") as mock_settings:
-            mock_settings.PLATON_BASE_URL = "https://platon.univ.fr"
+        with patch("src.workflows.workflow._get_config", return_value=_mock_config("https://platon.univ.fr")):
             url = _build_resource_overview_url("r123")
         assert url == "https://platon.univ.fr/resources/r123/overview"
 
     def test_trailing_slash_is_stripped(self):
-        with patch("src.workflows.workflow.settings") as mock_settings:
-            mock_settings.PLATON_BASE_URL = "https://platon.univ.fr/api/v1/"
+        with patch("src.workflows.workflow._get_config", return_value=_mock_config("https://platon.univ.fr/api/v1/")):
             url = _build_resource_overview_url("r1")
         assert not url.endswith("/")
 
     def test_resource_id_in_url(self):
-        with patch("src.workflows.workflow.settings") as mock_settings:
-            mock_settings.PLATON_BASE_URL = "https://platon.univ.fr/api/v1"
+        with patch("src.workflows.workflow._get_config", return_value=_mock_config("https://platon.univ.fr/api/v1")):
             url = _build_resource_overview_url("my-resource-42")
         assert "my-resource-42" in url
 
@@ -77,8 +87,7 @@ def _make_chunk(resource_id: str, name: str = None) -> RetrievedChunk:
 class TestExtractTopResources:
     def test_returns_up_to_limit(self):
         chunks = [_make_chunk(f"r{i}", f"Name {i}") for i in range(10)]
-        with patch("src.workflows.workflow.settings") as mock_settings:
-            mock_settings.PLATON_BASE_URL = "https://p.fr/api/v1"
+        with patch("src.workflows.workflow._get_config", return_value=_mock_config("https://p.fr/api/v1")):
             result = _extract_top_resources(chunks, limit=3)
         assert len(result) == 3
 
@@ -100,16 +109,14 @@ class TestExtractTopResources:
 
     def test_resource_id_in_result(self):
         chunks = [_make_chunk("r42", "Exercise 42")]
-        with patch("src.workflows.workflow.settings") as mock_settings:
-            mock_settings.PLATON_BASE_URL = "https://p.fr/api/v1"
+        with patch("src.workflows.workflow._get_config", return_value=_mock_config("https://p.fr/api/v1")):
             result = _extract_top_resources(chunks)
         assert result[0]["resource_id"] == "r42"
         assert result[0]["name"] == "Exercise 42"
 
     def test_url_is_included(self):
         chunks = [_make_chunk("r1", "R1")]
-        with patch("src.workflows.workflow.settings") as mock_settings:
-            mock_settings.PLATON_BASE_URL = "https://p.fr/api/v1"
+        with patch("src.workflows.workflow._get_config", return_value=_mock_config("https://p.fr/api/v1")):
             result = _extract_top_resources(chunks)
         assert "url" in result[0]
         assert "r1" in result[0]["url"]
@@ -145,38 +152,33 @@ def _make_exercise_chunk(score: float) -> RetrievedChunk:
 
 class TestFindBestTemplate:
     def test_returns_none_for_empty_list(self):
-        with patch("src.workflows.workflow.settings") as mock_settings:
-            mock_settings.TEMPLATE_SCORE_THRESHOLD = 0.9
+        with patch("src.workflows.workflow._get_config", return_value=_mock_config(template_score_threshold=0.9)):
             result = _find_best_template([])
         assert result is None
 
     def test_returns_none_when_no_templates(self):
         chunks = [_make_exercise_chunk(0.95)]
-        with patch("src.workflows.workflow.settings") as mock_settings:
-            mock_settings.TEMPLATE_SCORE_THRESHOLD = 0.9
+        with patch("src.workflows.workflow._get_config", return_value=_mock_config(template_score_threshold=0.9)):
             result = _find_best_template(chunks)
         assert result is None
 
     def test_returns_template_when_score_above_threshold(self):
         chunks = [_make_template_chunk(0.95)]
-        with patch("src.workflows.workflow.settings") as mock_settings:
-            mock_settings.TEMPLATE_SCORE_THRESHOLD = 0.9
+        with patch("src.workflows.workflow._get_config", return_value=_mock_config(template_score_threshold=0.9)):
             result = _find_best_template(chunks)
         assert result is not None
         assert result.metadata["resource_id"] == "tpl-1"
 
     def test_returns_none_when_score_below_threshold(self):
         chunks = [_make_template_chunk(0.85)]
-        with patch("src.workflows.workflow.settings") as mock_settings:
-            mock_settings.TEMPLATE_SCORE_THRESHOLD = 0.9
+        with patch("src.workflows.workflow._get_config", return_value=_mock_config(template_score_threshold=0.9)):
             result = _find_best_template(chunks)
         assert result is None
 
     def test_returns_none_when_score_is_none(self):
         chunk = _make_template_chunk(0.95)
         chunk.score = None
-        with patch("src.workflows.workflow.settings") as mock_settings:
-            mock_settings.TEMPLATE_SCORE_THRESHOLD = 0.9
+        with patch("src.workflows.workflow._get_config", return_value=_mock_config(template_score_threshold=0.9)):
             result = _find_best_template([chunk])
         assert result is None
 
@@ -186,8 +188,7 @@ class TestFindBestTemplate:
             _make_template_chunk(0.95, "tpl-best"),
             _make_template_chunk(0.92, "tpl-second"),
         ]
-        with patch("src.workflows.workflow.settings") as mock_settings:
-            mock_settings.TEMPLATE_SCORE_THRESHOLD = 0.9
+        with patch("src.workflows.workflow._get_config", return_value=_mock_config(template_score_threshold=0.9)):
             result = _find_best_template(chunks)
         assert result is not None
         assert result.metadata["resource_id"] == "tpl-best"
@@ -195,16 +196,14 @@ class TestFindBestTemplate:
     def test_exact_threshold_score_qualifies(self):
         """Score exactly equal to threshold IS returned (implementation uses >=)."""
         chunk = _make_template_chunk(0.9)
-        with patch("src.workflows.workflow.settings") as mock_settings:
-            mock_settings.TEMPLATE_SCORE_THRESHOLD = 0.9
+        with patch("src.workflows.workflow._get_config", return_value=_mock_config(template_score_threshold=0.9)):
             result = _find_best_template([chunk])
         assert result is not None
 
     def test_score_below_threshold_not_returned(self):
         """Score strictly below threshold must NOT be returned."""
         chunk = _make_template_chunk(0.89)
-        with patch("src.workflows.workflow.settings") as mock_settings:
-            mock_settings.TEMPLATE_SCORE_THRESHOLD = 0.9
+        with patch("src.workflows.workflow._get_config", return_value=_mock_config(template_score_threshold=0.9)):
             result = _find_best_template([chunk])
         assert result is None
 

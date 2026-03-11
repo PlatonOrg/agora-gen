@@ -167,7 +167,7 @@ class TestChatTextWithLlm:
                 system_prompt="sys",
                 user_request="user",
             )
-        assert result == "Hello world"
+        assert result.text == "Hello world"
 
     @pytest.mark.asyncio
     async def test_non_string_result_coerced_to_str(self):
@@ -179,7 +179,7 @@ class TestChatTextWithLlm:
                 system_prompt="sys",
                 user_request="user",
             )
-        assert isinstance(result, str)
+        assert isinstance(result.text, str)
 
     @pytest.mark.asyncio
     async def test_passes_none_json_schema_to_provider(self):

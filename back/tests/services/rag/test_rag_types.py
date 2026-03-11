@@ -18,7 +18,6 @@ class TestEmbeddingKind:
         values = {e.value for e in EmbeddingKind}
         assert "EXERCICE" in values
         assert "TEMPLATE" in values
-        assert "COMPONENT" in values
         assert "TEMPLATE_EXO" in values
 
     def test_is_string_enum(self):
@@ -29,8 +28,8 @@ class TestEmbeddingKind:
         assert EmbeddingKind.TEMPLATE == "TEMPLATE"
 
     def test_from_string(self):
-        kind = EmbeddingKind("COMPONENT")
-        assert kind is EmbeddingKind.COMPONENT
+        kind = EmbeddingKind("TEMPLATE_EXO")
+        assert kind is EmbeddingKind.TEMPLATE_EXO
 
     def test_invalid_value_raises(self):
         with pytest.raises(ValueError):

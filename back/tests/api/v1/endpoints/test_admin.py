@@ -13,12 +13,13 @@ from __future__ import annotations
 
 import json
 import pytest
-from unittest.mock import AsyncMock, patch
+from unittest.mock import AsyncMock, MagicMock, patch
 
 from fastapi import FastAPI
 from httpx import AsyncClient, ASGITransport
 
 from src.api.v1.endpoints.admin import router
+from src.api.v1.dependencies import get_settings
 from src.infra.db.redis import get_redis
 from src.core.sqlalchemy import get_db_session
 from src.services.models.admin_stats import AdminStatsResponse, DailyMetrics, SummaryMetrics
@@ -53,16 +54,27 @@ def _make_stats_response(**overrides) -> AdminStatsResponse:
         summary=SummaryMetrics(
             total_conversations=10,
             total_published_exercises=5,
-            total_failures=2,
+            clean_generations=3,
+            recovered_generations=2,
+            fatal_generations=1,
+            internal_error_generations=1,
             avg_response_time_ms=1234.56,
+            total_input_tokens=5000,
+            total_output_tokens=3000,
+            avg_tokens_per_generation=800.0,
         ),
         daily=[
             DailyMetrics(
                 date="2026-02-20",
                 conversations=10,
                 published_exercises=5,
-                failures=2,
+                clean_generations=3,
+                recovered_generations=2,
+                fatal_generations=1,
+                internal_error_generations=1,
                 avg_response_time_ms=1234.56,
+                total_input_tokens=5000,
+                total_output_tokens=3000,
             ),
         ],
         date_from="2026-02-20",
@@ -72,9 +84,17 @@ def _make_stats_response(**overrides) -> AdminStatsResponse:
     return AdminStatsResponse(**defaults)
 
 
-ADMIN_SESSION = {"username": "admin.dupont", "platon_access": "tok"}
-TEACHER_SESSION = {"username": "jean.dupont", "platon_access": "tok"}
+ADMIN_SESSION = {"username": "admin.dupont", "platon_access": "tok", "role": "admin"}
+TEACHER_SESSION = {"username": "jean.dupont", "platon_access": "tok", "role": "teacher"}
 COOKIE_NAME = "agora_session_id"
+
+
+def _make_mock_settings():
+    """Return a MagicMock that behaves like Settings for admin tests."""
+    mock = MagicMock()
+    mock.SESSION_COOKIE_NAME = COOKIE_NAME
+    mock.SESSION_TTL_SECONDS = 86400
+    return mock
 
 
 # ---------------------------------------------------------------------------
@@ -96,6 +116,7 @@ def app_factory():
             application.dependency_overrides[get_redis] = lambda: mock_redis
         if mock_db is not None:
             application.dependency_overrides[get_db_session] = lambda: mock_db
+        application.dependency_overrides[get_settings] = _make_mock_settings
         return application
     return _build
 

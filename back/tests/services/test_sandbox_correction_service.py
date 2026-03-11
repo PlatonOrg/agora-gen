@@ -115,18 +115,18 @@ class TestApplyGeneratedToExercise:
         assert ex.theories == [{"title": "T", "url": "u"}]
 
     @patch("src.services.workspace_service.workspace_service")
-    def test_levels_maps_to_levels(self, mock_ws):
+    def test_levels_maps_to_metadata_levels(self, mock_ws):
         ex = _make_exercise()
         gen = _make_generated(levels=["CM2", "Difficile"])
         apply_generated_to_exercise(ex, gen)
-        assert ex.levels == ["CM2", "Difficile"]
+        assert ex.metadata.levels == ["CM2", "Difficile"]
 
     @patch("src.services.workspace_service.workspace_service")
-    def test_topics_maps_to_topics(self, mock_ws):
+    def test_topics_maps_to_metadata_topics(self, mock_ws):
         ex = _make_exercise()
         gen = _make_generated(topics=["Géométrie", "Mathématiques"])
         apply_generated_to_exercise(ex, gen)
-        assert ex.topics == ["Géométrie", "Mathématiques"]
+        assert ex.metadata.topics == ["Géométrie", "Mathématiques"]
 
     @patch("src.services.workspace_service.workspace_service")
     def test_author_key_is_ignored(self, mock_ws):

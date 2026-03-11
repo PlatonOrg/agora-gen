@@ -10,6 +10,7 @@ from fastapi import FastAPI
 from httpx import AsyncClient, ASGITransport
 
 from src.api.v1.endpoints.chat import _get_session_files, _save_session_files, router
+from src.api.v1.dependencies import get_settings
 from src.infra.db.redis import get_redis
 from src.services.models.api import SessionFile
 
@@ -73,9 +74,7 @@ class TestSaveSessionFiles:
         redis.setex = AsyncMock()
         files = [SessionFile(file_id="f1", filename="doc.pdf")]
 
-        with patch("src.api.v1.endpoints.chat.settings") as mock_settings:
-            mock_settings.SESSION_TTL_SECONDS = 86400
-            await _save_session_files(redis, "my-session", files)
+        await _save_session_files(redis, "my-session", files, ttl=86400)
 
         key_used = redis.setex.call_args[0][0]
         assert "my-session" in key_used
@@ -86,9 +85,7 @@ class TestSaveSessionFiles:
         redis.setex = AsyncMock()
         files = [SessionFile(file_id="f1", filename="doc.pdf")]
 
-        with patch("src.api.v1.endpoints.chat.settings") as mock_settings:
-            mock_settings.SESSION_TTL_SECONDS = 86400
-            await _save_session_files(redis, "sess", files)
+        await _save_session_files(redis, "sess", files, ttl=86400)
 
         serialized = redis.setex.call_args[0][2]
         parsed = json.loads(serialized)
@@ -100,11 +97,21 @@ class TestSaveSessionFiles:
 # Helpers
 # ---------------------------------------------------------------------------
 
-def _make_app(mock_redis) -> FastAPI:
+def _make_app(mock_redis, mock_settings=None) -> FastAPI:
     app = FastAPI()
     app.include_router(router, prefix="/chat")
     app.dependency_overrides[get_redis] = lambda: mock_redis
+    if mock_settings is not None:
+        app.dependency_overrides[get_settings] = lambda: mock_settings
     return app
+
+
+def _make_mock_settings(**overrides):
+    """Return a MagicMock that behaves like Settings."""
+    mock = MagicMock()
+    mock.SESSION_COOKIE_NAME = overrides.get("SESSION_COOKIE_NAME", "session_id")
+    mock.SESSION_TTL_SECONDS = overrides.get("SESSION_TTL_SECONDS", 86400)
+    return mock
 
 
 # ---------------------------------------------------------------------------
@@ -206,13 +213,11 @@ class TestGetSessionFilesEndpoint:
     async def test_no_session_cookie_returns_empty_list(self):
         mock_redis = AsyncMock()
         mock_redis.get = AsyncMock(return_value=None)
-        app = _make_app(mock_redis)
-        with patch("src.api.v1.endpoints.chat.settings") as mock_settings:
-            mock_settings.SESSION_COOKIE_NAME = "session_id"
-            async with AsyncClient(
-                transport=ASGITransport(app=app), base_url="http://test"
-            ) as client:
-                response = await client.get("/chat/files")
+        app = _make_app(mock_redis, _make_mock_settings())
+        async with AsyncClient(
+            transport=ASGITransport(app=app), base_url="http://test"
+        ) as client:
+            response = await client.get("/chat/files")
 
         assert response.status_code == 200
         assert response.json()["files"] == []
@@ -222,14 +227,12 @@ class TestGetSessionFilesEndpoint:
         files_data = [{"file_id": "f1", "filename": "doc.pdf"}]
         mock_redis = AsyncMock()
         mock_redis.get = AsyncMock(return_value=json.dumps(files_data).encode())
-        app = _make_app(mock_redis)
-        with patch("src.api.v1.endpoints.chat.settings") as mock_settings:
-            mock_settings.SESSION_COOKIE_NAME = "session_id"
-            async with AsyncClient(
-                transport=ASGITransport(app=app), base_url="http://test",
-                cookies={"session_id": "valid-sess"},
-            ) as client:
-                response = await client.get("/chat/files")
+        app = _make_app(mock_redis, _make_mock_settings())
+        async with AsyncClient(
+            transport=ASGITransport(app=app), base_url="http://test",
+            cookies={"session_id": "valid-sess"},
+        ) as client:
+            response = await client.get("/chat/files")
 
         assert response.status_code == 200
         assert len(response.json()["files"]) == 1

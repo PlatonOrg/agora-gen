@@ -49,8 +49,7 @@ DUMMY_METADATA = [
 
 
 def _make_service() -> GenerationService:
-    with patch("builtins.open", mock_open(read_data=DUMMY_PROMPT)):
-        return GenerationService()
+    return GenerationService()
 
 
 def _make_exercise(**kwargs) -> ExerciseData:
@@ -214,10 +213,11 @@ class TestGenerateConfigVariables:
             description="A math template",
         )
 
-        result = await service.generate_config_variables(
-            exercise_data=ex,
-            user_request="make an exercise about addition",
-        )
+        with patch.object(service, "_load_system_prompt", return_value=DUMMY_PROMPT):
+            result = await service.generate_config_variables(
+                exercise_data=ex,
+                user_request="make an exercise about addition",
+            )
 
         assert isinstance(result, ConfigVariablesGenerationResult)
         assert "question" in result.variables
@@ -234,10 +234,11 @@ class TestGenerateConfigVariables:
         service = _make_service()
         ex = _make_exercise(config_variables={"inputs": DUMMY_SCHEMA})
 
-        result = await service.generate_config_variables(
-            exercise_data=ex,
-            user_request="create",
-        )
+        with patch.object(service, "_load_system_prompt", return_value=DUMMY_PROMPT):
+            result = await service.generate_config_variables(
+                exercise_data=ex,
+                user_request="create",
+            )
 
         assert ex.name == "Exercise Name"
         assert ex.description == "Exercise Desc"
@@ -252,11 +253,12 @@ class TestGenerateConfigVariables:
         service = _make_service()
         ex = _make_exercise(config_variables={"inputs": DUMMY_SCHEMA})
 
-        await service.generate_config_variables(
-            exercise_data=ex,
-            user_request="modify question only",
-            fields_to_modify=["question"],
-        )
+        with patch.object(service, "_load_system_prompt", return_value=DUMMY_PROMPT):
+            await service.generate_config_variables(
+                exercise_data=ex,
+                user_request="modify question only",
+                fields_to_modify=["question"],
+            )
 
         call_kwargs = mock_llm.call_args[1]
         # The service uses include_properties to filter the JSON schema at the LLM level
@@ -271,10 +273,11 @@ class TestGenerateConfigVariables:
         service = _make_service()
         ex = _make_exercise(config_variables={"inputs": DUMMY_SCHEMA})
 
-        result = await service.generate_config_variables(
-            exercise_data=ex,
-            user_request="create",
-        )
+        with patch.object(service, "_load_system_prompt", return_value=DUMMY_PROMPT):
+            result = await service.generate_config_variables(
+                exercise_data=ex,
+                user_request="create",
+            )
 
         assert result.llm.provider == "groq"
         assert result.llm.model == "llama3"

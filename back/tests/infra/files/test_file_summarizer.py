@@ -15,6 +15,11 @@ from unittest.mock import AsyncMock, patch
 
 from src.infra.files.models import FileSummaryResult
 from src.infra.files import file_summarizer
+from src.services.models.api import LLMTextResult
+
+
+def _make_text_result(text: str) -> LLMTextResult:
+    return LLMTextResult(text=text, raw_text=text, provider="test", model="test")
 
 
 # ---------------------------------------------------------------------------
@@ -25,7 +30,7 @@ class TestSummarizeFileContent:
     @pytest.mark.asyncio
     async def test_success_returns_result_with_summary(self):
         with patch("src.infra.llm.llm_wrapper.chat_text_with_llm", new_callable=AsyncMock) as mock_llm:
-            mock_llm.return_value = "A concise summary."
+            mock_llm.return_value = _make_text_result("A concise summary.")
             result = await file_summarizer.summarize_file_content(
                 file_id="f1",
                 filename="doc.txt",
@@ -69,7 +74,7 @@ class TestSummarizeFileContent:
     async def test_extracted_text_truncated_before_llm_call(self):
         """Ensures we do not send unlimited text to the LLM."""
         with patch("src.infra.llm.llm_wrapper.chat_text_with_llm", new_callable=AsyncMock) as mock_llm:
-            mock_llm.return_value = "Summary."
+            mock_llm.return_value = _make_text_result("Summary.")
             long_text = "word " * 100_000
             await file_summarizer.summarize_file_content(
                 file_id="f1",

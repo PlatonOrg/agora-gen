@@ -28,22 +28,13 @@ class TestSettingsDefaults:
         s = Settings()
         assert s.DEBUG is False
 
-    def test_sandbox_retry_defaults(self):
-        s = Settings()
-        assert s.SANDBOX_RETRY_MAX_ATTEMPTS == 3
-        assert s.SANDBOX_RETRY_TIMEOUT_SECONDS == 120.0
-
     def test_template_score_threshold(self):
         s = Settings()
-        assert s.TEMPLATE_SCORE_THRESHOLD == 0.9
-
-    def test_temp_generation(self):
-        s = Settings()
-        assert s.TEMP_GENERATION == 0.0
+        assert s.TEMPLATE_SCORE_THRESHOLD == 0.89
 
     def test_platon_docs_embed_model_default(self):
         from src.core import path_constants
-        assert path_constants.PLATON_DOCS_EMBED_MODEL.name == "multilingual-e5-large-instruct"
+        assert path_constants.PLATON_DOCS_EMBED_MODEL.name == "intfloat_multilingual-e5-large-instruct"
 
     def test_platon_timeout(self):
         s = Settings()
