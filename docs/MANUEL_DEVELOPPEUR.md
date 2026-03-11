@@ -131,14 +131,7 @@ Conventions :
 
 ## 4. Scripts utilitaires
 
-### 4.1 Benchmarks
-
-| Script | Commande | Description |
-|--------|----------|-------------|
-| `run_benchmark.py` | `docker compose exec api python scripts/benchmarks/run_benchmark.py` | Benchmark du modèle d'embedding |
-| `run_tests.py` | `docker compose exec api python scripts/benchmarks/run_tests.py` | Tests de performance |
-
-### 4.2 Tests
+### 4.1 Tests
 
 ```bash
 # Tous les tests

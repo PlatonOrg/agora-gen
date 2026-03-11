@@ -1,4 +1,0 @@
-{
-  "reqeust" : "générer un exercice de math utilisant le composant jsx, l'exercice doit demander à l'étudiant de placer un point M sur le jsx",
-  "expected_component" : "wc-jsx"
-}

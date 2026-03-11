@@ -45,7 +45,6 @@ services:
         condition: service_healthy
     volumes:
       - ./back/src:/app/src
-      - ./back/scripts:/app/scripts
       - ./back/tests:/app/tests
       - ./resources:/app/resources
       - ./resources/local_models:/opt/models
