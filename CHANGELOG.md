@@ -5,6 +5,17 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and 
 
 ---
 
+## [v1.0.0-rc.2] — 2026-03-11
+
+### Fixed
+
+- Component tag filter was never applied because of queries being only sent to local DB resulting in an empty list sent to the backend.
+- Error message when file is too large is now more explicit.
+- Error message when opening empty PLE code is now more explicit.
+- Generated exercises names now contain spaces instead of underscores
+
+---
+
 ## [v1.0.0-rc.1] — 2026-03-09
 
 ### Added
