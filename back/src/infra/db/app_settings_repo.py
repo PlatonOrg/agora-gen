@@ -15,6 +15,7 @@ from typing import Any, Dict, List, Optional
 from sqlalchemy import DateTime, String, Text, func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy.dialects.postgresql import insert as pg_insert
 
 from src.infra.log.models import LogBase
 
@@ -93,20 +94,40 @@ class AppSettingsRepository:
         updated_by: Optional[str] = None,
     ) -> List[AppSetting]:
         """Upsert multiple settings in a single transaction scope."""
-        results: List[AppSetting] = []
+        rows : List[AppSetting] = []
         for key, raw_value in entries.items():
             definition = registry.get(key)
             if definition is None:
                 continue
-            setting = await self.upsert(
-                key=key,
-                value=raw_value,
-                value_type=definition.value_type,
-                description=definition.description,
-                updated_by=updated_by,
+            rows.append({
+                "key": key,
+                "value": raw_value,
+                "value_type": definition.value_type,
+                "description": definition.description,
+                "updated_by": updated_by 
+            })
+
+        if not rows:
+            return list()
+        stmt = (
+            pg_insert(AppSetting)
+            .values(rows)
+            .on_conflict_do_update(
+                index_elements=["key"],
+                set_={
+                    "value": pg_insert(AppSetting).excluded.value,
+                    "value_type": pg_insert(AppSetting).excluded.value_type,
+                    "description": pg_insert(AppSetting).excluded.description,
+                    "updated_by": pg_insert(AppSetting).excluded.updated_by,
+                    "updated_at": func.now(),
+                },
             )
-            results.append(setting)
-        return results
+            .returning(AppSetting)
+        )
+        result = await self._session.execute(stmt)
+        await self._session.flush()
+        return list(result.scalars().all())
+
 
 
 

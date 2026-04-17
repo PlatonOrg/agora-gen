@@ -31,9 +31,14 @@ done
 # UVICORN_WORKERS defaults to 1 if not set. Override via the environment
 # (e.g. UVICORN_WORKERS=4 in .env.prod) to scale up for production.
 WORKERS="${UVICORN_WORKERS:-1}"
+RELOAD_FLAG=""
+if [ "${UVICORN_RELOAD:-false}" = "true" ]; then
+    RELOAD_FLAG="--reload"
+fi
 
 exec gosu agora_user uvicorn src.main:app \
     --host 0.0.0.0 \
     --port 8000 \
-    --workers "$WORKERS"
+    --workers "$WORKERS" \
+    $RELOAD_FLAG
 
