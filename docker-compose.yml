@@ -10,6 +10,7 @@ services:
     container_name: agora_frontend
     ports:
       - "80:80"  # Keep port 80 for frontend
+      - "4200:4200"  # Expose Angular dev server port
     depends_on:
       - api
     volumes:

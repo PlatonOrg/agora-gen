@@ -63,6 +63,7 @@ RUN echo 'server { \
 
 # Expose port 80
 EXPOSE 80
+EXPOSE 4200
 
 # Start nginx and Angular dev server
 CMD sh -c "npm run start -- --host 0.0.0.0 --port 4200 --poll 2000 & nginx -g 'daemon off;'"
