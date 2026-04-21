@@ -5,6 +5,7 @@
     "base_url": "https://api.groq.com/openai/v1",
     "api_key": "${GROQ_API_KEY}",
     "default_model": "openai/gpt-oss-120b",
+    "default": true,
     "models": [
       "openai/gpt-oss-120b"
     ]
@@ -17,27 +18,8 @@
     "default_model": "RedHatAI/Llama-3.3-70B-Instruct-FP8-dynamic",
     "models": [
       "RedHatAI/Llama-3.3-70B-Instruct-FP8-dynamic"
-    ]
-  },
-  {
-    "name": "openRouter",
-    "kind": "openrouter",
-    "api_key": "${OPENROUTER_API_KEY}",
-    "default_model": "openai/gpt-oss-120b",
-    "models": [
-      "openai/gpt-oss-120b"
-    ]
-  },
-  {
-    "name": "cerebras",
-    "kind": "cerebras",
-    "api_key": "${CEREBRAS_API_KEY}",
-    "default_model": "gpt-oss-120b",
-    "models": [
-      "gpt-oss-120b",
-      "llama3.1-8b"
     ],
-    "default": true
+    "default": false
   }
 ]
 
