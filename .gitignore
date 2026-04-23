@@ -21,4 +21,6 @@ resources/docs
 
 # Operating System files
 .DS_Store # macOS
+back/.DS_Store
+front/.DS_Store
 Thumbs.db # Windows
