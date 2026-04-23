@@ -7,6 +7,7 @@ import { AdminDashboardPageComponent } from '../../../admin/components/admin-das
 import { UserProfileService } from '../../../../core/auth/user-profile.service';
 import { AuthService } from '../../../../core/auth/auth.service';
 import { UserChipComponent } from '../../../../shared/ui/user-chip/user-chip.component';
+import { LogPromptsViewComponent } from '../log-prompts-view.component';
 
 export type LogTab = 'conversations' | 'config' | 'statistics' | 'prompts';
 
@@ -21,6 +22,7 @@ interface NavItem { tab: LogTab; label: string; icon: string; }
     LogStatsViewComponent,
     AdminDashboardPageComponent,
     UserChipComponent,
+    LogPromptsViewComponent,
   ],
   templateUrl: './logging-page.component.html',
   styleUrl: './logging-page.component.scss',
