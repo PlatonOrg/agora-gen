@@ -26,20 +26,20 @@
             (click)="toggleExpand(prompt.id)"
             [attr.aria-expanded]="expandedId() === prompt.id"
           >
-            <div class="prompt-card__name-row">
-              <span class="prompt-card__name">{{ prompt.name }}</span>
+            <span class="prompt-card__name">{{ prompt.name }}</span>
+            <div class="prompt-card__header-right">
               <span class="prompt-card__updated" *ngIf="prompt.updated_at">
                 Mis à jour {{ formatDate(prompt.updated_at) }}
               </span>
+              <svg
+                class="prompt-card__chevron"
+                [class.prompt-card__chevron--open]="expandedId() === prompt.id"
+                xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
+                fill="none" stroke="currentColor" stroke-width="2"
+              >
+                <polyline points="6 9 12 15 18 9"/>
+              </svg>
             </div>
-            <svg
-              class="prompt-card__chevron"
-              [class.prompt-card__chevron--open]="expandedId() === prompt.id"
-              xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
-              fill="none" stroke="currentColor" stroke-width="2"
-            >
-              <polyline points="6 9 12 15 18 9"/>
-            </svg>
           </button>
 
           @if (expandedId() === prompt.id) {

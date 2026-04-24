@@ -63,22 +63,12 @@
   border: none;
   padding: 0.75rem 1rem;
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   justify-content: space-between;
   cursor: pointer;
   gap: 0.75rem;
   height: auto;
   min-height: 0;
-}
-
-.prompt-card__name-row {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: 0.25rem;
-  text-align: left;
-  flex: 1;
-  min-width: 0;
 }
 
 .prompt-card__name {
@@ -87,12 +77,21 @@
   color: var(--brand-text-primary);
   font-family: monospace;
   word-break: break-word;
+  flex: 1;
+  text-align: left;
+}
+
+.prompt-card__header-right {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-shrink: 0;
 }
 
 .prompt-card__updated {
   font-size: 0.75rem;
   color: var(--brand-text-tertiary);
-  white-space: normal;
+  white-space: nowrap;
 }
 
 .prompt-card__chevron {
