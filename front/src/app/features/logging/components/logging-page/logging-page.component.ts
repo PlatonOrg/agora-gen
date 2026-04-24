@@ -7,7 +7,7 @@ import { AdminDashboardPageComponent } from '../../../admin/components/admin-das
 import { UserProfileService } from '../../../../core/auth/user-profile.service';
 import { AuthService } from '../../../../core/auth/auth.service';
 import { UserChipComponent } from '../../../../shared/ui/user-chip/user-chip.component';
-import { LogPromptsViewComponent } from '../log-prompts-view.component';
+import { LogPromptsViewComponent } from '../log-prompts-view/log-prompts-view.component';
 
 export type LogTab = 'conversations' | 'config' | 'statistics' | 'prompts';
 
