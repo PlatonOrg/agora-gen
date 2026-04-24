@@ -51,6 +51,9 @@
   background: var(--brand-color-primary-contrast);
   overflow: hidden;
   transition: border-color 0.15s;
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0;
 }
 
 .prompt-card:hover {
@@ -58,7 +61,6 @@
 }
 
 .prompt-card__header {
-  width: 100%;
   background: none;
   border: none;
   padding: 0.75rem 1rem;
@@ -67,8 +69,9 @@
   justify-content: space-between;
   cursor: pointer;
   gap: 0.75rem;
-  height: auto;
-  min-height: 0;
+  height: 48px;
+  flex-shrink: 0;
+  min-width: 0;
 }
 
 .prompt-card__name {
@@ -76,9 +79,12 @@
   font-weight: 500;
   color: var(--brand-text-primary);
   font-family: monospace;
-  word-break: break-word;
   flex: 1;
+  min-width: 0;
   text-align: left;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .prompt-card__header-right {
@@ -92,6 +98,8 @@
   font-size: 0.75rem;
   color: var(--brand-text-tertiary);
   white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .prompt-card__chevron {
@@ -109,6 +117,9 @@
   border-top: 1px solid var(--brand-border-color);
   padding: 0.75rem 1rem;
   background: var(--brand-background-secondary, #f9fafb);
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
 }
 
 .prompt-card__pre {
