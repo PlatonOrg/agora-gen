@@ -130,3 +130,42 @@
   line-height: 1.6;
   overflow: hidden;
 }
+
+.prompt-card__footer {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.75rem;
+  padding: 0.75rem 1rem;
+  border-top: 1px solid var(--brand-border-color);
+  background: none;
+  flex-shrink: 0;
+}
+
+.prompt-card__edit-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 36px;
+  min-width: 90px;
+  padding: 0 16px;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  font-family: var(--brand-font);
+  color: #fff;
+  background: var(--brand-primary, #3466fe);
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background 0.15s, opacity 0.15s;
+  white-space: nowrap;
+}
+
+.prompt-card__edit-btn:hover {
+  background: color-mix(in srgb, var(--brand-primary, #3466fe) 85%, #000);
+}
+
+.prompt-card__edit-btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
