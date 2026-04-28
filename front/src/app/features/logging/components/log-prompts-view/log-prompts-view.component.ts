@@ -59,6 +59,8 @@ export class LogPromptsViewComponent implements OnInit {
     this.editedContent.set(id, content);
   }
 
+  protected saveEdit(id: string): void {}
+
   protected autoExpandTextarea(event: Event): void {
     const textarea = event.target as HTMLTextAreaElement;
     textarea.style.height = 'auto';

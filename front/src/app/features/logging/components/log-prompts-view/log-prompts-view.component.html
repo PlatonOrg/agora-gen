@@ -57,16 +57,29 @@
             }
             <div class="prompt-card__footer">
               @if (editingId() === prompt.id) {
-                <button class="prompt-card__cancel-btn" type="button" (click)="cancelEdit()">Annuler</button>
+                <button
+                  class="prompt-card__cancel-btn"
+                  type="button"
+                  (click)="cancelEdit()"
+                >
+                  Annuler
+                </button>
+                <button
+                  class="prompt-card__edit-btn"
+                  type="button"
+                  (click)="saveEdit(prompt.id)"
+                >
+                  Enregistrer
+                </button>
+              } @else {
+                <button 
+                  class="prompt-card__edit-btn" 
+                  type="button"
+                  (click)="startEdit(prompt.id, prompt.content)"
+                >
+                  Modifier
+                </button>
               }
-              <button 
-                class="prompt-card__edit-btn" 
-                type="button"
-                (click)="startEdit(prompt.id, prompt.content)"
-                [disabled]="editingId() === prompt.id"
-              >
-                Modifier
-              </button>
             </div>
           }
         </article>
