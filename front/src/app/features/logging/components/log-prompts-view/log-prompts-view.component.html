@@ -43,11 +43,30 @@
           </button>
 
           @if (expandedId() === prompt.id) {
-            <div class="prompt-card__content">
-              <pre class="prompt-card__pre">{{ prompt.content }}</pre>
-            </div>
+            @if (editingId() === prompt.id) {
+              <textarea
+                class="prompt-card__textarea"
+                [attr.data-prompt-id]="prompt.id"
+                [value]="editedContent.get(prompt.id) || prompt.content"
+                (input)="updateEditedContent(prompt.id, $any($event.target).value); autoExpandTextarea($event)"
+              ></textarea>
+            } @else {
+              <div class="prompt-card__content">
+                <pre class="prompt-card__pre">{{ prompt.content }}</pre>
+              </div>
+            }
             <div class="prompt-card__footer">
-              <button class="prompt-card__edit-btn" type="button">Modifier</button>
+              @if (editingId() === prompt.id) {
+                <button class="prompt-card__cancel-btn" type="button" (click)="cancelEdit()">Annuler</button>
+              }
+              <button 
+                class="prompt-card__edit-btn" 
+                type="button"
+                (click)="startEdit(prompt.id, prompt.content)"
+                [disabled]="editingId() === prompt.id"
+              >
+                Modifier
+              </button>
             </div>
           }
         </article>

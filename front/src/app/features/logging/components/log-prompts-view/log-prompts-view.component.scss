@@ -120,6 +120,25 @@
   overflow: hidden;
 }
 
+.prompt-card__textarea {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  border-top: 1px solid var(--brand-border-color);
+  border-bottom: none;
+  border-left: none;
+  border-right: none;
+  background: var(--brand-background-secondary, #f9fafb);
+  font-size: 0.75rem;
+  font-family: 'Consolas', 'Fira Code', monospace;
+  color: var(--brand-text-primary);
+  line-height: 1.6;
+  resize: none;
+  outline: none;
+  box-sizing: border-box;
+  min-height: 200px;
+  overflow: hidden;
+}
+
 .prompt-card__pre {
   margin: 0;
   font-size: 0.75rem;
@@ -140,6 +159,34 @@
   border-top: 1px solid var(--brand-border-color);
   background: none;
   flex-shrink: 0;
+}
+
+.prompt-card__cancel-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 36px;
+  padding: 0 16px;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  font-family: var(--brand-font);
+  color: var(--brand-text-secondary);
+  background: var(--brand-background-components);
+  border: 1px solid var(--brand-border-color);
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+  white-space: nowrap;
+}
+
+.prompt-card__cancel-btn:hover:not(:disabled) {
+  color: var(--brand-text-primary);
+  background: var(--brand-background-secondary);
+}
+
+.prompt-card__cancel-btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
 }
 
 .prompt-card__edit-btn {
