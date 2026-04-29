@@ -67,6 +67,43 @@ async def get_all_prompts(session: AsyncSession) -> List[PromptEntry]:
     ]
 
 
+async def update_prompt(session: AsyncSession, prompt_id: str, content: str) -> PromptEntry:
+    """
+    Update a prompt's content. The updated_at timestamp is automatically managed by the DB.
+    
+    Args:
+        session: Database session
+        prompt_id: UUID of the prompt to update
+        content: New content for the prompt
+        
+    Returns:
+        Updated PromptEntry
+        
+    Raises:
+        ValueError: If prompt is not found
+    """
+    result = await session.execute(
+        select(Prompt).where(Prompt.id == prompt_id)
+    )
+    prompt = result.scalar_one_or_none()
+    
+    if prompt is None:
+        raise ValueError(f"Prompt with id {prompt_id} not found")
+    
+    prompt.content = content
+    await session.flush()
+    await session.commit()
+    await session.refresh(prompt)
+    
+    return PromptEntry(
+        id=str(prompt.id),
+        name=prompt.name,
+        content=prompt.content,
+        created_at=_iso(prompt.created_at),
+        updated_at=_iso(prompt.updated_at),
+    )
+
+
 def _build_exo_detail(row) -> ExoGenerationDetail:
     req = row.request_row
     rag = row.rag_search

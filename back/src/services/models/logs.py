@@ -12,6 +12,10 @@ class PromptEntry(BaseModel):
     updated_at: Optional[str]
 
 
+class PromptUpdateRequest(BaseModel):
+    content: str
+
+
 class LlmCallRecord(BaseModel):
     call_type: str
     provider: str
