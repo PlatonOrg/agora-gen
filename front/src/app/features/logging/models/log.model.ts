@@ -6,6 +6,10 @@ export interface PromptEntry {
   updated_at: string | null;
 }
 
+export interface PromptPatchRequest {
+  content?: string;
+}
+
 export interface LlmCallRecord {
   call_type: string;
   provider: string;

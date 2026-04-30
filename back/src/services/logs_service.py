@@ -67,14 +67,15 @@ async def get_all_prompts(session: AsyncSession) -> List[PromptEntry]:
     ]
 
 
-async def update_prompt(session: AsyncSession, prompt_id: str, content: str) -> PromptEntry:
+async def update_prompt(session: AsyncSession, prompt_id: str, content: Optional[str] = None) -> PromptEntry:
     """
     Update a prompt's content. The updated_at timestamp is automatically managed by the DB.
+    Supports partial updates: if content is None, it is not modified.
     
     Args:
         session: Database session
         prompt_id: UUID of the prompt to update
-        content: New content for the prompt
+        content: New content for the prompt (optional)
         
     Returns:
         Updated PromptEntry
@@ -90,7 +91,9 @@ async def update_prompt(session: AsyncSession, prompt_id: str, content: str) -> 
     if prompt is None:
         raise ValueError(f"Prompt with id {prompt_id} not found")
     
-    prompt.content = content
+    if content is not None:
+        prompt.content = content
+    
     await session.flush()
     await session.commit()
     await session.refresh(prompt)

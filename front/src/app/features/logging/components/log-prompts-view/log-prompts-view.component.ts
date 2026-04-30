@@ -59,7 +59,35 @@ export class LogPromptsViewComponent implements OnInit {
     this.editedContent.set(id, content);
   }
 
-  protected saveEdit(id: string): void {}
+  protected async saveEdit(id: string): Promise<void> {
+    const newContent = this.editedContent.get(id);
+    console.log(`[LogPromptsView] Saving prompt ${id} with new content:`, newContent, "|");
+    
+    if (!newContent) {
+      console.log(`[LogPromptsView] No content to save for prompt ${id}`);
+      return;
+    }
+
+    try {
+      const updatedPrompt = await this.logsService.patchPrompt(id, { content: newContent });
+      
+      // Mettre à jour le prompt dans la liste
+      const prompts = this.prompts();
+      const index = prompts.findIndex(p => p.id === id);
+      if (index !== -1) {
+        const updated = [...prompts];
+        updated[index] = updatedPrompt;
+        this.prompts.set(updated);
+      }
+      
+      this.editingId.set(null);
+      this.editedContent.clear();
+    } catch (err: unknown) {
+      const errorMsg = err instanceof Error ? err.message : 'Erreur inconnue';
+      console.error('[LogPromptsView] Failed to save prompt:', errorMsg);
+      this.errorMessage.set(`Erreur lors de la sauvegarde : ${errorMsg}`);
+    }
+  }
 
   protected autoExpandTextarea(event: Event): void {
     const textarea = event.target as HTMLTextAreaElement;

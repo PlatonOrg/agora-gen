@@ -13,7 +13,7 @@ class PromptEntry(BaseModel):
 
 
 class PromptUpdateRequest(BaseModel):
-    content: str
+    content: Optional[str] = None
 
 
 class LlmCallRecord(BaseModel):
