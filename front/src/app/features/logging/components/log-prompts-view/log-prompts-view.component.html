@@ -47,7 +47,7 @@
               <textarea
                 class="prompt-card__textarea"
                 [attr.data-prompt-id]="prompt.id"
-                [value]="editedContent.get(prompt.id) || prompt.content"
+                [value]="editedContent.get(prompt.id) ?? prompt.content"
                 (input)="updateEditedContent(prompt.id, $any($event.target).value); autoExpandTextarea($event)"
               ></textarea>
             } @else {

@@ -63,7 +63,7 @@ export class LogPromptsViewComponent implements OnInit {
     const newContent = this.editedContent.get(id);
     console.log(`[LogPromptsView] Saving prompt ${id} with new content:`, newContent, "|");
     
-    if (!newContent) {
+    if (newContent === undefined || newContent === null) {
       console.log(`[LogPromptsView] No content to save for prompt ${id}`);
       return;
     }
