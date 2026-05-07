@@ -67,6 +67,37 @@ async def get_all_prompts(session: AsyncSession) -> List[PromptEntry]:
     ]
 
 
+async def get_prompt(session: AsyncSession, prompt_name: str) -> PromptEntry:
+    """
+    Retrieve a single prompt by its name.
+    
+    Args:
+        session: Database session
+        prompt_name: Name of the prompt to retrieve
+        
+    Returns:
+        PromptEntry
+        
+    Raises:
+        ValueError: If prompt is not found
+    """
+    result = await session.execute(
+        select(Prompt).where(Prompt.name == prompt_name)
+    )
+    row = result.scalar_one_or_none()
+    
+    if row is None:
+        raise ValueError(f"Prompt with name '{prompt_name}' not found")
+    
+    return PromptEntry(
+        id=str(row.id),
+        name=row.name,
+        content=row.content,
+        created_at=_iso(row.created_at),
+        updated_at=_iso(row.updated_at),
+    )
+
+
 async def update_prompt(session: AsyncSession, prompt_id: str, content: Optional[str] = None) -> PromptEntry:
     """
     Update a prompt's content. The updated_at timestamp is automatically managed by the DB.
