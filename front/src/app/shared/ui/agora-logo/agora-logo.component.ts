@@ -5,7 +5,7 @@ import { Component } from '@angular/core';
   template: `
     <div class="logo-container">
       <img
-        src="agora_logo-removebg.png"
+        src="/agora_logo-removebg.png"
         alt="Agora Logo"
         class="logo-image"
       />

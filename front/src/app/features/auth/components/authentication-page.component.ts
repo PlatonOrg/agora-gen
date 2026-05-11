@@ -94,7 +94,7 @@ export class AuthenticationPageComponent {
   protected error = signal<string | null>(null);
   protected isLoading = signal<boolean>(false);
 
-  constructor(private authService: AuthService) {}
+  constructor(private readonly authService: AuthService) {}
 
   protected async handleAuthenticate(): Promise<void> {
     this.error.set(null);

@@ -1,0 +1,317 @@
+<div class="landing">
+
+  <!-- ─── Header ──────────────────────────────────────────── -->
+  <header class="landing-header">
+    <div class="landing-header__brand">
+      <app-agora-logo />
+      <span class="landing-header__name">PLaTon</span>
+    </div>
+    <p class="landing-header__tagline">Générateur d'exercices par IA</p>
+  </header>
+
+  <!-- ─── Scrollable form ──────────────────────────────────── -->
+  <div class="landing-body">
+    <div class="landing-form">
+
+      <!-- ══ SECTION 1 : Contexte pédagogique ══════════════════ -->
+      <section class="form-section form-section--collapsible">
+        <button
+          type="button"
+          class="collapsible-toggle"
+          (click)="togglePedagogy()"
+          [attr.aria-expanded]="showPedagogy()"
+        >
+          <div class="form-section__head form-section__head--inline">
+            <span class="form-section__num form-section__num--dim">1</span>
+            <h2 class="form-section__title">Contexte pédagogique</h2>
+            <span class="form-section__tag">Optionnel</span>
+          </div>
+          <svg class="collapsible-chevron" [class.collapsible-chevron--open]="showPedagogy()" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
+            <polyline points="6 9 12 15 18 9"/>
+          </svg>
+        </button>
+
+        @if (showPedagogy()) {
+          <div class="collapsible-body">
+
+            <!-- Cercle -->
+            <div class="form-field">
+              <label class="form-label">Cercle / Institution</label>
+              <div class="autocomplete-wrap">
+                <input
+                  type="text"
+                  class="form-input"
+                  placeholder="Rechercher un cercle..."
+                  [value]="cercleInput()"
+                  (input)="onCercleInput($event)"
+                  (focus)="cercleDropdownOpen.set(true)"
+                  (blur)="onCercleBlur()"
+                  autocomplete="off"
+                />
+                @if (selectedCercle()) {
+                  <button class="input-clear" type="button" (click)="clearCercle()" title="Effacer">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                  </button>
+                }
+                @if (cercleDropdownOpen() && filteredCircles().length > 0) {
+                  <div class="autocomplete-dropdown">
+                    @for (circle of filteredCircles(); track circle.id) {
+                      <button class="autocomplete-item" type="button" (mousedown)="selectCircle(circle)">
+                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+                        <span class="autocomplete-item__main">{{ circle.name }}</span>
+                        <span class="autocomplete-item__sub">{{ circle.fullPath }}</span>
+                      </button>
+                    }
+                  </div>
+                }
+              </div>
+            </div>
+
+            <!-- Niveaux + Domaines -->
+            <div class="form-row">
+              <div class="form-field">
+                <label class="form-label">Niveau académique</label>
+                @if (isContextLoading()) {
+                  <div class="chip-skeleton"></div>
+                } @else if (availableNiveaux().length === 0) {
+                  <p class="form-empty">Aucun niveau disponible</p>
+                } @else {
+                  <div class="chip-wrap">
+                    @for (n of availableNiveaux(); track n) {
+                      <button type="button" class="chip" [class.chip--on]="isNiveauSelected(n)" (click)="toggleNiveau(n)">{{ n }}</button>
+                    }
+                  </div>
+                }
+              </div>
+
+              <div class="form-field">
+                <label class="form-label">Topics</label>
+                @if (isContextLoading()) {
+                  <div class="chip-skeleton"></div>
+                } @else if (availableSujets().length === 0) {
+                  <p class="form-empty">Aucun domaine disponible</p>
+                } @else {
+                  <div class="chip-wrap">
+                    @for (d of availableSujets(); track d) {
+                      <button type="button" class="chip" [class.chip--on]="isDomaineSelected(d)" (click)="toggleDomaine(d)">{{ d }}</button>
+                    }
+                  </div>
+                }
+              </div>
+            </div>
+
+          </div>
+        }
+      </section>
+
+      <!-- ══ SECTION 2 : L'exercice ═════════════════════════════ -->
+      <section class="form-section">
+        <div class="form-section__head">
+          <span class="form-section__num">2</span>
+          <h2 class="form-section__title">L'exercice</h2>
+        </div>
+
+        <!-- Concept -->
+        <div class="form-field">
+          <label class="form-label">
+            Concept à travailler
+            <span class="form-required" aria-label="obligatoire">*</span>
+          </label>
+          <textarea
+            class="form-textarea"
+            rows="3"
+            placeholder="Ex : dérivation de fonctions polynomiales, algorithme de tri à bulles, loi d'Ohm, le présent de l'indicatif…"
+            [value]="concept()"
+            (input)="concept.set($any($event.target).value)"
+          ></textarea>
+          <p class="form-hint">Décrivez précisément ce que les étudiants doivent pratiquer.</p>
+        </div>
+
+        <!-- Composant souhaité -->
+        <div class="form-field">
+          <label class="form-label">
+            Composant souhaité
+            <span class="form-tag-optional">Optionnel — sinon l'IA choisit</span>
+          </label>
+
+          @if (isContextLoading() || formulaireComponents().length === 0) {
+            <div class="component-skeleton-grid">
+              @for (_ of [1,2,3,4,5,6]; track $index) {
+                <div class="component-skeleton"></div>
+              }
+            </div>
+          } @else {
+            <div class="component-grid">
+              @for (comp of formulaireComponents(); track comp.name) {
+                <div
+                  class="component-card"
+                  [class.component-card--active]="isComponentSelected(comp.name)"
+                  (click)="toggleComponent(comp.name)"
+                  role="button"
+                  [attr.aria-pressed]="isComponentSelected(comp.name)"
+                  tabindex="0"
+                  (keydown.enter)="toggleComponent(comp.name)"
+                  (keydown.space)="toggleComponent(comp.name)"
+                >
+                  <div class="component-card__icon">
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                      <rect x="3" y="3" width="18" height="18" rx="2"/>
+                      <path d="M9 12h6M12 9v6"/>
+                    </svg>
+                  </div>
+                  <div class="component-card__body">
+                    <span class="component-card__name">{{ comp.name }}</span>
+                    <span class="component-card__desc">{{ comp.description | slice:0:60 }}{{ comp.description.length > 60 ? '…' : '' }}</span>
+                    <span class="component-card__tag">{{ comp.tag }}</span>
+                  </div>
+                  <div class="component-card__check">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>
+                  </div>
+                  @if (isComponentSelected(comp.name)) {
+                    <button
+                      type="button"
+                      class="component-card__preview-btn"
+                      [class.component-card__preview-btn--loading]="previewLoading() && previewingFor() === comp.name"
+                      (click)="openPreview(comp, $event)"
+                      title="Aperçu interactif"
+                    >
+                      @if (previewLoading() && previewingFor() === comp.name) {
+                        <span class="btn-spinner"></span>
+                      } @else {
+                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><polygon points="10 8 16 12 10 16 10 8" fill="currentColor" stroke="none"/></svg>
+                      }
+                      Aperçu
+                    </button>
+                  }
+                </div>
+              }
+            </div>
+          }
+        </div>
+
+        <!-- Difficulté -->
+        <div class="form-field">
+          <label class="form-label">Niveau de difficulté</label>
+          <div class="diff-group">
+            @for (d of difficulties; track d.id) {
+              <button
+                type="button"
+                class="diff-btn"
+                [class.diff-btn--active]="difficulte() === d.id"
+                [attr.data-color]="d.color"
+                (click)="difficulte.set(d.id)"
+              >{{ d.label }}</button>
+            }
+          </div>
+        </div>
+      </section>
+
+      <!-- ══ SECTION 3 : Objectifs (collapsible) ════════════════ -->
+      <section class="form-section form-section--collapsible">
+        <button
+          type="button"
+          class="collapsible-toggle"
+          (click)="toggleObjectifs()"
+          [attr.aria-expanded]="showObjectifs()"
+        >
+          <div class="form-section__head form-section__head--inline">
+            <span class="form-section__num form-section__num--dim">3</span>
+            <h2 class="form-section__title">Objectifs pédagogiques</h2>
+            <span class="form-section__tag">Optionnel</span>
+          </div>
+          <svg class="collapsible-chevron" [class.collapsible-chevron--open]="showObjectifs()" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
+            <polyline points="6 9 12 15 18 9"/>
+          </svg>
+        </button>
+
+        @if (showObjectifs()) {
+          <div class="collapsible-body">
+            <div class="form-field">
+              <label class="form-label">Objectifs d'apprentissage</label>
+              <textarea
+                class="form-textarea"
+                rows="2"
+                placeholder="Ce que les étudiants doivent être capables de faire après l'exercice…"
+                [value]="objectifsPedagogiques()"
+                (input)="objectifsPedagogiques.set($any($event.target).value)"
+              ></textarea>
+            </div>
+            <div class="form-row">
+              <div class="form-field">
+                <label class="form-label">Public visé</label>
+                <input type="text" class="form-input" placeholder="Ex : étudiants L2 info…" [value]="publicVise()" (input)="publicVise.set($any($event.target).value)" />
+              </div>
+              <div class="form-field">
+                <label class="form-label">Prérequis</label>
+                <input type="text" class="form-input" placeholder="Ex : connaître les dérivées de base…" [value]="prerequis()" (input)="prerequis.set($any($event.target).value)" />
+              </div>
+            </div>
+          </div>
+        }
+      </section>
+
+    </div><!-- /landing-form -->
+  </div><!-- /landing-body -->
+
+  <!-- ─── Sticky action bar ────────────────────────────────── -->
+  <footer class="landing-footer">
+    @if (initialContext() !== null) {
+      <button type="button" class="btn btn--ghost btn--cancel" (click)="cancelled.emit()">
+        Annuler
+      </button>
+    } @else {
+      <button type="button" class="btn btn--ghost" (click)="submit('ask')">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" aria-hidden="true"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+        Discuter avec PLaTon
+      </button>
+    }
+    <button
+      type="button"
+      class="btn btn--primary"
+      [disabled]="!isFormValid()"
+      (click)="submit('agent')"
+    >
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" aria-hidden="true"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+      @if (initialContext() !== null) { Mettre à jour } @else { Générer un exercice }
+    </button>
+  </footer>
+
+</div>
+
+<!-- ─── Preview modal ────────────────────────────────────── -->
+@if (showPreviewModal()) {
+  <div class="preview-backdrop" (click)="closePreview()">
+    <div class="preview-modal" (click)="$event.stopPropagation()" role="dialog" [attr.aria-label]="'Aperçu ' + previewingFor()">
+
+      <div class="preview-modal__header">
+        <span class="preview-modal__title">Aperçu — {{ previewingFor() }}</span>
+        <button class="preview-modal__close" type="button" (click)="closePreview()" title="Fermer">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+      </div>
+
+      <div class="preview-modal__body">
+        @if (previewLoading()) {
+          <div class="preview-modal__loading">
+            <span class="btn-spinner btn-spinner--lg"></span>
+            <p>Chargement de l'aperçu…</p>
+          </div>
+        } @else if (previewError()) {
+          <div class="preview-modal__error">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+            <p>{{ previewError() }}</p>
+          </div>
+        } @else if (safePreviewUrl()) {
+          <iframe
+            class="preview-modal__frame"
+            [src]="safePreviewUrl()!"
+            title="Aperçu composant"
+            sandbox="allow-scripts allow-same-origin allow-forms"
+            loading="lazy"
+          ></iframe>
+        }
+      </div>
+
+    </div>
+  </div>
+}
