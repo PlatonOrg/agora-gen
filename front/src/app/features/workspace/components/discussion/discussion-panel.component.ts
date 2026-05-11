@@ -6,7 +6,7 @@
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { ChatService } from '../../services/chat.service';
 import { ComponentsMetadataService } from '../../services/components-metadata.service';
-import { ChatResponse } from '../../models/exercise.model';
+import { ChatResponse, ExerciseGenerationContext } from '../../models/exercise.model';
 import { ExerciseService } from '../../services/exercise.service';
 import { LlmCapabilitiesService } from '../../../../core/llm/llm-capabilities.service';
 import { Message, ComponentBadge, AssistantMode, GenerationDetailStatus } from './discussion.models';
@@ -17,6 +17,7 @@ import { MessageBubbleComponent } from './message-bubble/message-bubble.componen
 import { ChatInputComponent } from './chat-input/chat-input.component';
 import { ConfirmDialogComponent } from '../../../../shared/ui/confirm-dialog/confirm-dialog.component';
 import { DISCUSSION_HELP_CONTENT } from '../../models/help-content.constants';
+import { WorkspaceStore } from '../../state/workspace.store';
 
 @Component({
   selector: 'app-discussion-panel',
@@ -125,10 +126,13 @@ export class DiscussionPanelComponent implements AfterViewInit, OnDestroy {
 
   @Output() switchToTemplates = new EventEmitter<void>();
 
+  @Output() reconfigureContext = new EventEmitter<void>();
+
   protected readonly isPanelSwitcherOpen = signal(false);
 
   private readonly componentsMetadataService = inject(ComponentsMetadataService);
   readonly llmCapabilities = inject(LlmCapabilitiesService);
+  protected readonly wsStore = inject(WorkspaceStore);
   private readonly isBrowser: boolean;
 
   private readonly cache: DiscussionCache;
@@ -342,6 +346,7 @@ export class DiscussionPanelComponent implements AfterViewInit, OnDestroy {
       const generationId = crypto.randomUUID();
       this._activeGenerationId = generationId;
 
+      console.log("Message : ", messageContent, "\nContext : ", this.wsStore.generationContext())
       await this.chatService.sendChatRequest(
         this.exerciseService.exerciseData(),
         messageContent,
@@ -353,6 +358,7 @@ export class DiscussionPanelComponent implements AfterViewInit, OnDestroy {
         this.conversationMode() ?? undefined,
         this.forcePureExercise(),
         this.conversationId(),
+        this.wsStore.generationContext() ?? undefined,
       );
     } catch (error) {
       if (error instanceof Error && error.name === 'AbortError') {
@@ -651,6 +657,54 @@ export class DiscussionPanelComponent implements AfterViewInit, OnDestroy {
 
   addComponentBadge(name: string, tag: string, type: 'formulaire' | 'widget'): void {
     if (!this.componentBadges().some(b => b.tag === tag)) { this.componentBadges.update(b => [...b, { name, tag, type }]); this.saveCache(); }
+  }
+
+  setInitialMode(mode: AssistantMode): void {
+    this.selectedAssistantMode.set(mode); this.saveCache();
+  }
+
+  /**
+   * Called when the teacher submits the Step-1 landing form.
+   * Stores the structured context (sent once with the first request),
+   * sets the conversation mode, and – for agent mode – auto-sends
+   * the opening message so generation starts immediately.
+   */
+  loadFromGenerationContext(context: ExerciseGenerationContext, isFirstEntry = true): void {
+    this.selectedAssistantMode.set(context.mode);
+
+    if (context.mode === 'agent' && context.concept.trim()) {
+      const msg = this._buildContextMessage(context);
+      console.log("Context total : ", context)
+      if (isFirstEntry) {
+        // First time: auto-send immediately so generation starts
+        setTimeout(() => void this.handleSendMessage(msg), 150);
+      } else {
+        // Reconfiguration: pre-fill the input, user reviews before sending
+        setTimeout(() => this.chatInputRef?.setTextFromSignal(msg), 0);
+      }
+    } else if (context.mode === 'ask' && context.concept.trim()) {
+      // Always pre-fill the chat input with the concept text
+      setTimeout(() => this.chatInputRef?.setTextFromSignal(context.concept.trim()), 0);
+    }
+
+    this.inputText.set(context.concept.trim());
+    this.saveCache();
+  }
+
+  private _buildContextMessage(context: ExerciseGenerationContext): string {
+    const diffLabels: Record<string, string> = { facile: 'Facile', moyen: 'Moyen', difficile: 'Difficile' };
+    const lines: string[] = [`Génère un exercice PLaTon sur le concept suivant : **${context.concept.trim()}**.`];
+    const details: string[] = [];
+    if (context.niveaux.length)        details.push(`- **Niveau** : ${context.niveaux.join(', ')}`);
+    if (context.domaines.length)       details.push(`- **Domaine** : ${context.domaines.join(', ')}`);
+    details.push(`- **Difficulté** : ${diffLabels[context.difficulte] ?? context.difficulte}`);
+    if (context.selectedComponent)     details.push(`- **Composant souhaité** : ${context.selectedComponent.join(', ')}`);
+    if (context.cercle)                details.push(`- **Cercle** : ${context.cercle}`);
+    if (context.objectifsPedagogiques) details.push(`- **Objectifs pédagogiques** : ${context.objectifsPedagogiques}`);
+    if (context.publicVise)            details.push(`- **Public visé** : ${context.publicVise}`);
+    if (context.prerequis)             details.push(`- **Prérequis** : ${context.prerequis}`);
+    if (details.length) lines.push('', ...details);
+    return lines.join('\n');
   }
 
   protected setAssistantMode(mode: AssistantMode): void {

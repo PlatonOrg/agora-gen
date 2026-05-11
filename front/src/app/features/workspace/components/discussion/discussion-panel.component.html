@@ -122,6 +122,30 @@
     </div>
   }
 
+  @if (wsStore.generationContext(); as ctx) {
+    <div class="context-bar">
+      <div class="context-bar__chips">
+        <span class="context-bar__chip context-bar__chip--concept" title="{{ ctx.concept }}">
+          {{ ctx.concept.length > 38 ? (ctx.concept | slice:0:38) + '…' : ctx.concept }}
+        </span>
+        @if (ctx.niveaux.length > 0) {
+          <span class="context-bar__chip">{{ ctx.niveaux.join(', ') }}</span>
+        }
+        @if (ctx.domaines.length > 0) {
+          <span class="context-bar__chip">{{ ctx.domaines.join(', ') }}</span>
+        }
+        @if (ctx.selectedComponent && ctx.selectedComponent.length > 0) {
+          <span class="context-bar__chip context-bar__chip--component">{{ ctx.selectedComponent.join(', ') }}</span>
+        }
+        <span class="context-bar__chip context-bar__chip--diff" [attr.data-diff]="ctx.difficulte">{{ ctx.difficulte }}</span>
+      </div>
+      <button class="context-bar__btn" type="button" (click)="reconfigureContext.emit()" title="Modifier le contexte de génération">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+        Reconfigurer
+      </button>
+    </div>
+  }
+
   <div class="input-area">
     <app-chat-input
       #chatInputRef

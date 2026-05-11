@@ -258,6 +258,85 @@
   svg { flex-shrink: 0; opacity: 0.7; }
 }
 
+// ── Context bar ──────────────────────────────────────────────────
+
+.context-bar {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 10px 6px 12px;
+  border-top: 1px solid var(--brand-border-color);
+  background: var(--brand-background-secondary);
+  flex-shrink: 0;
+
+  &__chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+    flex: 1;
+    min-width: 0;
+  }
+
+  &__chip {
+    display: inline-flex;
+    align-items: center;
+    padding: 2px 7px;
+    border-radius: 10px;
+    font-size: 0.7rem;
+    font-family: var(--brand-font);
+    background: var(--brand-background-hover);
+    color: var(--brand-text-secondary);
+    white-space: nowrap;
+    max-width: 160px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+
+    &--concept {
+      color: var(--brand-text-primary);
+      font-weight: 500;
+      background: rgba(var(--brand-color-primary-rgb), 0.08);
+    }
+
+    &--component {
+      background: rgba(var(--brand-color-primary-rgb), 0.06);
+      color: var(--brand-color-primary);
+    }
+
+    &--diff {
+      font-weight: 500;
+
+      &[data-diff="facile"]    { background: rgba(34, 197, 94, 0.12);  color: #16a34a; }
+      &[data-diff="moyen"]     { background: rgba(234, 179, 8, 0.12);  color: #b45309; }
+      &[data-diff="difficile"] { background: rgba(239, 68, 68, 0.12);  color: #dc2626; }
+    }
+  }
+
+  &__btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 3px 8px;
+    border: 1px solid var(--brand-border-color);
+    border-radius: 6px;
+    background: transparent;
+    color: var(--brand-text-tertiary);
+    font-size: 0.7rem;
+    font-family: var(--brand-font);
+    cursor: pointer;
+    white-space: nowrap;
+    flex-shrink: 0;
+    transition: background-color 0.15s, color 0.15s, border-color 0.15s;
+
+    svg { flex-shrink: 0; }
+
+    &:hover {
+      background: var(--brand-background-hover);
+      color: var(--brand-text-primary);
+      border-color: var(--brand-text-tertiary);
+    }
+  }
+}
+
 // ── Input area ───────────────────────────────────────────────────
 
 .input-area {
