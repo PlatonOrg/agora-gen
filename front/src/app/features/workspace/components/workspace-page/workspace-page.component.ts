@@ -26,7 +26,9 @@ import { WorkspaceStore } from '../../state/workspace.store';
 import { ChatService } from '../../services/chat.service';
 import { OnboardingService } from '../../services/onboarding.service';
 import { ConfirmDialogComponent } from '../../../../shared/ui/confirm-dialog/confirm-dialog.component';
+import { WorkspaceLandingComponent } from '../workspace-landing/workspace-landing.component';
 import { WORKSPACE_TOUR_STEPS, TEMPLATES_HELP_CONTENT } from '../../models/help-content.constants';
+import { ExerciseGenerationContext } from '../../models/exercise.model';
 
 @Component({
   selector: 'app-workspace-page',
@@ -37,6 +39,7 @@ import { WORKSPACE_TOUR_STEPS, TEMPLATES_HELP_CONTENT } from '../../models/help-
     SidePanelComponent, TemplatesPanelComponent,
     WorkspaceHeaderComponent, ResizeHandleDirective,
     ConfirmDialogComponent, TourTooltipComponent, HelpPopupComponent,
+    WorkspaceLandingComponent,
   ],
   templateUrl: './workspace-page.component.html',
   styleUrl: './workspace-page.component.scss',
@@ -61,6 +64,9 @@ export class WorkspacePageComponent implements OnInit, OnDestroy {
 
   protected readonly showResetAllConfirm = signal(false);
 
+  protected readonly showLanding = signal(true);
+  protected readonly showContextModal = signal(false);
+
   protected readonly isPanelSwitcherOpen = signal(false);
 
   protected readonly useTemplateDialogOptions = {
@@ -78,7 +84,7 @@ export class WorkspacePageComponent implements OnInit, OnDestroy {
   };
 
   @ViewChild('discussionPanel') discussionPanel?: DiscussionPanelComponent;
-  @ViewChild('exerciseContentPanel') exerciseContentPanel!: ExerciseContentPanelComponent;
+  @ViewChild('exerciseContentPanel') exerciseContentPanel?: ExerciseContentPanelComponent;
 
   constructor(@Inject(PLATFORM_ID) platformId: Object) {
     this.isBrowser = isPlatformBrowser(platformId);
@@ -140,6 +146,23 @@ export class WorkspacePageComponent implements OnInit, OnDestroy {
     });
   }
 
+  protected onContextSubmitted(context: ExerciseGenerationContext): void {
+    const isFirstEntry = this.showLanding();
+    this.showLanding.set(false);
+    this.showContextModal.set(false);
+    this.wsStore.setGenerationContext(context);
+    this.filters.setFromContext(context);
+    if (isFirstEntry) {
+      this.wsStore.expandDiscussion();
+      this.wsStore.collapseComponentsPanel();
+    }
+    this.discussionPanel?.loadFromGenerationContext(context, isFirstEntry);
+    console.log("Formulaire rempli : ", context)
+  }
+
+  protected openContextModal(): void { this.showContextModal.set(true); }
+  protected closeContextModal(): void { this.showContextModal.set(false); }
+
   protected toggleLeftPanel(): void {
     if (this.wsStore.activeLeftTab() !== null) {
       this.wsStore.collapseDiscussion();
@@ -149,7 +172,7 @@ export class WorkspacePageComponent implements OnInit, OnDestroy {
   }
 
   protected togglePanelSwitcher(): void {
-    this.isPanelSwitcherOpen.update(v => !v);
+    this.isPanelSwitcherOpen.update((v: boolean) => !v);
   }
 
   protected closePanelSwitcher(): void {
@@ -183,7 +206,7 @@ export class WorkspacePageComponent implements OnInit, OnDestroy {
     const input = this.filters.componentInput().toLowerCase();
     const current = this.filters.selectedComponents();
     return this.wsStore.availableComponentNames()
-      .filter(c => !current.includes(c) && c.toLowerCase().includes(input))
+      .filter((c: string) => !current.includes(c) && c.toLowerCase().includes(input))
       .slice(0, 20);
   }
 
@@ -200,8 +223,8 @@ export class WorkspacePageComponent implements OnInit, OnDestroy {
     const newData = this.facade.applyTemplate(template);
     this.facade.updateExercise(newData);
     this.cdr.markForCheck();
-    this.exerciseContentPanel.setComponentsInitialized();
-    this.exerciseContentPanel.expandOnlyTemplateParameters();
+    this.exerciseContentPanel?.setComponentsInitialized();
+    this.exerciseContentPanel?.expandOnlyTemplateParameters();
   }
 
   protected cancelUseTemplate(): void {

@@ -1,3 +1,18 @@
+export type DifficultyLevel = 'facile' | 'moyen' | 'difficile';
+
+export interface ExerciseGenerationContext {
+  cercle?: string;
+  niveaux: string[];
+  domaines: string[];
+  concept: string;
+  selectedComponent?: string[];
+  difficulte: DifficultyLevel;
+  objectifsPedagogiques?: string;
+  publicVise?: string;
+  prerequis?: string;
+  mode: 'ask' | 'agent';
+}
+
 export interface ExerciseMetadata {
   levels: string[];
   topics: string[];
@@ -50,6 +65,7 @@ export interface ChatRequest {
   conversation_mode?: string;
   force_pure_exercise?: boolean;
   conversation_id?: string;
+  generation_context?: ExerciseGenerationContext;
 }
 
 export interface ChatResponse {

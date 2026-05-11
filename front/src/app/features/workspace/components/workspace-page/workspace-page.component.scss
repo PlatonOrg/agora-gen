@@ -226,6 +226,11 @@
 
   app-workspace-header { flex-shrink: 0; }
 
+  app-workspace-landing {
+    flex: 1;
+    min-height: 0;
+  }
+
   app-exercise-content-panel {
     flex: 1;
     min-height: 0;
@@ -240,6 +245,48 @@ app-side-panel {
 }
 
 .tooltip-backdrop { background-color: transparent; }
+
+// ── Context reconfigure modal ─────────────────────────────────────
+
+.context-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 300;
+  background: rgba(0, 0, 0, 0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  backdrop-filter: blur(2px);
+  animation: fade-in 0.18s ease both;
+}
+
+.context-modal-shell {
+  width: min(680px, 96vw);
+  height: min(90vh, 760px);
+  display: flex;
+  flex-direction: column;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.25);
+  animation: slide-up 0.22s cubic-bezier(0.4, 0, 0.2, 1) both;
+
+  app-workspace-landing {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    min-height: 0;
+  }
+}
+
+@keyframes fade-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+@keyframes slide-up {
+  from { opacity: 0; transform: translateY(20px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
 
 :host-context(body.resizing) {
   cursor: col-resize;

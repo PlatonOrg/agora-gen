@@ -1,3 +1,15 @@
+@if (showContextModal()) {
+  <div class="context-modal-backdrop" (click)="closeContextModal()">
+    <div class="context-modal-shell" (click)="$event.stopPropagation()">
+      <app-workspace-landing
+        [initialContext]="wsStore.generationContext()"
+        (contextSubmitted)="onContextSubmitted($event)"
+        (cancelled)="closeContextModal()"
+      />
+    </div>
+  </div>
+}
+
 <div class="workspace-container">
 
   @if (onboarding.isActive() && onboarding.currentStep()) {
@@ -40,7 +52,8 @@
         #discussionPanel
         (chatResponse)="onChatResponse($event)"
         (collapsed)="wsStore.collapseDiscussion()"
-        (switchToTemplates)="wsStore.openTemplatesPanel()">
+        (switchToTemplates)="wsStore.openTemplatesPanel()"
+        (reconfigureContext)="openContextModal()">
       </app-discussion-panel>
     </div>
 
@@ -74,7 +87,7 @@
               </div>
             }
           </div>
-          <span class="left-panel-header__title">Recherche de modèles</span>
+          <span class="left-panel-header__title">Recherche de templates</span>
           <div class="left-panel-header__actions">
             <app-help-popup
               title="Utiliser les modèles"
@@ -152,49 +165,54 @@
   </div>
 
   <div class="content-panel">
-    <app-workspace-header
-      [isViewExerciseLoading]="headerViewExerciseLoading"
-      [isViewPleLoading]="headerViewPleLoading"
-      [templateName]="headerTemplateName"
-      [activeLeftTab]="wsStore.activeLeftTab()"
-      (viewExercise)="onHeaderViewExercise()"
-      (viewPle)="onHeaderViewPle()"
-      (resetExercise)="onHeaderResetExercise()"
-      (publishExercise)="onHeaderPublishExercise()"
-      (navigateToLogs)="facade.navigateToLogs()"
-      (toggleLeftPanel)="toggleLeftPanel()"
-    />
-    <app-exercise-content-panel
-      #exerciseContentPanel
-      [exerciseData]="facade.exerciseData()"
-      [exerciseId]="facade.exerciseId || ''"
-      (updateExercise)="facade.updateExercise($event)"
+    @if (showLanding()) {
+      <app-workspace-landing (contextSubmitted)="onContextSubmitted($event)" />
+    } @else {
+      <app-workspace-header
+        [isViewExerciseLoading]="headerViewExerciseLoading"
+        [isViewPleLoading]="headerViewPleLoading"
+        [templateName]="headerTemplateName"
+        [activeLeftTab]="wsStore.activeLeftTab()"
+        (viewExercise)="onHeaderViewExercise()"
+        (viewPle)="onHeaderViewPle()"
+        (resetExercise)="onHeaderResetExercise()"
+        (publishExercise)="onHeaderPublishExercise()"
+        (navigateToLogs)="facade.navigateToLogs()"
+        (toggleLeftPanel)="toggleLeftPanel()"
+      />
+      <app-exercise-content-panel
+        #exerciseContentPanel
+        [exerciseData]="facade.exerciseData()"
+        [exerciseId]="facade.exerciseId || ''"
+        (updateExercise)="facade.updateExercise($event)"
+        (addComponent)="facade.addComponent($event)"
+        (removeComponent)="facade.removeComponent($event)"
+        (addIndication)="facade.addIndication()"
+        (removeIndication)="facade.removeIndication($event)"
+        (addTheory)="facade.addTheory()"
+        (removeTheory)="facade.removeTheory($event)"
+        (previewCompleted)="onPreviewCompleted($event)">
+      </app-exercise-content-panel>
+    }
+  </div>
+
+  @if (!showLanding()) {
+    <div class="resize-handle"
+         appResizeHandle="right"
+         [class.resize-handle--hidden]="wsStore.isComponentsPanelCollapsed()">
+    </div>
+
+    <app-side-panel
+      [isComponentsPanelExpanded]="wsStore.isComponentsPanelExpanded"
+      [isComponentsPanelCollapsed]="wsStore.isComponentsPanelCollapsed"
+      [formulaireComponents]="wsStore.formulaireComponents"
+      [widgetComponents]="wsStore.widgetComponents"
       (addComponent)="facade.addComponent($event)"
-      (removeComponent)="facade.removeComponent($event)"
-      (addIndication)="facade.addIndication()"
-      (removeIndication)="facade.removeIndication($event)"
-      (addTheory)="facade.addTheory()"
-      (removeTheory)="facade.removeTheory($event)"
-      (previewCompleted)="onPreviewCompleted($event)">
-    </app-exercise-content-panel>
-  </div>
-
-
-  <div class="resize-handle"
-       appResizeHandle="right"
-       [class.resize-handle--hidden]="wsStore.isComponentsPanelCollapsed()">
-  </div>
-
-  <app-side-panel
-    [isComponentsPanelExpanded]="wsStore.isComponentsPanelExpanded"
-    [isComponentsPanelCollapsed]="wsStore.isComponentsPanelCollapsed"
-    [formulaireComponents]="wsStore.formulaireComponents"
-    [widgetComponents]="wsStore.widgetComponents"
-    (addComponent)="facade.addComponent($event)"
-    (toggleTooltip)="toggleTooltip($event.name, $event.event)"
-    (addComponentToDiscussion)="addComponentToDiscussion($event)"
-    (collapseComponents)="wsStore.collapseComponentsPanel()"
-    (expandComponents)="wsStore.expandComponentsPanel()"
-  />
+      (toggleTooltip)="toggleTooltip($event.name, $event.event)"
+      (addComponentToDiscussion)="addComponentToDiscussion($event)"
+      (collapseComponents)="wsStore.collapseComponentsPanel()"
+      (expandComponents)="wsStore.expandComponentsPanel()"
+    />
+  }
 </div>
 

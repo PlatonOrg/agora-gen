@@ -481,6 +481,7 @@ export class ChatService {
     conversationMode?: string,
     forcePureExercise?: boolean,
     conversationId?: string,
+    generationContext?: import('../models/exercise.model').ExerciseGenerationContext,
   ): Promise<void> {
     const request: ChatRequest & { file_ids?: string[] } = {
       exercise_state: exerciseState,
@@ -492,6 +493,7 @@ export class ChatService {
       ...(conversationMode ? { conversation_mode: conversationMode } : {}),
       ...(forcePureExercise ? { force_pure_exercise: true } : {}),
       ...(conversationId ? { conversation_id: conversationId } : {}),
+      ...(generationContext ? { generation_context: generationContext } : {}),
     };
 
     this.currentAbortController = new AbortController();

@@ -1,6 +1,7 @@
 import { Injectable, signal, computed, inject } from '@angular/core';
 import { ContextService } from '../services/context.service';
 import { TemplateResponse } from '../models/template.model';
+import { ExerciseGenerationContext } from '../models/exercise.model';
 
 @Injectable({ providedIn: 'root' })
 export class WorkspaceFiltersStore {
@@ -122,6 +123,12 @@ export class WorkspaceFiltersStore {
 
   selectCercle(cercle: string | null): void {
     this.selectedCercle.set(cercle || '');
+  }
+
+  setFromContext(context: ExerciseGenerationContext): void {
+    this.selectedCercle.set(context.cercle ?? '');
+    this.selectedSujets.set([...context.domaines]);
+    this.selectedNiveaux.set([...context.niveaux]);
   }
 
   async searchTemplates(): Promise<void> {

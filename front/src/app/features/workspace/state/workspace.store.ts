@@ -2,6 +2,7 @@ import { Injectable, signal, Inject } from '@angular/core';
 import { PLATFORM_ID } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
 import { ComponentMetadata } from '../services/components-metadata.service';
+import { ExerciseGenerationContext } from '../models/exercise.model';
 
 // Panel width constants
 export const DEFAULT_LEFT_WIDTH = 330;
@@ -16,7 +17,7 @@ export type LeftPanelTab = 'discussion' | 'templates';
 
 @Injectable({ providedIn: 'root' })
 export class WorkspaceStore {
-  readonly activeLeftTab = signal<LeftPanelTab | null>('discussion');
+  readonly activeLeftTab = signal<LeftPanelTab | null>(null);
   readonly leftPanelWidth = signal<number>(DEFAULT_LEFT_WIDTH);
   readonly rightPanelWidth = signal<number>(DEFAULT_RIGHT_WIDTH);
   readonly isComponentsPanelCollapsed = signal<boolean>(false);
@@ -25,6 +26,11 @@ export class WorkspaceStore {
   readonly widgetComponents = signal<ComponentMetadata[]>([]);
   readonly availableComponentNames = signal<string[]>([]);
   readonly tooltipOpenFor = signal<string | null>(null);
+  readonly generationContext = signal<ExerciseGenerationContext | null>(null);
+
+  setGenerationContext(ctx: ExerciseGenerationContext): void {
+    this.generationContext.set(ctx);
+  }
 
   readonly isDiscussionCollapsed = () => this.activeLeftTab() !== 'discussion';
   readonly isTemplatesPanelExpanded = () => this.activeLeftTab() === 'templates';
