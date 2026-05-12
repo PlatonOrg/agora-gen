@@ -4,6 +4,8 @@ import logging
 from pathlib import Path
 from typing import Dict, Any, List, Optional
 
+from sqlalchemy.ext.asyncio import AsyncSession
+
 from src.infra.llm.llm_wrapper import chat_with_llm
 from src.services.models.api import (
     ConfigVariablesGenerationResult,
@@ -15,51 +17,55 @@ from src.services.models.api import (
 from src.core import path_constants
 from src.core.config_app import settings
 from src.services.output_sanitizer_service import sanitize_generated_exercise
+from src.services.logs_service import get_prompt
 
 logger = logging.getLogger(__name__)
 
 _COMPONENT_EXTRA_DOCS: Dict[str, str] = {
-    "wc-drag-drop": "drag_drop.txt",
-    "wc-match-list": "wc_match_list.txt",
-    "wc-crossword": "wc_cross_word.txt",
-    "wc-jsx": "wc_jsx.txt",
-    "wc-matrix": "wc_matrix.txt",
-    "wc-binded-bubbles": "wc_binded_bubbles.txt",
-    "wc-radio-group": "wc_radio_group.txt",
-    "wc-presenter": "wc_presenter.txt",
+    "wc-drag-drop": "drag_drop",
+    "wc-match-list": "wc_match_list",
+    "wc-crossword": "wc_cross_word",
+    "wc-jsx": "wc_jsx",
+    "wc-matrix": "wc_matrix",
+    "wc-binded-bubbles": "wc_binded_bubbles",
+    "wc-radio-group": "wc_radio_group",
+    "wc-presenter": "wc_presenter",
 }
 
-
+# attention aux tests !!!!!
 class GenerationService:
-    def __init__(self, temperature: float = 0.0) -> None:
+    def __init__(self, db_session: AsyncSession, temperature: float = 0.0) -> None:
         self._temperature = temperature
         self._logger = logging.getLogger(__name__)
+        self._db_session = db_session
 
-    def _load_system_prompt(self) -> str:
-        prompt_path = os.path.join(path_constants.PROMPTS_DIR, 'template_exercise.txt')
-        with open(prompt_path, 'r', encoding='utf-8') as f:
-            return f.read()
+    async def _load_system_prompt(self) -> str:
+        prompt_entry = await get_prompt(self._db_session, 'template_exercise')
+        logger.info(" ===== >>>>>> Loaded template_exercise prompt from database, length=%d chars", len(prompt_entry.content))
+        return prompt_entry.content
 
-    def _load_pure_exercise_prompt(self) -> str:
-        prompt_path = os.path.join(path_constants.PROMPTS_DIR, 'pure_exercise.txt')
-        with open(prompt_path, 'r', encoding='utf-8') as f:
-            return f.read()
+    async def _load_pure_exercise_prompt(self) -> str:
+        prompt_entry = await get_prompt(self._db_session, 'pure_exercise')
+        logger.info(" ===== >>>>>> Loaded pure_exercise prompt from database, length=%d chars", len(prompt_entry.content))
+        return prompt_entry.content
 
-    def _load_pure_exercise_modification_prompt(self) -> str:
-        prompt_path = os.path.join(path_constants.PROMPTS_DIR, 'pure_exercise_modification.txt')
-        with open(prompt_path, 'r', encoding='utf-8') as f:
-            return f.read()
+    async def _load_pure_exercise_modification_prompt(self) -> str:
+        prompt_entry = await get_prompt(self._db_session, 'pure_exercise_modification')
+        logger.info(" ===== >>>>>> Loaded pure_exercise_modification prompt from database, length=%d chars", len(prompt_entry.content))
+        return prompt_entry.content
 
-    def _load_template_modification_prompt(self) -> str:
-        prompt_path = os.path.join(path_constants.PROMPTS_DIR, 'template_exercise_modification.txt')
-        with open(prompt_path, 'r', encoding='utf-8') as f:
-            return f.read()
+
+    async def _load_template_modification_prompt(self) -> str:
+        prompt_entry = await get_prompt(self._db_session, 'template_exercise_modification')
+        logger.info(" ===== >>>>>> Loaded template_exercise_modification prompt from database, length=%d chars", len(prompt_entry.content))
+        return prompt_entry.content
+
 
     def _load_component_metadata(self) -> List[Dict[str, Any]]:
         with open(path_constants.COMPONENT_METADATA_PATH, 'r', encoding='utf-8') as f:
             return json.load(f)
 
-    def _format_components_for_prompt(self, components: List[str]) -> str:
+    async def _format_components_for_prompt(self, components: List[str]) -> str:
         metadata = self._load_component_metadata()
         use_full_mdx = settings.COMPONENT_DOC_MODE == "full"
         component_docs = []
@@ -77,6 +83,8 @@ class GenerationService:
                         full_doc = mdx_file.read_text(encoding="utf-8").strip()
                         component_body = (
                             f"=== Composant: {comp_data['name']} (tag: {comp_data['tag']}) ===\n"
+                            f"DEBUG mdx_file : {mdx_file}\n"
+                            f"DEBUG FULL DOC :\n"
                             f"{full_doc}"
                         )
                     except OSError:
@@ -89,17 +97,17 @@ class GenerationService:
             else:
                 component_body = self._build_schema_block(comp_data)
 
-            extra_instructions_filename = _COMPONENT_EXTRA_DOCS.get(comp)
-            if extra_instructions_filename:
-                instructions_path = Path(path_constants.PROMPTS_DIR) / extra_instructions_filename
+            extra_instructions_prompt_name = _COMPONENT_EXTRA_DOCS.get(comp)
+            if extra_instructions_prompt_name:
                 try:
-                    instructions = instructions_path.read_text(encoding="utf-8").strip()
+                    prompt_entry = await get_prompt(self._db_session, extra_instructions_prompt_name)
+                    instructions = prompt_entry.content.strip()
                     if instructions:
                         component_body += f"\n\nInstructions spécifiques:\n{instructions}"
-                except OSError:
+                except ValueError:
                     self._logger.warning(
-                        "Component instructions file not found for tag '%s': %s",
-                        comp, instructions_path,
+                        "Component instructions prompt not found for tag '%s': %s",
+                        comp, extra_instructions_prompt_name,
                     )
 
             component_docs.append(component_body)
@@ -108,6 +116,7 @@ class GenerationService:
 
     @staticmethod
     def _build_schema_block(comp_data: Dict[str, Any]) -> str:
+        logger.info(f"BUILD SCHEMA BLOCK for component {comp_data['name']}")
         return (
             f"=== Composant: {comp_data['name']} (tag: {comp_data['tag']}) ===\n"
             f"Catégorie: {comp_data.get('category', '')}\n"
@@ -390,16 +399,16 @@ Vous etes donne des exemples complets pour le contexte, mais vous devez generer 
             )
 
         components = exercise_data.components or []
-        component_docs = self._format_components_for_prompt(components)
+        component_docs = await self._format_components_for_prompt(components)
 
         logger.info(f"component_docs for exercise with components {components}:\n{component_docs}")
 
         if is_modification:
             system_prompt = self._load_pure_exercise_modification_prompt()
         else:
-            system_prompt = self._load_pure_exercise_prompt()
-            examples_text = "\n\n".join(f"Exercise {i+1} : {json.dumps(ex, ensure_ascii=False)}" for i, ex in enumerate(examples))
-            system_prompt += f"\n\nExemples d'exercies proches a la demande de l'utilisateur:\n{examples_text}"
+            system_prompt = await self._load_pure_exercise_prompt()
+            #examples_text = "\n\n".join(f"Exercise {i+1} : {json.dumps(ex, ensure_ascii=False)}" for i, ex in enumerate(examples))
+            #system_prompt += f"\n\nExemples d'exercies proches a la demande de l'utilisateur:\n{examples_text}"
 
 
         if fields_to_modify:

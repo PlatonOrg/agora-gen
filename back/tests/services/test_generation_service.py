@@ -49,7 +49,7 @@ DUMMY_METADATA = [
 
 
 def _make_service() -> GenerationService:
-    return GenerationService()
+    return GenerationService(None)
 
 
 def _make_exercise(**kwargs) -> ExerciseData:

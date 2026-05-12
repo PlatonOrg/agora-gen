@@ -6,6 +6,8 @@ from dataclasses import dataclass
 from datetime import datetime, timezone
 from typing import Any, Dict, List, Optional
 
+from sqlalchemy.ext.asyncio import AsyncSession
+
 logger = logging.getLogger(__name__)
 
 from src.services.sandbox_correction_service import (
@@ -189,12 +191,13 @@ async def _generate_pure_exercise(
     user_token: str,
     progress_callback: ProgressCallback,
     retrieved: list,
+    db_session: AsyncSession,
     session_id: str = None,
     is_modification: bool = False,
     conversation_id: str = None,
     username: str = None,
     cancellation_event: asyncio.Event = None,
-) -> ChatResponse:
+    ) -> ChatResponse:
     from src.services.generation_service import GenerationService
     from src.services.rag.retrieval_service import get_embed_model
     from src.services.component_selection_service import select_components_for_request
@@ -217,7 +220,7 @@ async def _generate_pure_exercise(
         return await _generate_pure_exercise_inner(
             exercise_data, chat_request, platon, user_token, progress_callback,
             retrieved, session_id, is_modification, conversation_id, username,
-            cancellation_event, request_received_at, query, llm_calls,
+            cancellation_event, request_received_at, query, llm_calls, db_session,
         )
     except asyncio.CancelledError:
         raise  # Let cancellation propagate without logging
@@ -279,6 +282,7 @@ async def _generate_pure_exercise_inner(
     request_received_at: datetime,
     query: str,
     llm_calls: List[Dict[str, Any]],
+    db_session: AsyncSession,
 ) -> ChatResponse:
     from src.services.generation_service import GenerationService
     from src.services.rag.retrieval_service import get_embed_model
@@ -367,7 +371,7 @@ async def _generate_pure_exercise_inner(
         )
         logger.info("Files attached to chat request: %d file(s), ids=%s", len(chat_request.file_ids), chat_request.file_ids)
 
-    generation_service = GenerationService(temperature=_get_config().generation_temperature)
+    generation_service = GenerationService(db_session=db_session, temperature=_get_config().generation_temperature)
     await _emit_progress(progress_callback, "llm_generation_started", {"value": "Generating exercise content with AI..."})
 
     gen_result = await generation_service.generate_pure_exercise_with_examples(
@@ -528,13 +532,14 @@ def _exercise_is_empty(exercise_data) -> bool:
 
 async def handle_chat(
     chat_request: ChatRequest,
+    db_session: AsyncSession,
     user_token: str = None,
     progress_callback: ProgressCallback = None,
     session_id: str = None,
     conversation_id: str = None,
     username: str = None,
     cancellation_event: asyncio.Event = None,
-) -> ChatResponse:
+    ) -> ChatResponse:
     from src.services.platon_service import platon_service as platon
     from src.services.rag.retrieval_service import retrieval_service
     from src.services.workspace_service import workspace_service
@@ -568,6 +573,7 @@ async def handle_chat(
                 exercise_data, chat_request.user_request,
                 chat_request.conversation_history, chat_request.fields_to_modify or [],
                 user_token, progress_callback=progress_callback,
+                db_session=db_session,
                 session_id=session_id,
                 is_modification=True,
                 cancellation_event=cancellation_event,
@@ -584,6 +590,7 @@ async def handle_chat(
             conversation_id=conversation_id,
             username=username,
             cancellation_event=cancellation_event,
+            db_session=db_session,
         )
 
     query = chat_request.user_request + " " + " ".join(exercise_data.components or [])
@@ -613,6 +620,7 @@ async def handle_chat(
         return await _generate_pure_exercise(
             exercise_data, chat_request, platon, user_token, progress_callback,
             retrieved=retrieved,
+            db_session=db_session,
             session_id=session_id,
             is_modification=False,
             conversation_id=conversation_id,
@@ -642,6 +650,7 @@ async def handle_chat(
             exercise_data, chat_request.user_request,
             chat_request.conversation_history, chat_request.fields_to_modify or [],
             user_token, progress_callback=progress_callback,
+            db_session=db_session,
             session_id=session_id,
             is_modification=False,
             cancellation_event=cancellation_event,
@@ -659,6 +668,7 @@ async def handle_chat(
         conversation_id=conversation_id,
         username=username,
         cancellation_event=cancellation_event,
+        db_session=db_session,
     )
 
 
@@ -727,6 +737,7 @@ async def generate_and_process_template(
     conversation_history,
     fields_to_modify: List[str],
     user_token: str,
+    db_session: AsyncSession,
     progress_callback: ProgressCallback = None,
     session_id: str = None,
     is_modification: bool = False,
@@ -744,7 +755,7 @@ async def generate_and_process_template(
     request_received_at = datetime.now(timezone.utc)
 
     try:
-        generation_service = GenerationService(temperature=_get_config().generation_temperature)
+        generation_service = GenerationService(db_session=db_session, temperature=_get_config().generation_temperature)
         await _emit_progress(progress_callback, "llm_generation_started", {"value": "Generating template parameters with AI..."})
         gen_result = await generation_service.generate_config_variables(
             exercise_data=exercise_data,
