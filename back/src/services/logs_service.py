@@ -89,6 +89,8 @@ async def get_prompt(session: AsyncSession, prompt_name: str) -> PromptEntry:
     if row is None:
         raise ValueError(f"Prompt with name '{prompt_name}' not found")
     
+    logger.info(f"Prompt '{prompt_name}' loaded from database")
+    
     return PromptEntry(
         id=str(row.id),
         name=row.name,
