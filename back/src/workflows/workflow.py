@@ -403,7 +403,7 @@ async def _generate_pure_exercise_inner(
 
     _check_cancelled()
     await _emit_progress(progress_callback, "preview_started", {"value": "Running sandbox preview validation..."})
-    retry_result = await SandboxCorrectionService(temperature=_get_config().generation_temperature).preview_pure_exercise_with_retry(
+    retry_result = await SandboxCorrectionService(temperature=_get_config().generation_temperature, db_session=db_session).preview_pure_exercise_with_retry(
         exercise_data=exercise_data,
         generated_exercise=gen_result.generated_exercise,
         user_request=chat_request.user_request,
@@ -676,6 +676,7 @@ async def handle_chat(
 async def process_exercise_generation(
     exercise_data,
     generated_vars: Any,
+    db_session: AsyncSession,
     user_request: str = "",
     user_token: str = None,
     progress_callback: ProgressCallback = None,
@@ -693,7 +694,7 @@ async def process_exercise_generation(
     await _emit_progress(progress_callback, "exercise_mapping_completed", {"value": f"Merged {len(complete_vars)} variables."})
 
     await _emit_progress(progress_callback, "preview_started", {"value": "Running sandbox preview validation..."})
-    retry_result = await SandboxCorrectionService(temperature=_get_config().generation_temperature).preview_template_with_retry(
+    retry_result = await SandboxCorrectionService(temperature=_get_config().generation_temperature, db_session=db_session).preview_template_with_retry(
         exercise_data=exercise_data,
         complete_vars=complete_vars,
         user_request=user_request,
@@ -783,6 +784,7 @@ async def generate_and_process_template(
         workflow_result = await process_exercise_generation(
             exercise_data,
             gen_result.variables,
+            db_session,
             user_request=user_request,
             user_token=user_token,
             progress_callback=progress_callback,
