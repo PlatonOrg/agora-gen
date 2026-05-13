@@ -310,6 +310,7 @@ async def _generate_pure_exercise_inner(
             ]
             selection_result = await select_components_for_request(
                 user_request=chat_request.user_request,
+                db_session=db_session,
                 user_priority_tags=[],
                 file_summaries=file_summaries or None,
                 current_components=None,
