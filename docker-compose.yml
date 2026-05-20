@@ -10,6 +10,7 @@ services:
     container_name: agora_frontend
     ports:
       - "80:80"  # Keep port 80 for frontend
+      - "443:443" # Expose HTTPS port for SSL
     depends_on:
       - api
     volumes:
@@ -21,6 +22,7 @@ services:
       - ./front/tsconfig.spec.json:/app/tsconfig.spec.json
       - ./front/public:/app/public
       - ./resources:/app/resources
+      - ./front/ssl:/etc/nginx/ssl
     environment:
       - NODE_ENV=development
       - CHOKIDAR_USEPOLLING=true
