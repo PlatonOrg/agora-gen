@@ -7,6 +7,7 @@ import unicodedata
 from dataclasses import dataclass
 from typing import Any, Optional
 
+from sqlalchemy.ext.asyncio import AsyncSession
 from llama_index.core import VectorStoreIndex
 from llama_index.embeddings.huggingface import HuggingFaceEmbedding
 from llama_index.vector_stores.postgres import PGVectorStore
@@ -16,6 +17,7 @@ from src.infra.log.db_logger import log_discussion_generation
 from src.infra.log.models import DiscussionGenerationLog
 from src.services.models.api import PlatonDocsSource
 from src.services.models.rag import RetrievedChunk
+from src.services.logs_service import get_prompt
 from src.core import path_constants
 
 logger = logging.getLogger("uvicorn")
@@ -263,7 +265,7 @@ class PlatonDocsQAService:
         merged.sort(key=lambda item: item[0], reverse=True)
         return [chunk for _, chunk in merged[:top_k]]
 
-    async def answer_question(self, *, question: str, top_k: int | None = None, session_id: str | None = None, conversation_id: str | None = None, username: str | None = None) -> tuple[str, list[PlatonDocsSource]]:
+    async def answer_question(self, *, question: str, top_k: int | None = None, session_id: str | None = None, conversation_id: str | None = None, username: str | None = None, db_session: AsyncSession) -> tuple[str, list[PlatonDocsSource]]:
         from src.services.runtime_config_service import runtime_config, SettingKey
         requested_top_k = top_k if top_k is not None else runtime_config.get_int(SettingKey.PLATON_DOCS_TOP_K)
         use_top_k = min(max(int(requested_top_k), 1), 10)
@@ -302,8 +304,8 @@ class PlatonDocsQAService:
             )
             context_lines.append(f"[{source_path}#chunk-{chunk_index}]\n{excerpt}")
 
-        system_prompt_path = path_constants.PROMPTS_DIR / "platon_docs_qa.txt"
-        system_prompt = system_prompt_path.read_text(encoding="utf-8").strip()
+        system_prompt_entry = await get_prompt(db_session, 'platon_docs_qa')
+        system_prompt = system_prompt_entry.content.strip()
         user_prompt = (
             f"Question utilisateur:\n{question}\n\n"
             f"Contexte documentation:\n\n" + "\n\n".join(context_lines)

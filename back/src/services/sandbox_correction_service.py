@@ -22,10 +22,13 @@ import logging
 import os
 from typing import Any, Callable, Dict, List, Optional
 
+from sqlalchemy.ext.asyncio import AsyncSession
+
 from src.infra.llm.llm_wrapper import chat_with_llm
 from src.workflows.retry_handler import attempt_with_retry, RetryResult
 from src.services.models.platon import PreviewResult, SandboxError, SandboxRuntimeError, PlatonLogEntry
 from src.services.models.api import GeneratedExercise, ExerciseMetadata
+from src.services.logs_service import get_prompt
 
 from src.core import path_constants
 from src.core.config_app import settings
@@ -126,17 +129,16 @@ def apply_generated_to_exercise(exercise_data: Any, generated_exercise: Generate
 class SandboxCorrectionService:
     """Encapsulates LLM-based correction and retry logic for sandbox failures."""
 
-    def __init__(self, temperature: float = 0.0) -> None:
+    def __init__(self, db_session: AsyncSession, temperature: float = 0.0) -> None:
         self._logger = logging.getLogger(__name__)
         self._temperature = temperature
+        self._db_session = db_session
 
     # -- Prompt loading --------------------------------------------------
 
-    @staticmethod
-    def _load_repair_prompt() -> str:
-        prompt_path = os.path.join(path_constants.PROMPTS_DIR, "exercise_repair.txt")
-        with open(prompt_path, "r", encoding="utf-8") as file_handle:
-            return file_handle.read()
+    async def _load_repair_prompt(self) -> str:
+        prompt_entry = await get_prompt(self._db_session, 'exercise_repair')
+        return prompt_entry.content
 
     @staticmethod
     def _load_ple_language_doc() -> str:
@@ -269,7 +271,7 @@ class SandboxCorrectionService:
             max_attempts,
         )
         system_prompt = self._fill_repair_prompt(
-            self._load_repair_prompt(),
+            await self._load_repair_prompt(),
             attempt_number=attempt_number,
             max_attempts=max_attempts,
             sandbox_error=sandbox_error,
@@ -311,7 +313,7 @@ class SandboxCorrectionService:
             max_attempts,
         )
         system_prompt = self._fill_repair_prompt(
-            self._load_repair_prompt(),
+            await self._load_repair_prompt(),
             attempt_number=attempt_number,
             max_attempts=max_attempts,
             sandbox_error=sandbox_error,

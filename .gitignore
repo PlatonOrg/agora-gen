@@ -18,3 +18,9 @@ resources/backup
 resources/json_exported
 resources/examples
 resources/docs
+
+# Operating System files
+.DS_Store # macOS
+back/.DS_Store
+front/.DS_Store
+Thumbs.db # Windows

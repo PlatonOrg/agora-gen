@@ -1,0 +1,89 @@
+<div class="prompts-view">
+  <div class="prompts-view__header">
+    <h2 class="prompts-view__title">Prompts système</h2>
+    <span class="prompts-view__count" *ngIf="state() === 'success'">
+      {{ prompts().length }} prompt{{ prompts().length !== 1 ? 's' : '' }}
+    </span>
+  </div>
+
+  <app-log-status-view
+    [state]="state()"
+    [empty]="prompts().length === 0"
+    [errorMessage]="errorMessage()"
+    emptyMessage="Aucun prompt enregistré."
+  />
+
+  @if (state() === 'success' && prompts().length > 0) {
+    <div class="prompts-view__list">
+      @for (prompt of prompts(); track prompt.id) {
+        <article
+          class="prompt-card"
+          [class.prompt-card--expanded]="expandedId() === prompt.id"
+        >
+          <button
+            class="prompt-card__header"
+            type="button"
+            (click)="toggleExpand(prompt.id)"
+            [attr.aria-expanded]="expandedId() === prompt.id"
+          >
+            <span class="prompt-card__name">{{ prompt.name }}</span>
+            <div class="prompt-card__header-right">
+              <span class="prompt-card__updated" *ngIf="prompt.updated_at">
+                Mis à jour {{ formatDate(prompt.updated_at) }}
+              </span>
+              <svg
+                class="prompt-card__chevron"
+                [class.prompt-card__chevron--open]="expandedId() === prompt.id"
+                xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
+                fill="none" stroke="currentColor" stroke-width="2"
+              >
+                <polyline points="6 9 12 15 18 9"/>
+              </svg>
+            </div>
+          </button>
+
+          @if (expandedId() === prompt.id) {
+            @if (editingId() === prompt.id) {
+              <textarea
+                class="prompt-card__textarea"
+                [attr.data-prompt-id]="prompt.id"
+                [value]="editedContent.get(prompt.id) ?? prompt.content"
+                (input)="updateEditedContent(prompt.id, $any($event.target).value); autoExpandTextarea($event)"
+              ></textarea>
+            } @else {
+              <div class="prompt-card__content">
+                <pre class="prompt-card__pre">{{ prompt.content }}</pre>
+              </div>
+            }
+            <div class="prompt-card__footer">
+              @if (editingId() === prompt.id) {
+                <button
+                  class="prompt-card__cancel-btn"
+                  type="button"
+                  (click)="cancelEdit()"
+                >
+                  Annuler
+                </button>
+                <button
+                  class="prompt-card__edit-btn"
+                  type="button"
+                  (click)="saveEdit(prompt.id)"
+                >
+                  Enregistrer
+                </button>
+              } @else {
+                <button 
+                  class="prompt-card__edit-btn" 
+                  type="button"
+                  (click)="startEdit(prompt.id, prompt.content)"
+                >
+                  Modifier
+                </button>
+              }
+            </div>
+          }
+        </article>
+      }
+    </div>
+  }
+</div>

@@ -59,6 +59,14 @@ export class ApiService {
     return this.handleResponse<T>(response);
   }
 
+  async patch<T>(endpoint: string, body: unknown): Promise<T> {
+    this.guardSSR(endpoint);
+    const url = this.resolveUrl(endpoint);
+    console.log('[ApiService] PATCH', url);
+    const response = await fetch(url, { method: 'PATCH', headers: this.buildHeaders(), credentials: 'include', body: JSON.stringify(body) });
+    return this.handleResponse<T>(response);
+  }
+
   async delete<T>(endpoint: string): Promise<T> {
     this.guardSSR(endpoint);
     const url = this.resolveUrl(endpoint);

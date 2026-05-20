@@ -2,6 +2,7 @@ import { Injectable, inject } from '@angular/core';
 import { ApiService } from '../api/api.service';
 import {
   PromptEntry,
+  PromptPatchRequest,
   SessionSummary,
   SessionDetail,
   ConversationSummary,
@@ -22,6 +23,10 @@ export class LogsService {
 
   async getPrompts(): Promise<PromptEntry[]> {
     return this.api.get<PromptEntry[]>('/logs/prompts');
+  }
+
+  async patchPrompt(promptId: string, updates: PromptPatchRequest): Promise<PromptEntry> {
+    return this.api.patch<PromptEntry>(`/logs/prompts/${encodeURIComponent(promptId)}`, updates);
   }
 
   async getConversations(): Promise<ConversationSummary[]> {

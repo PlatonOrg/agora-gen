@@ -67,6 +67,79 @@ async def get_all_prompts(session: AsyncSession) -> List[PromptEntry]:
     ]
 
 
+async def get_prompt(session: AsyncSession, prompt_name: str) -> PromptEntry:
+    """
+    Retrieve a single prompt by its name.
+    
+    Args:
+        session: Database session
+        prompt_name: Name of the prompt to retrieve
+        
+    Returns:
+        PromptEntry
+        
+    Raises:
+        ValueError: If prompt is not found
+    """
+    result = await session.execute(
+        select(Prompt).where(Prompt.name == prompt_name)
+    )
+    row = result.scalar_one_or_none()
+    
+    if row is None:
+        raise ValueError(f"Prompt with name '{prompt_name}' not found")
+    
+    logger.info(f"Prompt '{prompt_name}' loaded from database")
+    
+    return PromptEntry(
+        id=str(row.id),
+        name=row.name,
+        content=row.content,
+        created_at=_iso(row.created_at),
+        updated_at=_iso(row.updated_at),
+    )
+
+
+async def update_prompt(session: AsyncSession, prompt_id: str, content: Optional[str] = None) -> PromptEntry:
+    """
+    Update a prompt's content. The updated_at timestamp is automatically managed by the DB.
+    Supports partial updates: if content is None, it is not modified.
+    
+    Args:
+        session: Database session
+        prompt_id: UUID of the prompt to update
+        content: New content for the prompt (optional)
+        
+    Returns:
+        Updated PromptEntry
+        
+    Raises:
+        ValueError: If prompt is not found
+    """
+    result = await session.execute(
+        select(Prompt).where(Prompt.id == prompt_id)
+    )
+    prompt = result.scalar_one_or_none()
+    
+    if prompt is None:
+        raise ValueError(f"Prompt with id {prompt_id} not found")
+    
+    if content is not None:
+        prompt.content = content
+    
+    await session.flush()
+    await session.commit()
+    await session.refresh(prompt)
+    
+    return PromptEntry(
+        id=str(prompt.id),
+        name=prompt.name,
+        content=prompt.content,
+        created_at=_iso(prompt.created_at),
+        updated_at=_iso(prompt.updated_at),
+    )
+
+
 def _build_exo_detail(row) -> ExoGenerationDetail:
     req = row.request_row
     rag = row.rag_search

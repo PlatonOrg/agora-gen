@@ -8,6 +8,8 @@ from fastapi import APIRouter, Depends, HTTPException
 from src.core.sqlalchemy import get_db_session
 from src.services.logs_service import (
     get_all_prompts,
+    get_prompt,
+    update_prompt,
     get_session_summaries,
     get_session_detail,
     get_generation_stats,
@@ -18,6 +20,7 @@ from src.services.logs_service import (
 )
 from src.services.models.logs import (
     PromptEntry,
+    PromptUpdateRequest,
     SessionSummary,
     SessionDetail,
     GenerationStats,
@@ -36,6 +39,28 @@ async def list_prompts(session=Depends(get_db_session)) -> List[PromptEntry]:
         return await get_all_prompts(session)
     except Exception as exc:
         logger.exception("Failed to list prompts")
+        raise HTTPException(status_code=500, detail=str(exc)) from exc
+
+
+@router.get("/prompts/{prompt_name}", response_model=PromptEntry)
+async def get_prompt_by_name(prompt_name: str, session=Depends(get_db_session)) -> PromptEntry:
+    try:
+        return await get_prompt(session, prompt_name)
+    except ValueError as exc:
+        raise HTTPException(status_code=404, detail=str(exc)) from exc
+    except Exception as exc:
+        logger.exception("Failed to get prompt %s", prompt_name)
+        raise HTTPException(status_code=500, detail=str(exc)) from exc
+
+
+@router.patch("/prompts/{prompt_id}", response_model=PromptEntry)
+async def patch_prompt(prompt_id: str, request: PromptUpdateRequest, session=Depends(get_db_session)) -> PromptEntry:
+    try:
+        return await update_prompt(session, prompt_id, request.content)
+    except ValueError as exc:
+        raise HTTPException(status_code=404, detail=str(exc)) from exc
+    except Exception as exc:
+        logger.exception("Failed to update prompt %s", prompt_id)
         raise HTTPException(status_code=500, detail=str(exc)) from exc
 
 

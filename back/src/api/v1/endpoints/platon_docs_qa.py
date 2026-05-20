@@ -1,8 +1,9 @@
 import logging
 
-from fastapi import APIRouter, Request
+from fastapi import APIRouter, Request, Depends
 
 from src.core.config_app import settings
+from src.core.sqlalchemy import get_db_session
 from src.infra.db.redis import get_redis
 from src.services.models.api import (
     PlatonDocsQuestionRequest,
@@ -19,7 +20,7 @@ logger = logging.getLogger("uvicorn")
 
 
 @router.post("/platon-docs", response_model=PlatonDocsQuestionResponse)
-async def ask_platon_docs(request: PlatonDocsQuestionRequest, req: Request) -> PlatonDocsQuestionResponse:
+async def ask_platon_docs(request: PlatonDocsQuestionRequest, req: Request, db_session=Depends(get_db_session)) -> PlatonDocsQuestionResponse:
     init_error = get_platon_docs_init_error()
     if init_error:
         return PlatonDocsQuestionResponse(error=init_error)
@@ -43,6 +44,7 @@ async def ask_platon_docs(request: PlatonDocsQuestionRequest, req: Request) -> P
             session_id=session_id,
             conversation_id=request.conversation_id,
             username=username,
+            db_session=db_session,
         )
         return PlatonDocsQuestionResponse(answer=answer, sources=sources)
     except Exception as exc:

@@ -4,19 +4,21 @@ import json
 import logging
 from dataclasses import dataclass, field
 from typing import Any, Dict, List, Optional
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.core import path_constants
 from src.core.config_app import settings
 from src.infra.llm.json_facility import build_component_selection_schema
 from src.infra.llm.llm_wrapper import chat_with_llm
+from src.services.logs_service import get_prompt
 
 logger = logging.getLogger(__name__)
 
 
-def _load_system_prompt() -> str:
-    prompt_path = path_constants.PROMPTS_DIR / "component_selection.txt"
-    with open(prompt_path, "r", encoding="utf-8") as fh:
-        return fh.read()
+async def _load_system_prompt(db_session: AsyncSession) -> str:
+    prompt_entry = await get_prompt(db_session, "component_selection")
+    return prompt_entry.content
+
 
 
 @dataclass
@@ -154,6 +156,7 @@ def _build_selection_user_prompt(
 
 async def select_components_for_request(
     user_request: str,
+    db_session: AsyncSession,
     user_priority_tags: Optional[List[str]] = None,
     file_summaries: Optional[List[str]] = None,
     current_components: Optional[List[str]] = None,
@@ -183,7 +186,7 @@ async def select_components_for_request(
     schema = build_component_selection_schema(available_tags)
 
     llm_result = await chat_with_llm(
-        system_prompt=_load_system_prompt(),
+        system_prompt=await _load_system_prompt(db_session),
         user_request=user_prompt,
         temperature=0.0,
         raw_json_schema=schema,

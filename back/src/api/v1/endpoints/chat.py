@@ -11,6 +11,7 @@ from fastapi.responses import StreamingResponse
 
 from src.api.v1.dependencies import get_settings, get_session_id
 from src.core.config_app import Settings
+from src.core.sqlalchemy import get_db_session
 from src.infra.db.redis import get_redis
 from src.infra.llm.file_upload_logger import log_temp_file_deleted
 from src.services.auth_service import auth_service
@@ -300,6 +301,7 @@ async def chat_endpoint(
     session_id: Optional[str] = Depends(get_session_id),
     redis=Depends(get_redis),
     app_settings: Settings = Depends(get_settings),
+    db_session=Depends(get_db_session),
 ) -> StreamingResponse:
     from src.core.di import get_llm_registry
     from src.infra.llm.providers import RagustaveProvider
@@ -440,6 +442,7 @@ async def chat_endpoint(
 
             task = asyncio.create_task(handle_chat(
                 request,
+                db_session,
                 user_token,
                 progress_callback=progress_callback,
                 session_id=session_id,
