@@ -74,10 +74,10 @@ SETTINGS_REGISTRY: Dict[str, SettingDefinition] = {
         SettingDefinition(
             key=SettingKey.NUM_EXAMPLE_EXERCISES,
             value_type="int",
-            default="10",
+            default="3",
             description="Nombre d'exercices exemples utilises par le RAG lors de la generation.",
             min_value=0,
-            max_value=50,
+            max_value=10,
         ),
         SettingDefinition(
             key=SettingKey.RAG_LOG_TOP_K,
@@ -129,10 +129,10 @@ SETTINGS_REGISTRY: Dict[str, SettingDefinition] = {
         SettingDefinition(
             key=SettingKey.TEMPLATE_SCORE_THRESHOLD,
             value_type="float",
-            default="0.85",
-            description="Score minimum de similarite RAG pour selectionner un template (0.0-1.0).",
+            default="0.0",
+            description="Score RRF minimum pour selectionner un template (0.0 = toujours utiliser le meilleur template trouvé). Les scores RRF sont dans la plage 0.0–0.017 ; 0.0 désactive le filtre.",
             min_value=0.0,
-            max_value=1.0,
+            max_value=0.02,
         ),
     ]
 }

@@ -2,8 +2,10 @@ import asyncio
 import inspect
 import json
 import logging
+import os
 from dataclasses import dataclass
 from datetime import datetime, timezone
+from pathlib import Path
 from typing import Any, Dict, List, Optional
 
 logger = logging.getLogger(__name__)
@@ -15,8 +17,58 @@ from src.services.sandbox_correction_service import (
 )
 from src.infra.log.db_logger import log_exo_generation
 from src.infra.log.models import ExoGenerationLog
-from src.services.models.api import ChatRequest, ChatResponse, WorkflowResult
+from src.services.models.api import ChatRequest, ChatResponse, ExerciseVariant, WorkflowResult
 from src.services.models.rag import RetrievedChunk
+
+
+_UNIVERSAL_TEMPLATE_ID = "95668f95-997f-4ca8-8ba6-2ddb89eb1634" # CHANGER BIEN SÛR, ON LE METTRA DANS LA BDD ET DANS L'INTERFACE ADMIN
+
+
+def _apply_context_metadata(exercise_data, generation_context) -> None:
+    """Override exercise metadata with values from the landing form (generation_context).
+
+    User form inputs are authoritative — levels, domains, and pedagogical objectives
+    collected in Step 1 are more reliable than what the LLM guesses from the request.
+    Called after apply_generated_to_exercise so context values always win.
+    """
+    if not generation_context:
+        return
+    from src.services.models.api import ExerciseMetadata
+
+    existing = exercise_data.metadata or ExerciseMetadata()
+    levels = generation_context.niveaux or existing.levels
+    topics = generation_context.domaines or existing.topics
+
+    readme = existing.readme
+    if not readme:
+        lines = []
+        if generation_context.objectifs_pedagogiques:
+            lines.append(f"## Objectifs pédagogiques\n\n{generation_context.objectifs_pedagogiques}")
+        if generation_context.public_vise:
+            lines.append(f"## Public visé\n\n{generation_context.public_vise}")
+        if generation_context.prerequis:
+            lines.append(f"## Prérequis\n\n{generation_context.prerequis}")
+        if generation_context.difficulte:
+            lines.append(f"## Difficulté\n\n{generation_context.difficulte.capitalize()}")
+        readme = "\n\n".join(lines) or None
+
+    exercise_data.metadata = ExerciseMetadata(levels=levels, topics=topics, readme=readme)
+
+_STEP_LOG_DIR = Path("/tmp/agora_steps")
+
+
+def _write_step_log(component: str, step: str, lines: List[str]) -> None:
+    """Write a plain-text debug log for one generation step."""
+    try:
+        _STEP_LOG_DIR.mkdir(parents=True, exist_ok=True)
+        ts = datetime.now(timezone.utc).strftime("%Y%m%d_%H%M%S_%f")
+        safe_comp = component.replace("/", "_").replace(" ", "_")
+        path = _STEP_LOG_DIR / f"{step}__{safe_comp}__{ts}.log"
+        with open(path, "w", encoding="utf-8") as fh:
+            fh.write("\n".join(lines))
+        logger.info("[STEP LOG] %s", path)
+    except Exception as exc:
+        logger.warning("[STEP LOG] write failed: %s", exc)
 
 
 @dataclass(frozen=True)
@@ -130,7 +182,10 @@ def _workflow_result_to_response(result: WorkflowResult, fallback_exercise_data,
     )
 
 
-def _find_best_template(retrieved: List[RetrievedChunk]) -> Optional[RetrievedChunk]:
+def _find_best_template(
+    retrieved: List[RetrievedChunk],
+    selected_components: Optional[List[str]] = None,
+) -> Optional[RetrievedChunk]:
     from src.services.rag.embedding_types import EmbeddingKind
     templates = [
         chunk for chunk in retrieved
@@ -138,11 +193,37 @@ def _find_best_template(retrieved: List[RetrievedChunk]) -> Optional[RetrievedCh
     ]
     if not templates:
         return None
-    best = templates[0]
-    logger.info(f"Found {len(templates)} template(s) among retrieved resources. Best score: {best.score}, metadata: {best.metadata}")
+
+    if selected_components:
+        # Keep only templates whose embedded text declares the selected components.
+        # build_exercise_text() writes "Les composants utilisés dans l'exercice: wc-radio-group, …"
+        # so a simple substring check is reliable.
+        matching = [t for t in templates if any(comp in t.content for comp in selected_components)]
+        if not matching:
+            logger.info(
+                "No template found using selected component(s) %s — falling through to pure generation.",
+                selected_components,
+            )
+            return None
+        best = matching[0]
+        logger.info(
+            "Found %d template(s) matching component(s) %s. Best: name=%s score=%s",
+            len(matching), selected_components, best.metadata.get("name"), best.score,
+        )
+    else:
+        best = templates[0]
+        logger.info(
+            "Found %d template(s) among retrieved resources. Best score: %s, metadata: %s",
+            len(templates), best.score, best.metadata,
+        )
+
     if (best.score is not None) and (best.score >= _get_config().template_score_threshold):
-        logger.info("returning best template with score %.2f and metadata %s", best.score, best.metadata)
+        logger.info("Using template score=%.4f name=%s", best.score, best.metadata.get("name"))
         return best
+    logger.info(
+        "Best template score %.4f below threshold %.4f — falling through to pure generation.",
+        best.score or 0.0, _get_config().template_score_threshold,
+    )
     return None
 
 
@@ -188,12 +269,15 @@ async def _generate_pure_exercise(
     platon,
     user_token: str,
     progress_callback: ProgressCallback,
-    retrieved: list,
+    examples_retrieved: list,
     session_id: str = None,
     is_modification: bool = False,
     conversation_id: str = None,
     username: str = None,
     cancellation_event: asyncio.Event = None,
+    generation_context=None,
+    pre_selection_result=None,
+    pre_llm_calls=None,
 ) -> ChatResponse:
     from src.services.generation_service import GenerationService
     from src.services.rag.retrieval_service import get_embed_model
@@ -205,7 +289,7 @@ async def _generate_pure_exercise(
             raise asyncio.CancelledError("Generation cancelled by user.")
 
     request_received_at = datetime.now(timezone.utc)
-    query = chat_request.user_request + " " + " ".join(exercise_data.components or [])
+    rag_query = _build_examples_query(chat_request.user_request, exercise_data.components or [])
 
     llm_calls: List[Dict[str, Any]] = []
 
@@ -216,14 +300,16 @@ async def _generate_pure_exercise(
     try:
         return await _generate_pure_exercise_inner(
             exercise_data, chat_request, platon, user_token, progress_callback,
-            retrieved, session_id, is_modification, conversation_id, username,
-            cancellation_event, request_received_at, query, llm_calls,
+            examples_retrieved, session_id, is_modification, conversation_id, username,
+            cancellation_event, request_received_at, rag_query, llm_calls,
+            generation_context=generation_context,
+            pre_selection_result=pre_selection_result,
+            pre_llm_calls=pre_llm_calls,
         )
     except asyncio.CancelledError:
         raise  # Let cancellation propagate without logging
     except Exception as exc:
         logger.error("Internal error during pure exercise generation: %s", exc, exc_info=True)
-        # Log the failed generation for audit/statistics purposes
         try:
             embed_model = get_embed_model()
             embed_model_name = getattr(embed_model, "model_name", str(embed_model))
@@ -238,10 +324,10 @@ async def _generate_pure_exercise(
             file_summaries=list(chat_request.file_infos or []),
             conversation_history=list(chat_request.conversation_history or []),
             current_exercise_state=exercise_data.model_dump(),
-            retrieved_chunks=retrieved,
+            retrieved_chunks=examples_retrieved,
             embedding_model=embed_model_name,
             vector_table=_get_config().rag_table_name,
-            rag_query=query,
+            rag_query=rag_query,
             examples_used=[],
             system_prompt_name="pure_exercise_modification" if is_modification else "pure_exercise",
             llm_raw_output=None,
@@ -270,7 +356,7 @@ async def _generate_pure_exercise_inner(
     platon,
     user_token: str,
     progress_callback: ProgressCallback,
-    retrieved: list,
+    examples_retrieved: list,
     session_id: str,
     is_modification: bool,
     conversation_id: str,
@@ -279,6 +365,9 @@ async def _generate_pure_exercise_inner(
     request_received_at: datetime,
     query: str,
     llm_calls: List[Dict[str, Any]],
+    generation_context=None,
+    pre_selection_result=None,
+    pre_llm_calls=None,
 ) -> ChatResponse:
     from src.services.generation_service import GenerationService
     from src.services.rag.retrieval_service import get_embed_model
@@ -288,6 +377,9 @@ async def _generate_pure_exercise_inner(
     def _check_cancelled() -> None:
         if cancellation_event is not None and cancellation_event.is_set():
             raise asyncio.CancelledError("Generation cancelled by user.")
+
+    if pre_llm_calls:
+        llm_calls.extend(pre_llm_calls)
 
     selection_result = None
     component_selection_log = None
@@ -299,18 +391,22 @@ async def _generate_pure_exercise_inner(
     if not has_components:
         await _emit_progress(progress_callback, "component_selection_started", {"value": "Selecting best components for this exercise..."})
         try:
-            file_summaries = [
-                fi["summary"]
-                for fi in (chat_request.file_infos or [])
-                if isinstance(fi.get("summary"), str) and fi["summary"].strip()
-            ]
-            selection_result = await select_components_for_request(
-                user_request=chat_request.user_request,
-                user_priority_tags=[],
-                file_summaries=file_summaries or None,
-                current_components=None,
-                llm_calls_accumulator=llm_calls,
-            )
+            if pre_selection_result is not None:
+                selection_result = pre_selection_result
+            else:
+                file_summaries = [
+                    fi["summary"]
+                    for fi in (chat_request.file_infos or [])
+                    if isinstance(fi.get("summary"), str) and fi["summary"].strip()
+                ]
+                comp_request = _build_comp_request(chat_request.user_request, generation_context)
+                selection_result = await select_components_for_request(
+                    user_request=comp_request,
+                    user_priority_tags=[],
+                    file_summaries=file_summaries or None,
+                    current_components=None,
+                    llm_calls_accumulator=llm_calls,
+                )
             all_tags = selection_result.all_tags
             if all_tags:
                 exercise_data.components = all_tags
@@ -343,6 +439,15 @@ async def _generate_pure_exercise_inner(
             exercise_data.components,
             chat_request.user_selected_components,
         )
+        selection_result = None
+        component_selection_log = None
+
+    # When components are pre-selected (no LLM selection ran), use them directly
+    # as mandatory tags so the component block is built with their documentation.
+    explicit_mandatory_tags: List[str] = (
+        selection_result.user_priority_tags if selection_result else
+        chat_request.user_selected_components or exercise_data.components or []
+    )
 
     _check_cancelled()
 
@@ -350,7 +455,7 @@ async def _generate_pure_exercise_inner(
     examples = []
     if not is_modification:
         await _emit_progress(progress_callback, "examples_started", {"value": "Collecting example resources..."})
-        examples = await _collect_examples(retrieved[:_get_config().num_example_exercises], platon, user_token)
+        examples = await _collect_examples(examples_retrieved, platon, user_token)
         await _emit_progress(progress_callback, "examples_completed", {"value": f"Prepared {len(examples)} examples."})
 
     _check_cancelled()
@@ -378,7 +483,7 @@ async def _generate_pure_exercise_inner(
         fields_to_modify=chat_request.fields_to_modify or [],
         file_ids=chat_request.file_ids or [],
         file_contents=chat_request.file_contents or [],
-        mandatory_tags=selection_result.user_priority_tags if selection_result else [],
+        mandatory_tags=explicit_mandatory_tags,
         indicative_tags=selection_result.llm_only_tags if selection_result else [],
         llm_reasoning=selection_result.reasoning if selection_result else "",
         is_modification=is_modification,
@@ -395,6 +500,7 @@ async def _generate_pure_exercise_inner(
     logger.info("Generated exercise: %s", gen_result.generated_exercise)
     await _emit_progress(progress_callback, "exercise_mapping_started", {"value": "Mapping generated fields into exercise data..."})
     apply_generated_to_exercise(exercise_data, gen_result.generated_exercise)
+    _apply_context_metadata(exercise_data, generation_context)
     await _emit_progress(progress_callback, "exercise_mapping_completed", {"value": "Exercise fields mapped."})
 
     _check_cancelled()
@@ -423,7 +529,7 @@ async def _generate_pure_exercise_inner(
             file_summaries=list(chat_request.file_infos or []),
             conversation_history=list(chat_request.conversation_history or []),
             current_exercise_state=exercise_data.model_dump(),
-            retrieved_chunks=retrieved,
+            retrieved_chunks=examples_retrieved,
             embedding_model=embed_model_name,
             vector_table=_get_config().rag_table_name,
             rag_query=query,
@@ -469,7 +575,7 @@ async def _generate_pure_exercise_inner(
         file_summaries=list(chat_request.file_infos or []),
         conversation_history=list(chat_request.conversation_history or []),
         current_exercise_state=exercise_data.model_dump(),
-        retrieved_chunks=retrieved,
+        retrieved_chunks=examples_retrieved,
         embedding_model=embed_model_name,
         vector_table=_get_config().rag_table_name,
         rag_query=query,
@@ -526,6 +632,411 @@ def _exercise_is_empty(exercise_data) -> bool:
     return not has_content
 
 
+def _build_enriched_query(
+    user_request: str,
+    components: List[str],
+    generation_context,
+) -> str:
+    """Build a semantically rich RAG query for template selection.
+
+    Combines the free-text request with all structured context fields so the
+    embedding is close to real exercise/template documents (which contain
+    topics, levels, component names, and pedagogical descriptions).
+    """
+    parts = [user_request]
+    if generation_context:
+        if generation_context.concept and generation_context.concept.strip():
+            parts.append(generation_context.concept)
+        parts.extend(generation_context.niveaux or [])
+        parts.extend(generation_context.domaines or [])
+        if generation_context.difficulte:
+            parts.append(generation_context.difficulte)
+        if generation_context.objectifs_pedagogiques:
+            parts.append(generation_context.objectifs_pedagogiques)
+        if generation_context.selected_component:
+            parts.extend(generation_context.selected_component)
+    parts.extend(components or [])
+    return " ".join(p for p in parts if p and p.strip())
+
+
+def _build_examples_query(user_request: str, components: List[str]) -> str:
+    """Build a simpler query for example retrieval (concept + components)."""
+    parts = [user_request] + list(components or [])
+    return " ".join(p for p in parts if p and p.strip())
+
+
+async def _generate_hyde_query(
+    enriched_query: str,
+    generation_context,
+    components: List[str],
+) -> str:
+    """HyDE — Hypothetical Document Embedding for template retrieval.
+
+    Generates a short hypothetical template description that mimics the format
+    of real template texts in the vector store.  Its embedding is naturally
+    closer to real template vectors than the raw user query, improving recall.
+    Falls back to enriched_query silently on any failure.
+    """
+    from src.infra.llm.llm_wrapper import chat_text_with_llm
+
+    ctx_lines: List[str] = []
+    if generation_context:
+        if generation_context.niveaux:
+            ctx_lines.append(f"Niveaux : {', '.join(generation_context.niveaux)}")
+        if generation_context.domaines:
+            ctx_lines.append(f"Domaines : {', '.join(generation_context.domaines)}")
+        if generation_context.difficulte:
+            ctx_lines.append(f"Difficulté : {generation_context.difficulte}")
+    if components:
+        ctx_lines.append(f"Composants souhaités : {', '.join(components)}")
+    ctx_str = "\n".join(ctx_lines)
+
+    system_prompt = ( ## À VOIR SI ON PEUT CHANGER...
+        "Tu génères la description d'un template d'exercice PLaTon correspondant à une demande pédagogique.\n"
+        "Un template PLaTon est un exercice paramétrable : il a un nom, un concept pédagogique, "
+        "des niveaux ciblés, des domaines, une description et des paramètres configurables "
+        "(ex : question, réponse, difficulté).\n"
+        "Réponds uniquement avec le texte de description structurée, sans introduction ni commentaire."
+    )
+    user_msg = (
+        f"Demande : {enriched_query}"
+        + (f"\n\nContexte :\n{ctx_str}" if ctx_str else "")
+        + "\n\nGénère la description du template PLaTon correspondant."
+    )
+
+    try:
+        result = await chat_text_with_llm(system_prompt, user_msg, temperature=0.0)
+        if result.text and len(result.text.strip()) > 20:
+            logger.debug("HyDE query generated (%d chars)", len(result.text))
+            return result.text.strip()
+    except Exception as exc:
+        logger.warning("HyDE query generation failed — falling back to enriched_query: %s", exc)
+
+    return enriched_query
+
+
+def _build_universal_template_request(user_request: str, selected_components: List[str]) -> str:
+    """Augment user_request with per-component v3 structural specs for the universal template.
+
+    The universal template needs to know which component to generate for and how it
+    should be structured.  We inject the system_prompt (role) and the JSON structure
+    spec (extracted from phase3_fabrication) so the LLM fills the template variables
+    with the right content for the selected component type.
+    """
+    from src.services.generation_service import _get_v3_component_specs, GenerationService
+
+    specs = _get_v3_component_specs()
+    spec_blocks: List[str] = []
+    for comp in selected_components:
+        tag = _name_to_tag(comp)
+        v3 = specs.get(tag)
+        if not v3:
+            logger.warning("No v3 spec found for component '%s' (tag='%s') — skipping spec injection.", comp, tag)
+            continue
+        role = v3.get("system_prompt", "").strip()
+        structure = GenerationService._extract_v3_structure_spec(v3.get("user_prompt", ""))
+        block = f"Composant cible : {tag}"
+        if role:
+            block += f"\nRôle : {role}"
+        if structure:
+            block += f"\n{structure}"
+        spec_blocks.append(block)
+
+    if not spec_blocks:
+        return user_request
+    return user_request + "\n\n---\nSpécification du composant à générer :\n\n" + "\n\n".join(spec_blocks)
+
+
+def _build_universal_ctx(user_request: str, selected_components: List[str], generation_context) -> str:
+    """Build the extra_system_context for the universal template call.
+
+    Puts pedagogical requirements from generation_context as explicit mandatory
+    constraints so the LLM honours them even when component specs dominate the prompt.
+    """
+    tags = [_name_to_tag(c) for c in selected_components]
+    first_tag = tags[0] if tags else "wc-component"
+    lines = [
+        "CONTRAINTES OBLIGATOIRES POUR LA GÉNÉRATION :",
+        "",
+        f"Composant(s) cible : {', '.join(tags)}",
+        "",
+        "IMPORTANT — Format de la variable JSONExercice :",
+        "Tu dois générer un objet JSON respectant la spécification du composant ci-dessous,",
+        "puis placer cet objet JSON SÉRIALISÉ EN STRING dans le champ `JSONExercice`.",
+        f"Exemple de format attendu : \"JSONExercice\": \"{{\\\"type\\\": \\\"{first_tag}\\\", ...}}\"",
+        "Ne laisse PAS `JSONExercice` vide.",
+        "",
+        "Génère un contenu 100 % original basé sur la demande ci-dessous — pas d'exemple Python.",
+    ]
+
+    if generation_context:
+        if generation_context.niveaux:
+            lines.append(f"Niveau(x) : {', '.join(generation_context.niveaux)}")
+        if generation_context.domaines:
+            lines.append(f"Domaine(s) : {', '.join(generation_context.domaines)}")
+        if generation_context.difficulte:
+            lines.append(f"Difficulté : {generation_context.difficulte}")
+        if generation_context.objectifs_pedagogiques:
+            lines.append(f"Objectifs pédagogiques : {generation_context.objectifs_pedagogiques}")
+        if generation_context.public_vise:
+            lines.append(f"Public visé : {generation_context.public_vise}")
+        if generation_context.prerequis:
+            lines.append(f"Prérequis : {generation_context.prerequis}")
+
+    lines += [
+        "",
+        "Le contenu de l'exercice (questions, réponses, thème) DOIT refléter fidèlement",
+        "la demande de l'utilisateur ci-dessous — pas un sujet générique :",
+        f'  « {user_request[:400]} »',
+    ]
+
+    return "\n".join(lines)
+
+
+def _build_comp_request(user_request: str, generation_context) -> str:
+    """Build the enriched request string for component selection."""
+    parts = [user_request]
+    if generation_context:
+        if generation_context.concept and generation_context.concept.strip():
+            parts.append(generation_context.concept)
+        if generation_context.selected_component:
+            parts.append(
+                f"Composants souhaités par l'enseignant: {', '.join(generation_context.selected_component)}"
+            )
+        parts.extend(generation_context.niveaux or [])
+        parts.extend(generation_context.domaines or [])
+        if generation_context.objectifs_pedagogiques:
+            parts.append(generation_context.objectifs_pedagogiques)
+    return "\n".join(p for p in parts if p and p.strip())
+
+
+def _tag_to_name(tag: str) -> str:
+    """Return a human-readable component name from its tag, falling back to the tag itself."""
+    from src.core import path_constants
+    import json as _json
+    try:
+        with open(path_constants.COMPONENT_METADATA_PATH, "r", encoding="utf-8") as f:
+            metadata = _json.load(f)
+        entry = next((c for c in metadata if c.get("tag") == tag), None)
+        return entry["name"] if entry else tag
+    except Exception:
+        return tag
+
+
+def _name_to_tag(name: str) -> str:
+    """Return the component tag (e.g. 'wc-checkbox-group') from a name ('CheckboxGroup').
+
+    Falls back to the input unchanged so callers that already hold a tag still work.
+    """
+    from src.core import path_constants
+    import json as _json
+    try:
+        with open(path_constants.COMPONENT_METADATA_PATH, "r", encoding="utf-8") as f:
+            metadata = _json.load(f)
+        entry = next(
+            (c for c in metadata if c.get("name") == name or c.get("tag") == name),
+            None,
+        )
+        return entry["tag"] if entry else name
+    except Exception:
+        return name
+
+
+async def _generate_one_variant(
+    component_tag: str,
+    base_exercise_data,
+    chat_request: ChatRequest,
+    user_token: str,
+    generation_context,
+    templates_retrieved: Optional[List[RetrievedChunk]] = None,
+    cancellation_event: asyncio.Event = None,
+    session_id: str = None,
+    conversation_id: str = None,
+    username: str = None,
+) -> ExerciseVariant:
+    """Generate one exercise variant for a single component.
+
+    Process (mirrors the single-component path in handle_chat):
+    1. Find the best specific template for this component in templates_retrieved.
+    2. If found: load it and generate with it.
+    3. If not: try the universal template.
+    4. If that also fails: fall through to pure exercise generation.
+    """
+    from src.services.models.api import ExerciseData
+    from src.services.platon_service import platon_service as platon
+
+    exercise_copy = ExerciseData(**base_exercise_data.model_dump())
+    component_name = _tag_to_name(component_tag)
+
+    def _err(msg: str) -> ExerciseVariant:
+        return ExerciseVariant(component_tag=component_tag, component_name=component_name,
+                               exercise_data=exercise_copy, url="", error=msg)
+
+    # Step 1 — look for a component-specific template in the already-retrieved results.
+    best_template = _find_best_template(templates_retrieved or [], selected_components=[component_tag])
+
+    _write_step_log(component_tag, "1_rag", [
+        f"=== RAG TEMPLATE SEARCH ===",
+        f"Component : {component_tag}",
+        f"User request : {chat_request.user_request}",
+        f"",
+        f"Total templates retrieved (shared pool): {len(templates_retrieved or [])}",
+        f"",
+        f"--- ALL RETRIEVED TEMPLATES ---",
+        *[
+            f"  [{i+1}] score={c.score:.3f}  id={c.metadata.get('platon_id') or c.metadata.get('resource_id')}  "
+            f"kind={c.metadata.get('kind')}  content={c.content[:120]!r}"
+            for i, c in enumerate(templates_retrieved or [])
+        ],
+        f"",
+        f"--- BEST MATCH FOR COMPONENT '{component_tag}' ---",
+        (
+            f"  resource_id={best_template.metadata.get('resource_id') or best_template.metadata.get('platon_id')}  "
+            f"score={best_template.score:.3f}  content={best_template.content[:200]!r}"
+            if best_template else "  No matching template found."
+        ),
+    ])
+
+    if best_template is not None:
+        resource_id = best_template.metadata.get("resource_id") or best_template.metadata.get("platon_id")
+        if resource_id:
+            load_err = await _load_template_into_exercise(exercise_copy, resource_id, platon, user_token)
+            if not load_err:
+                try:
+                    result = await generate_and_process_template(
+                        exercise_copy, chat_request.user_request,
+                        chat_request.conversation_history, chat_request.fields_to_modify or [],
+                        user_token, progress_callback=None,
+                        session_id=session_id, is_modification=False,
+                        cancellation_event=cancellation_event,
+                        conversation_id=conversation_id, username=username,
+                    )
+                    if not result.error:
+                        return ExerciseVariant(component_tag=component_tag, component_name=component_name,
+                                              exercise_data=result.exercise_data, url=result.url or "",
+                                              error=None)
+                    logger.warning("Variant %s: specific template returned sandbox error (%s) — trying universal.", component_tag, result.error)
+                except Exception as exc:
+                    logger.warning("Variant %s: specific template generation failed (%s) — trying universal.", component_tag, exc)
+                exercise_copy = ExerciseData(**base_exercise_data.model_dump())
+
+    # Step 2 — fall back to the universal template.
+    enriched_request = _build_universal_template_request(chat_request.user_request, [component_tag])
+    universal_ctx = _build_universal_ctx(chat_request.user_request, [component_tag], generation_context)
+    universal_err = await _load_template_into_exercise(exercise_copy, _UNIVERSAL_TEMPLATE_ID, platon, user_token)
+
+    _univ_result_lines: List[str] = []
+    _univ_result: Optional[Any] = None
+    if not universal_err:
+        try:
+            _univ_result = await generate_and_process_template(
+                exercise_copy, enriched_request,
+                chat_request.conversation_history, chat_request.fields_to_modify or [],
+                user_token, progress_callback=None,
+                session_id=session_id, is_modification=False,
+                cancellation_event=cancellation_event,
+                conversation_id=conversation_id, username=username,
+                extra_system_context=universal_ctx, skip_default_values=True,
+            )
+            if _univ_result.error:
+                _univ_result_lines = [f"RESULT : FAILED", f"ERROR  : {_univ_result.error}"]
+                logger.warning("Variant %s: universal template returned sandbox error (%s) — trying pure.", component_tag, _univ_result.error)
+            else:
+                _write_step_log(component_tag, "2_universal_template", [
+                    f"=== UNIVERSAL TEMPLATE GENERATION ===",
+                    f"Component      : {component_tag}",
+                    f"Template ID    : {_UNIVERSAL_TEMPLATE_ID}",
+                    f"Load error     : None",
+                    f"",
+                    f"--- ENRICHED REQUEST ---",
+                    enriched_request,
+                    f"",
+                    f"--- RESULT ---",
+                    f"RESULT : SUCCESS",
+                    f"URL    : {_univ_result.url}",
+                ])
+                return ExerciseVariant(component_tag=component_tag, component_name=component_name,
+                                       exercise_data=_univ_result.exercise_data, url=_univ_result.url or "",
+                                       error=None)
+        except Exception as exc:
+            _univ_result_lines = [f"RESULT : EXCEPTION", f"ERROR  : {exc}"]
+            logger.warning("Variant %s: universal template generation failed (%s) — trying pure.", component_tag, exc)
+    else:
+        _univ_result_lines = [f"RESULT : LOAD FAILED", f"LOAD ERROR : {universal_err}"]
+
+    _write_step_log(component_tag, "2_universal_template", [
+        f"=== UNIVERSAL TEMPLATE GENERATION ===",
+        f"Component      : {component_tag}",
+        f"Template ID    : {_UNIVERSAL_TEMPLATE_ID}",
+        f"Load error     : {universal_err or 'None'}",
+        f"",
+        f"--- ENRICHED REQUEST ---",
+        enriched_request,
+        f"",
+        f"--- UNIVERSAL CONTEXT (first 800 chars) ---",
+        (universal_ctx or "")[:800],
+        f"",
+        f"--- RESULT ---",
+        *_univ_result_lines,
+    ])
+    exercise_copy = ExerciseData(**base_exercise_data.model_dump())
+
+    # Step 3 — last resort: pure exercise generation (no template).
+    try:
+        exercise_copy.components = [component_tag]
+        pure_request = ChatRequest(
+            exercise_state=exercise_copy,
+            user_request=chat_request.user_request,
+            user_selected_components=[component_tag],
+            conversation_history=chat_request.conversation_history,
+            fields_to_modify=chat_request.fields_to_modify or [],
+            file_ids=chat_request.file_ids or [],
+            conversation_mode=chat_request.conversation_mode,
+            force_pure_exercise=True,
+            conversation_id=chat_request.conversation_id,
+            generation_context=chat_request.generation_context,
+        )
+        pure_resp = await _generate_pure_exercise(
+            exercise_copy, pure_request, platon, user_token, progress_callback=None,
+            examples_retrieved=[], session_id=session_id, is_modification=False,
+            conversation_id=conversation_id, username=username,
+            cancellation_event=cancellation_event, generation_context=generation_context,
+        )
+        ex_dump = {}
+        try:
+            ex_dump = (pure_resp.exercise_data or exercise_copy).model_dump()
+        except Exception:
+            pass
+        _write_step_log(component_tag, "3_pure_generation", [
+            f"=== PURE EXERCISE GENERATION ===",
+            f"Component      : {component_tag}",
+            f"User request   : {chat_request.user_request}",
+            f"Exercise components passed : {exercise_copy.components}",
+            f"",
+            f"--- RESULT ---",
+            f"STATUS : {'SUCCESS' if not pure_resp.error else 'FAILED'}",
+            f"URL    : {pure_resp.url or '(none)'}",
+            f"ERROR  : {pure_resp.error or 'None'}",
+            f"",
+            f"--- GENERATED EXERCISE DATA ---",
+            json.dumps(ex_dump, ensure_ascii=False, indent=2, default=str),
+        ])
+        return ExerciseVariant(component_tag=component_tag, component_name=component_name,
+                               exercise_data=pure_resp.exercise_data or exercise_copy,
+                               url=pure_resp.url or "", error=pure_resp.error)
+    except Exception as exc:
+        _write_step_log(component_tag, "3_pure_generation", [
+            f"=== PURE EXERCISE GENERATION ===",
+            f"Component      : {component_tag}",
+            f"",
+            f"--- RESULT ---",
+            f"STATUS : EXCEPTION",
+            f"ERROR  : {exc}",
+        ])
+        logger.exception("Variant generation failed for component %s", component_tag)
+        return _err(str(exc))
+
+
 async def handle_chat(
     chat_request: ChatRequest,
     user_token: str = None,
@@ -578,7 +1089,7 @@ async def handle_chat(
 
         return await _generate_pure_exercise(
             exercise_data, chat_request, platon, user_token, progress_callback,
-            retrieved=[],
+            examples_retrieved=[],
             session_id=session_id,
             is_modification=True,
             conversation_id=conversation_id,
@@ -586,41 +1097,152 @@ async def handle_chat(
             cancellation_event=cancellation_event,
         )
 
-    query = chat_request.user_request + " " + " ".join(exercise_data.components or [])
-    await _emit_progress(progress_callback, "retrieval_started", {"value": "Searching similar resources..."})
+    ctx = chat_request.generation_context
+    enriched_query = _build_enriched_query(
+        chat_request.user_request, exercise_data.components or [], ctx
+    )
+    examples_query = _build_examples_query(chat_request.user_request, exercise_data.components or [])
 
+    ctx_components = ctx.selected_component if ctx else []
+    has_components = (
+        bool(exercise_data.components)
+        or bool(chat_request.user_selected_components)
+        or bool(ctx_components)
+    )
+    # Pre-populate exercise components from the landing form if not yet set.
+    if ctx_components and not exercise_data.components:
+        exercise_data.components = list(ctx_components)
+    comp_request = _build_comp_request(chat_request.user_request, ctx)
+    file_summaries_for_comp = [
+        fi["summary"]
+        for fi in (chat_request.file_infos or [])
+        if isinstance(fi.get("summary"), str) and fi["summary"].strip()
+    ]
+    pre_llm_calls: List[Dict[str, Any]] = []
+
+    async def _run_comp_selection():
+        if has_components:
+            return None
+        from src.services.component_selection_service import select_components_for_request as _sel
+        return await _sel(
+            user_request=comp_request,
+            user_priority_tags=[],
+            file_summaries=file_summaries_for_comp or None,
+            current_components=None,
+            llm_calls_accumulator=pre_llm_calls,
+        )
+
+    await _emit_progress(progress_callback, "retrieval_started", {"value": "Searching similar resources..."})
     _check_cancelled()
 
-    retrieve_k = max(_get_config().rag_log_top_k, _get_config().num_example_exercises)
-    retrieved = retrieval_service.retrieve_resources(query=query, top_k=retrieve_k)
+    cfg = _get_config()
 
-    if not retrieved:
+    async def _retrieve_templates_with_hyde() -> list:
+        # HyDE: generate a hypothetical template description, then search with it.
+        # Runs in the same gather arm as examples + comp selection — no added latency.
+        hyde_q = await _generate_hyde_query(
+            enriched_query, ctx, exercise_data.components or []
+        )
+        return await asyncio.to_thread(
+            retrieval_service.retrieve_templates,
+            query=hyde_q,
+            top_k=cfg.rag_log_top_k,
+        )
+
+    # Template retrieval (with HyDE), example retrieval, and component selection run in parallel.
+    # HyDE + template search is one async arm — its LLM call (~1s) is hidden behind comp_selection (~3s).
+    templates_retrieved, examples_retrieved, pre_selection_result = await asyncio.gather(
+        _retrieve_templates_with_hyde(),
+        asyncio.to_thread(
+            retrieval_service.retrieve_examples,
+            query=examples_query,
+            top_k=cfg.num_example_exercises,
+        ),
+        _run_comp_selection(),
+    )
+
+    if not templates_retrieved and not examples_retrieved:
         return ChatResponse(error="No similar resources found for generation.", exercise_data=exercise_data)
 
-    top_resources = _extract_top_resources(retrieved, limit=3)
+    top_resources = _extract_top_resources(templates_retrieved or examples_retrieved, limit=3)
     top_resources = await _resolve_top_resource_names(top_resources, platon, user_token)
     await _emit_progress(
         progress_callback,
         "retrieval_completed",
-        {"value": f"Retrieved {len(retrieved)} resources.", "top_resources": top_resources},
+        {
+            "value": f"Retrieved {len(templates_retrieved)} template(s), {len(examples_retrieved)} example(s).",
+            "top_resources": top_resources,
+        },
     )
 
     _check_cancelled()
 
     if chat_request.force_pure_exercise:
-        logger.info("force_pure_exercise=True — skipping template selection, proceeding with pure exercise generation")
+        logger.info("force_pure_exercise=True — skipping template selection")
         await _emit_progress(progress_callback, "generation_mode", {"mode": "exercise_sans_template", "mode_label": "exercise sans template"})
         return await _generate_pure_exercise(
             exercise_data, chat_request, platon, user_token, progress_callback,
-            retrieved=retrieved,
+            examples_retrieved=examples_retrieved,
             session_id=session_id,
             is_modification=False,
             conversation_id=conversation_id,
             username=username,
             cancellation_event=cancellation_event,
+            generation_context=ctx,
+            pre_selection_result=pre_selection_result,
+            pre_llm_calls=pre_llm_calls,
         )
 
-    best_template = _find_best_template(retrieved)
+    effective_components = (
+        pre_selection_result.all_tags
+        if pre_selection_result and pre_selection_result.all_tags
+        else (exercise_data.components or [])
+    ) or None
+
+    # Multiple components → always generate one variant per component in parallel,
+    # regardless of whether a specific template was found. Each variant uses the
+    # universal template independently so components don't interfere with each other.
+    if effective_components and len(effective_components) > 1:
+        _check_cancelled()
+        await _emit_progress(progress_callback, "generation_mode", {"mode": "exercise_avec_template", "mode_label": "exercise avec template universel"})
+        await _emit_progress(
+            progress_callback,
+            "template_loading_started",
+            {"value": f"Generating {len(effective_components)} exercise variants in parallel…"},
+        )
+        await _emit_progress(
+            progress_callback,
+            "template_loading_completed",
+            {"value": f"Generating {len(effective_components)} exercise variants in parallel…"},
+        )
+        _check_cancelled()
+        tasks = [
+            _generate_one_variant(
+                tag, exercise_data, chat_request, user_token, ctx,
+                templates_retrieved=templates_retrieved,
+                cancellation_event=cancellation_event,
+                session_id=session_id,
+                conversation_id=conversation_id,
+                username=username,
+            )
+            for tag in effective_components
+        ]
+        variants: List[ExerciseVariant] = list(await asyncio.gather(*tasks))
+        successful = [v for v in variants if not v.error]
+        logger.info("Parallel variant generation: %d/%d succeeded", len(successful), len(variants))
+        await _emit_progress(progress_callback, "variants_generated", {"count": len(successful), "total": len(variants)})
+        if not successful:
+            return ChatResponse(error="All parallel variant generations failed.", exercise_data=exercise_data)
+        return ChatResponse(
+            variants=variants,
+            exercise_data=successful[0].exercise_data,
+            url=successful[0].url,
+            message=f"{len(successful)} variante(s) générée(s) avec succès.",
+            conversation_mode="template",
+        )
+
+    # Single component — try best specific template first, then universal, then pure.
+    best_template = _find_best_template(templates_retrieved, selected_components=effective_components)
     if best_template is not None:
         resource_id = best_template.metadata.get("resource_id") or best_template.metadata.get("platon_id")
         if not resource_id:
@@ -650,15 +1272,61 @@ async def handle_chat(
         )
         return _workflow_result_to_response(result, exercise_data, conversation_mode="template")
 
+    # No specific template — try universal template for single component.
+    if effective_components:
+        _check_cancelled()
+        await _emit_progress(progress_callback, "generation_mode", {"mode": "exercise_avec_template", "mode_label": "exercise avec template universel"})
+        await _emit_progress(progress_callback, "template_loading_started", {"value": f"Loading universal template {_UNIVERSAL_TEMPLATE_ID}..."})
+        universal_error = await _load_template_into_exercise(
+            exercise_data, _UNIVERSAL_TEMPLATE_ID, platon, user_token
+        )
+        if not universal_error:
+            await _emit_progress(progress_callback, "template_loading_completed", {"value": "Universal template configuration loaded."})
+            _check_cancelled()
+            enriched_request = _build_universal_template_request(
+                chat_request.user_request, effective_components
+            )
+            universal_ctx = _build_universal_ctx(
+                chat_request.user_request, effective_components, ctx
+            )
+            result = await generate_and_process_template(
+                exercise_data, enriched_request,
+                chat_request.conversation_history, chat_request.fields_to_modify or [],
+                user_token, progress_callback=progress_callback,
+                session_id=session_id,
+                is_modification=False,
+                cancellation_event=cancellation_event,
+                conversation_id=conversation_id,
+                username=username,
+                extra_system_context=universal_ctx,
+                skip_default_values=True,
+            )
+            if not result.error:
+                return _workflow_result_to_response(result, exercise_data, conversation_mode="template")
+            logger.warning(
+                "Universal template %s returned sandbox error (%s) — falling through to pure generation.",
+                _UNIVERSAL_TEMPLATE_ID, result.error,
+            )
+            exercise_data.template_id = None
+            exercise_data.config_variables = {}
+        else:
+            logger.warning(
+                "Universal template %s failed to load (%s) — falling through to pure generation.",
+                _UNIVERSAL_TEMPLATE_ID, universal_error,
+            )
+
     await _emit_progress(progress_callback, "generation_mode", {"mode": "exercise_sans_template", "mode_label": "exercise sans template"})
     return await _generate_pure_exercise(
         exercise_data, chat_request, platon, user_token, progress_callback,
-        retrieved=retrieved,
+        examples_retrieved=examples_retrieved,
         session_id=session_id,
         is_modification=False,
         conversation_id=conversation_id,
         username=username,
         cancellation_event=cancellation_event,
+        generation_context=ctx,
+        pre_selection_result=pre_selection_result,
+        pre_llm_calls=pre_llm_calls,
     )
 
 
@@ -733,6 +1401,8 @@ async def generate_and_process_template(
     cancellation_event: asyncio.Event = None,
     conversation_id: str = None,
     username: str = None,
+    extra_system_context: str = None,
+    skip_default_values: bool = False,
 ) -> WorkflowResult:
     from src.services.generation_service import GenerationService
     from src.services.rag.retrieval_service import retrieval_service, get_embed_model
@@ -752,6 +1422,8 @@ async def generate_and_process_template(
             conversation_history=conversation_history,
             fields_to_modify=fields_to_modify,
             is_modification=is_modification,
+            extra_system_context=extra_system_context,
+            skip_default_values=skip_default_values,
         )
         await _emit_progress(
             progress_callback,

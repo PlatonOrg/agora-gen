@@ -18,6 +18,9 @@ from src.services.output_sanitizer_service import sanitize_generated_exercise
 
 logger = logging.getLogger(__name__)
 
+_EXAMPLE_EXCLUDED_FIELDS: frozenset = frozenset({"builder", "grader", "sandbox"})
+_EXAMPLE_FIELD_MAX_CHARS: int = 300
+
 _COMPONENT_EXTRA_DOCS: Dict[str, str] = {
     "wc-drag-drop": "drag_drop.txt",
     "wc-match-list": "wc_match_list.txt",
@@ -28,6 +31,42 @@ _COMPONENT_EXTRA_DOCS: Dict[str, str] = {
     "wc-radio-group": "wc_radio_group.txt",
     "wc-presenter": "wc_presenter.txt",
 }
+
+# Lazy-loaded cache for phase3_fabrication specs from prompts_config_v3.json.
+_V3_COMPONENT_SPECS: Optional[Dict[str, Any]] = None
+
+
+def _get_v3_component_specs() -> Dict[str, Any]:
+    global _V3_COMPONENT_SPECS
+    if _V3_COMPONENT_SPECS is None:
+        v3_path = Path(path_constants.PROMPTS_DIR) / "prompts_config_v3.json" # METTRE DANS LA BDD OU APPEL DEPUIS PLATON
+        try:
+            with open(v3_path, "r", encoding="utf-8") as f:
+                data = json.load(f)
+            _V3_COMPONENT_SPECS = data.get("phase3_fabrication", {})
+            logger.info("Loaded v3 component specs for %d component(s).", len(_V3_COMPONENT_SPECS))
+        except Exception as exc:
+            logger.warning("Could not load prompts_config_v3.json: %s", exc)
+            _V3_COMPONENT_SPECS = {}
+    return _V3_COMPONENT_SPECS
+
+
+_STEP_LOG_DIR = Path("/tmp/agora_steps")
+
+
+def _write_prompt_log(label: str, components: List[str], system_prompt: str, user_prompt: str) -> None:
+    """Write system + user prompt to /tmp/agora_steps/ for debugging."""
+    try:
+        from datetime import datetime, timezone
+        _STEP_LOG_DIR.mkdir(parents=True, exist_ok=True)
+        ts = datetime.now(timezone.utc).strftime("%Y%m%d_%H%M%S_%f")
+        safe_comp = "_".join(components).replace("/", "_").replace(" ", "_") or "unknown"
+        path = _STEP_LOG_DIR / f"prompt__{label}__{safe_comp}__{ts}.log"
+        with open(path, "w", encoding="utf-8") as fh:
+            fh.write(f"=== SYSTEM PROMPT ===\n{system_prompt}\n\n=== USER PROMPT ===\n{user_prompt}\n")
+        logger.info("[PROMPT LOG] %s", path)
+    except Exception as exc:
+        logger.warning("[PROMPT LOG] write failed: %s", exc)
 
 
 class GenerationService:
@@ -65,7 +104,10 @@ class GenerationService:
         component_docs = []
 
         for comp in components:
-            comp_data = next((item for item in metadata if item['tag'] == comp), None)
+            comp_data = next(
+                (item for item in metadata if item['tag'] == comp or item.get('name') == comp),
+                None,
+            )
             if not comp_data:
                 continue
 
@@ -89,7 +131,8 @@ class GenerationService:
             else:
                 component_body = self._build_schema_block(comp_data)
 
-            extra_instructions_filename = _COMPONENT_EXTRA_DOCS.get(comp)
+            comp_tag = comp_data['tag']
+            extra_instructions_filename = _COMPONENT_EXTRA_DOCS.get(comp_tag)
             if extra_instructions_filename:
                 instructions_path = Path(path_constants.PROMPTS_DIR) / extra_instructions_filename
                 try:
@@ -99,12 +142,35 @@ class GenerationService:
                 except OSError:
                     self._logger.warning(
                         "Component instructions file not found for tag '%s': %s",
-                        comp, instructions_path,
+                        comp_tag, instructions_path,
                     )
+
+            v3_spec = _get_v3_component_specs().get(comp_tag)
+            if v3_spec:
+                raw_prompt = v3_spec.get("user_prompt", "")
+                structure_spec = self._extract_v3_structure_spec(raw_prompt)
+                if structure_spec:
+                    component_body += f"\n\nSpécification de structure et règles de génération:\n{structure_spec}"
 
             component_docs.append(component_body)
 
         return "\n\n".join(component_docs)
+
+    @staticmethod
+    def _extract_v3_structure_spec(user_prompt: str) -> str:
+        """Extract the JSON structure + rules section from a v3 user_prompt template.
+
+        Drops the preamble and ÉNONCÉ variable block — keeps only the structural
+        specification that starts at the JSON template or rules section.
+        Also converts Python format-string brace escapes ({{ → {, }} → }) so the
+        LLM sees clean JSON braces rather than doubled ones.
+        """
+        for marker in ("STRUCTURE JSON EXIGÉE", "CRÉE UN JSON avec:"):
+            idx = user_prompt.find(marker)
+            if idx != -1:
+                spec = user_prompt[idx:]
+                return spec.replace("{{", "{").replace("}}", "}")
+        return user_prompt.replace("{{", "{").replace("}}", "}")
 
     @staticmethod
     def _build_schema_block(comp_data: Dict[str, Any]) -> str:
@@ -115,6 +181,29 @@ class GenerationService:
             f"Schéma des propriétés:\n"
             f"{json.dumps(comp_data.get('properties', {}), ensure_ascii=False, indent=2)}"
         )
+
+    @staticmethod
+    def _condense_example(example: Dict[str, Any]) -> Dict[str, Any]:
+        """Strip implementation fields and truncate strings so examples fit within token budgets.
+
+        The model needs to see the exercise pedagogy (title, statement, form structure,
+        components used) — not the full builder/grader implementation it already knows
+        how to write from the system prompt rules.
+        """
+        condensed: Dict[str, Any] = {}
+        for key, value in example.items():
+            if key in _EXAMPLE_EXCLUDED_FIELDS:
+                continue
+            if isinstance(value, str) and len(value) > _EXAMPLE_FIELD_MAX_CHARS:
+                condensed[key] = value[:_EXAMPLE_FIELD_MAX_CHARS] + "…"
+            elif isinstance(value, dict):
+                condensed[key] = {
+                    k: (v[:_EXAMPLE_FIELD_MAX_CHARS] + "…" if isinstance(v, str) and len(v) > _EXAMPLE_FIELD_MAX_CHARS else v)
+                    for k, v in value.items()
+                }
+            else:
+                condensed[key] = value
+        return condensed
 
     @staticmethod
     def _build_readme_from_llm_metadata(metadata: Dict[str, Any]) -> Optional[str]:
@@ -147,7 +236,8 @@ class GenerationService:
             formatted += f'    "nom de la variable": "{var["name"]}",\n'
             formatted += f'    "type de la variable": "{var["type"]}",\n'
             formatted += f'    "description de la variable": "{var["description"]}"\n'
-            formatted += f'    "valeur par defaut": "{var["value"]}"\n'
+            if "value" in var:
+                formatted += f'    "valeur par defaut": "{var["value"]}"\n'
         formatted = formatted.rstrip(',\n') + "\n]"
         return formatted
 
@@ -250,14 +340,22 @@ class GenerationService:
             conversation_history: List[Dict[str, Any]] | None = None,
             fields_to_modify: List[str] = [],
             is_modification: bool = False,
+            extra_system_context: Optional[str] = None,
+            skip_default_values: bool = False,
     ) -> ConfigVariablesGenerationResult:
         self._logger.info("Starting config variable generation (modification=%s)", is_modification)
 
         schema_config = exercise_data.config_variables["inputs"]
         base_system_prompt = self._load_template_modification_prompt() if is_modification else self._load_system_prompt()
 
+        # When skip_default_values=True (universal template), strip defaults from schema
+        # so the LLM doesn't anchor on unrelated example content.
+        effective_schema = schema_config
+        if skip_default_values:
+            effective_schema = [{k: v for k, v in var.items() if k != "value"} for var in schema_config]
+
         if fields_to_modify:
-            filtered_schema = [var for var in schema_config if var.get("name") in fields_to_modify]
+            filtered_schema = [var for var in effective_schema if var.get("name") in fields_to_modify]
             schema_str = self._format_schema_for_prompt(filtered_schema)
             system_prompt = f"""
 {base_system_prompt}
@@ -269,7 +367,7 @@ Vous etes donne des exemples complets pour le contexte, mais vous devez generer 
 **Les variables a modifier**: {schema_str}
 """
         else:
-            schema_str = self._format_schema_for_prompt(schema_config)
+            schema_str = self._format_schema_for_prompt(effective_schema)
             system_prompt = f"""
 {base_system_prompt}
 
@@ -277,8 +375,11 @@ Vous etes donne des exemples complets pour le contexte, mais vous devez generer 
 **Les variables du template**: {schema_str}
 """
 
+        if extra_system_context:
+            system_prompt += f"\n{extra_system_context}\n"
+
         history_str = self._format_conversation_history(conversation_history or [])
-        state_str = self._format_current_exercise_state(exercise_data, for_pure=False)
+        state_str = "" if skip_default_values else self._format_current_exercise_state(exercise_data, for_pure=False)
 
         user_prompt = state_str
         if history_str:
@@ -287,6 +388,7 @@ Vous etes donne des exemples complets pour le contexte, mais vous devez generer 
 
         include_properties = fields_to_modify if fields_to_modify else None
 
+        _write_prompt_log("template", exercise_data.components or [], system_prompt, user_prompt)
         llm_result = await chat_with_llm(
             system_prompt=system_prompt,
             user_request=user_prompt,
@@ -294,6 +396,7 @@ Vous etes donne des exemples complets pour le contexte, mais vous devez generer 
             schema_config=schema_config,
             include_properties=include_properties,
         )
+
 
         variables = llm_result.parsed
         if isinstance(variables, dict) and variables.get("name"):
@@ -398,8 +501,12 @@ Vous etes donne des exemples complets pour le contexte, mais vous devez generer 
             system_prompt = self._load_pure_exercise_modification_prompt()
         else:
             system_prompt = self._load_pure_exercise_prompt()
-            examples_text = "\n\n".join(f"Exercise {i+1} : {json.dumps(ex, ensure_ascii=False)}" for i, ex in enumerate(examples))
-            system_prompt += f"\n\nExemples d'exercies proches a la demande de l'utilisateur:\n{examples_text}"
+            condensed = [self._condense_example(ex) for ex in examples]
+            examples_text = "\n\n".join(
+                f"Exemple {i+1}: {json.dumps(ex, ensure_ascii=False, separators=(',', ':'))}"
+                for i, ex in enumerate(condensed)
+            )
+            system_prompt += f"\n\nExemples d'exercices proches de la demande (structure pédagogique uniquement — pas l'implémentation):\n{examples_text}"
 
 
         if fields_to_modify:
@@ -442,6 +549,7 @@ de l'utilisateur.
 
         include_properties = fields_to_modify if fields_to_modify else None
 
+        _write_prompt_log("pure", exercise_data.components or [], system_prompt, user_prompt)
         llm_result = await chat_with_llm(
             system_prompt=system_prompt,
             user_request=user_prompt,
