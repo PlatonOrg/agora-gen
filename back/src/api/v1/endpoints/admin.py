@@ -1,10 +1,12 @@
 from __future__ import annotations
 
+import asyncio
 import logging
 from datetime import date, timedelta
 from typing import Optional
 
 from fastapi import APIRouter, Depends, HTTPException
+from pydantic import BaseModel
 from redis.asyncio import Redis
 
 from src.api.v1.dependencies import require_session_id
@@ -26,6 +28,11 @@ from src.services.models.admin_stats import (
 
 router = APIRouter()
 logger = logging.getLogger(__name__)
+
+
+class VectorRebuildResponse(BaseModel):
+    status: str
+    message: str
 
 
 async def get_current_admin_user(
@@ -219,5 +226,57 @@ async def update_runtime_settings(
     except Exception as exc:
         logger.exception("Failed to update runtime settings")
         raise HTTPException(status_code=500, detail=str(exc)) from exc
+
+
+# -- Vector store rebuild -------------------------------------------------------
+
+
+@router.post("/vector/rebuild", response_model=VectorRebuildResponse)
+async def trigger_vector_rebuild(
+    session_data: dict = Depends(get_current_admin_user),
+) -> VectorRebuildResponse:
+    """Trigger a full vector store rebuild in the background.
+
+    Drops all existing embeddings and re-embeds every resource from scratch,
+    picking up the new metadata fields (levels, topics, cercle) added to nodes.
+    The rebuild runs asynchronously — this endpoint returns immediately.
+    Monitor progress in the container logs.
+    """
+    from src.core.sqlalchemy import engine as app_engine
+    from src.infra.db.redis import get_redis as _get_redis
+    from src.infra.platon import platon_admin_auth, PlatonCache, CachedPlatonClient
+    from src.services.platon_service import platon_service
+    from src.core.config_app import settings
+    from src.infra.vector.exercise_vector_service import run_full_rebuild
+
+    async def _do_rebuild() -> None:
+        try:
+            admin_token = await platon_admin_auth.authenticate()
+        except Exception as exc:
+            logger.error("Vector rebuild — Platon admin auth failed: %s", exc)
+            return
+        try:
+            redis = await _get_redis()
+            client = CachedPlatonClient(
+                platon=platon_service,
+                cache=PlatonCache(redis, ttl_seconds=settings.PLATON_CACHE_TTL_SECONDS),
+            )
+            await run_full_rebuild(app_engine, client, admin_token=admin_token)
+            logger.info(
+                "Vector rebuild completed. Triggered by admin '%s'.",
+                session_data.get("username", "unknown"),
+            )
+        except Exception as exc:
+            logger.error("Vector rebuild failed: %s", exc, exc_info=True)
+
+    asyncio.ensure_future(_do_rebuild())
+    logger.info(
+        "Vector rebuild triggered by admin '%s'.",
+        session_data.get("username", "unknown"),
+    )
+    return VectorRebuildResponse(
+        status="rebuild_started",
+        message="Full vector store rebuild started in background. Monitor progress in container logs.",
+    )
 
 

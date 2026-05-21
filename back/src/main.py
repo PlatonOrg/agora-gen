@@ -11,7 +11,7 @@ from uvicorn.middleware.proxy_headers import ProxyHeadersMiddleware
 from src.core.config_app import settings
 from src.core.logging_config import setup_root_logging
 from src.api.v1.api import api_router
-from src.services.rag.retrieval_service import initialize_rag_service
+from src.services.rag.retrieval_service import initialize_rag_service, initialize_bm25_index
 from src.services.rag.platon_docs_qa_service import initialize_platon_docs_qa_service
 from src.services.platon_service import platon_service
 from src.infra.db.database import init_db
@@ -150,6 +150,7 @@ async def lifespan(application: FastAPI):
                         table_name=settings.RAG_TABLE_NAME,
                     )
                     initialize_platon_docs_qa_service()
+                    await initialize_bm25_index()
                     logger.info("RAG services initialized.")
                 except Exception as exc:
                     logger.error("Background init: RAG service initialization failed: %s", exc, exc_info=True)

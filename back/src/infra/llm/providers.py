@@ -283,10 +283,9 @@ class OpenAICompatibleProvider:
                 self._name, len(file_paths or []), len(file_ids or []),
             )
         url = f"{self._base_url}/chat/completions"
-        headers = {
-            "Authorization": f"Bearer {self._api_key}",
-            "Content-Type": "application/json",
-        }
+        headers: dict = {"Content-Type": "application/json"}
+        if self._api_key:
+            headers["Authorization"] = f"Bearer {self._api_key}"
 
         messages = []
         if system_prompt:
@@ -516,10 +515,9 @@ class RagustaveProvider:
         file_ids: Optional[List[str]] = None,
     ) -> Any:
         url = f"{self._base_url}/chat/completions"
-        headers = {
-            "Authorization": f"Bearer {self._api_key}",
-            "Content-Type": "application/json",
-        }
+        headers: dict = {"Content-Type": "application/json"}
+        if self._api_key:
+            headers["Authorization"] = f"Bearer {self._api_key}"
 
         messages = []
         if system_prompt:
@@ -554,10 +552,29 @@ class RagustaveProvider:
             model, temperature, json_schema is not None, file_paths, resolved_ids,
         )
 
+        max_attempts = 3 # À changer car on doit prendre la valeur de la bdd 
+        attempt = 0
+        result: Dict[str, Any]
+
         async with httpx.AsyncClient(timeout=self._timeout) as client:
-            response = await client.post(url, headers=headers, json=data)
-            response.raise_for_status()
-            result = response.json()
+            while True:
+                attempt += 1
+                try:
+                    response = await client.post(url, headers=headers, json=data)
+                    response.raise_for_status()
+                    result = response.json()
+                    break
+                except httpx.HTTPStatusError as exc:
+                    status_code = exc.response.status_code
+                    should_retry = status_code == 429 or 500 <= status_code < 600
+                    if not should_retry or attempt >= max_attempts:
+                        raise
+                    retry_delay = min(float(2 ** (attempt - 1)), 20.0)
+                    logger.warning(
+                        "[ragustave] HTTP %s (attempt %s/%s). Retrying in %.0fs.",
+                        status_code, attempt, max_attempts, retry_delay,
+                    )
+                    await asyncio.sleep(retry_delay)
 
         try:
             content = result["choices"][0]["message"]["content"]
@@ -832,10 +849,9 @@ class OpenRouterProvider:
             )
 
         url = f"{self._BASE_URL}/chat/completions"
-        headers = {
-            "Authorization": f"Bearer {self._api_key}",
-            "Content-Type": "application/json",
-        }
+        headers: dict = {"Content-Type": "application/json"}
+        if self._api_key:
+            headers["Authorization"] = f"Bearer {self._api_key}"
 
         messages = []
         if system_prompt:

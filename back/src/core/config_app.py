@@ -137,7 +137,9 @@ class Settings(BaseSettings):
     # ==================================================================
     RESOURCES_BASE_PATH: str = "resources"
     LOG_DIR: str = "resources/logs"
-    EMBED_MODEL_HF_REPO_ID: str = "intfloat/multilingual-e5-large-instruct"
+    EMBED_MODEL_HF_REPO_ID: str = "BAAI/bge-m3"
+    RERANKER_HF_REPO_ID: str = "BAAI/bge-reranker-v2-m3"
+    RERANKER_ENABLED: bool = True
     HF_TOKEN: Optional[str] = None
 
     # ==================================================================

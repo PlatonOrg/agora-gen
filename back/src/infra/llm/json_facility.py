@@ -45,7 +45,6 @@ def build_fixed_exercise_json_schema(
         "hint": {
             "type": "array",
             "items": {"type": "string"},
-            "maxItems": 5,
         },
         "theories": {
             "type": "array",
@@ -56,8 +55,8 @@ def build_fixed_exercise_json_schema(
                     "url": {"type": "string"},
                 },
                 "required": ["title", "url"],
+                "additionalProperties": False,
             },
-            "maxItems": 5,
         },
         "metadata": {
             "type": "object",
@@ -65,14 +64,10 @@ def build_fixed_exercise_json_schema(
                 "levels": {
                     "type": "array",
                     "items": {"type": "string"},
-                    "maxItems": 3,
-                    "uniqueItems": True,
                 },
                 "topics": {
                     "type": "array",
                     "items": {"type": "string"},
-                    "maxItems": 5,
-                    "uniqueItems": True,
                 },
                 "objectifs_pedagogiques": {"type": "string"},
                 "public_vise": {"type": "string"},
@@ -80,6 +75,7 @@ def build_fixed_exercise_json_schema(
                 "consignes": {"type": "string"},
             },
             "required": ["levels", "topics"],
+            "additionalProperties": False,
         },
     }
 
@@ -110,10 +106,8 @@ def build_fixed_exercise_json_schema(
         "type": "object",
         "properties": properties,
         "required": required,
+        "additionalProperties": allow_additional,
     }
-
-    if allow_additional:
-        schema["additionalProperties"] = True
 
     return schema
 
@@ -161,14 +155,10 @@ def build_json_schema_from_config(
                 "levels": {
                     "type": "array",
                     "items": {"type": "string"},
-                    "maxItems": 3,
-                    "uniqueItems": True,
                 },
                 "topics": {
                     "type": "array",
                     "items": {"type": "string"},
-                    "maxItems": 8,
-                    "uniqueItems": True,
                 },
                 "objectifs_pedagogiques": {"type": "string"},
                 "public_vise": {"type": "string"},

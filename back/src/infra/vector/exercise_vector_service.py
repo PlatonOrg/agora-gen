@@ -60,6 +60,7 @@ from src.infra.vector.models import (
 from src.infra.vector.sync_tracker import get_last_sync, set_last_sync
 from src.infra.vector.text_builder import build_exercise_text, build_template_exo_text, build_template_text
 from src.infra.vector.vector_utils import (
+    drop_vector_table,
     physical_table_name,
     table_row_count,
     validate_table_name,
@@ -69,9 +70,6 @@ from src.services.rag.embedding_types import EmbeddingKind
 logger = logging.getLogger(__name__)
 
 _JOB_NAME = "exercise_vector_sync"
-_TASK_INSTRUCTION = (
-    "Instruct: Retrieve relevant exercises, templates, and examples matching the query.\nQuery: "
-)
 
 
 # ---------------------------------------------------------------------------
@@ -227,7 +225,7 @@ def _make_node(
     node_id: str,
     embed_model: HuggingFaceEmbedding,
 ) -> TextNode:
-    embedding = embed_model.get_text_embedding(_TASK_INSTRUCTION + content)
+    embedding = embed_model.get_text_embedding(content)
     return TextNode(text=content, metadata=metadata, embedding=embedding, id_=node_id)
 
 
@@ -264,14 +262,22 @@ async def _build_node_for_resource(
             content = build_template_exo_text(metadata, parts, filled)
             node_id = f"template_{row.platon_id}"
 
+        node_metadata: dict = {
+            "db_id": str(row.db_id),
+            "platon_id": row.platon_id,
+            "name": metadata.name,
+            "kind": row.kind.value,
+        }
+        if metadata.levels:
+            node_metadata["levels"] = metadata.levels
+        if metadata.topics:
+            node_metadata["topics"] = metadata.topics
+        if metadata.cercle:
+            node_metadata["cercle"] = metadata.cercle
+
         return _make_node(
             content=content,
-            metadata={
-                "db_id": str(row.db_id),
-                "platon_id": row.platon_id,
-                "name": metadata.name,
-                "kind": row.kind.value,
-            },
+            metadata=node_metadata,
             node_id=node_id,
             embed_model=embed_model,
         )
@@ -391,14 +397,30 @@ async def _commit_nodes(nodes: List[TextNode], embed_model: HuggingFaceEmbedding
     probe = embed_model.get_text_embedding("probe")
     embed_dim = len(probe)
     table_name = settings.RAG_TABLE_NAME
-    vector_store = _build_vector_store(table_name, embed_dim)
+    dsn = _get_dsn()
 
     print(f"  → Committing {len(nodes)} node(s) to vector store…", flush=True)
+    if full:
+        # Drop the physical table so stale nodes (without the new metadata fields)
+        # don't survive alongside freshly-indexed ones.
+        physical = physical_table_name(table_name)
+        validate_table_name(physical)
+        await drop_vector_table(dsn, physical)
+        logger.info("Dropped existing vector table '%s' before full rebuild.", physical)
+
+    vector_store = _build_vector_store(table_name, embed_dim)
     if full:
         storage_context = StorageContext.from_defaults(vector_store=vector_store)
         VectorStoreIndex(nodes=nodes, storage_context=storage_context, embed_model=embed_model)
     else:
         vector_store.add(nodes)
+
+    # Keep the in-memory BM25 index in sync with the vector store.
+    try:
+        from src.services.rag.retrieval_service import update_bm25_index
+        update_bm25_index(nodes, full=full)
+    except Exception as exc:
+        logger.warning("BM25 index refresh skipped: %s", exc)
 
 
 async def _run_sync(
