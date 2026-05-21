@@ -1,0 +1,137 @@
+{
+  "version": "3.0-three-phase",
+
+  "phase1_analyse": {
+    "system_prompt": "Tu es un expert en pédagogie informatique. Ta mission est d'analyser une demande et de proposer une répartition optimale des types d'exercices.",
+    "user_prompt": "Analyse cette demande et propose une répartition des types d'exercices.\n\nDEMANDE:\n- Thème: {description_markdown}\n- Discipline: {discipline}\n- Enseignement: {enseignement}\n- Public: {cible}\n- Total exercices: {nombre}\n\nTYPES DISPONIBLES:\n{available_types}\n\nRÉPONDS UNIQUEMENT AVEC UN JSON:\n[\n  {{\"type\": \"wc-code-python\", \"nombre\": 2, \"raison\": \"...\"}},\n  {{\"type\": \"wc-vrai-faux\", \"nombre\": 1, \"raison\": \"...\"}}\n]"
+  },
+
+  "phase2_enonces": {
+    "system_prompt": "Tu es un concepteur pédagogique. Tu crées des énoncés d'exercices clairs et progressifs.",
+    "user_prompt": "Génère {nombre} énoncés pour des exercices de type **{type_id}** sur le thème: {description_markdown}\n\nPUBLIC: {cible}\nNIVEAU: Progressif (1=débutant, {nombre}=avancé)\n\nPour chaque exercice, fournis:\n- **title**: titre concis (max 50 caractères)\n- **description**: description détaillée de ce que l'élève doit faire\n- **objectifs**: compétences évaluées\n- **difficulte**: débutant, intermédiaire, ou avancé\n- **concepts_cles**: liste des concepts à maîtriser\n\nRÉPONDS UNIQUEMENT AVEC UN JSON:\n[\n  {{\n    \"title\": \"...\",\n    \"description\": \"...\",\n    \"objectifs\": [\"...\"],\n    \"difficulte\": \"débutant\",\n    \"concepts_cles\": [\"...\"]\n  }}\n]"
+  },
+
+  "phase3_fabrication": {
+    "wc-code-python": {
+      "system_prompt": "Tu es un générateur d'exercices Python pour Platon. Tu crées des exercices de programmation avec éditeur de code, tests doctests, et solution.",
+      "user_prompt": "Transforme cet énoncé en exercice Python complet pour la plateforme Platon.\n\nÉNONCÉ:\n- Titre: {title}\n- Description: {description}\n- Objectifs: {objectifs}\n- Difficulté: {difficulte}\n- Concepts: {concepts_cles}\n\nThème général: {theme}\n\nSTRUCTURE JSON EXIGÉE - RESPECTE À LA LETTRE:\n{{\n  \"type\": \"wc-code-python\",\n  \"theme\": \"{theme}\",\n  \"title\": \"{title}\",\n  \"assignement\": \"<p>Description HTML de l'exercice...</p>\",\n  \"code\": \"def fonction():\\n    \\\"\\\"\\\"Docstring.\\\"\\\"\\\"\\n    pass\",\n  \"solus\": \"def fonction():\\n    \\\"\\\"\\\"Docstring.\\\"\\\"\\\"\\n    return resultat\",\n  \"setup\": \"\\n# Code d'initialisation - exécuté AVANT les tests\\n# Crée ici les fichiers de données nécessaires\\nwith open('data.txt', 'w') as f:\\n    f.write('données de test')\\n\",\n  \"tests_list\": [\n    [\"Nom du test 1\", \">>> fonction()\\n'résultat_attendu'\\n\"],\n    [\"Nom du test 2\", \">>> fonction('paramètre')\\n42\\n\"]\n  ],\n  \"fontsize\": 14,\n  \"bareme\": {{}},\n  \"media\": [],\n  \"timer\": false,\n  \"countdowntime\": 0,\n  \"coeff\": 3,\n  \"mode\": \"unique\",\n  \"stop_on_fail\": false\n}}\n\nRÈGLES ABSOLUES À RESPECTER:\n\n1. ORTHOGRAPHE CRITIQUE:\n   - Le champ s'appelle 'assignement' (UN seul 's' entre 'e' et 'n'), JAMAIS 'assignment'\n   - 'tests_list' avec un 's' à la fin de 'tests'\n\n2. CHAMP setup (OBLIGATOIRE si fichiers):\n   - Si l'exercice utilise des fichiers (open, read, write), le code de création des fichiers DOIT être dans 'setup'\n   - Le setup est exécuté AVANT les tests, donc les fichiers existent quand les tests tournent\n   - Les tests eux-mêmes ne doivent PAS créer de fichiers\n   - Exemple: setup = \"with open('test.txt', 'w') as f: f.write('contenu')\\n\"\n\n3. FORMAT tests_list (DOCTESTS):\n   - Chaque élément est un tableau: [\"nom_du_test\", \"code_doctest\"]\n   - Le code_doctest doit être au format doctest Python standard:\n     * Commence par >>> pour l'appel de fonction\n     * Suivi du résultat attendu sur la ligne suivante\n     * PAS de code de création de fichiers ici\n   - Exemple CORRECT: [\"Test lecture\", \">>> lire_fichier('test.txt')\\n'contenu\\n'\"]\n   - Exemple INCORRECT: [\"Test\", \"import tempfile...\"] - PAS de logique complexe\n\n4. FORMAT code et solus:\n   - Utilise des triples guillemets \"\\\"\\\" pour les chaînes multilignes\n   - Respecte l'indentation Python (4 espaces)\n   - 'code' contient la signature avec 'pass' ou '...'\n   - 'solus' contient l'implémentation complète et fonctionnelle\n\n5. CONSIGNES DE L'EXERCICE (assignement):\n   - Utilise du HTML simple: <p>, <ul>/<li>, <strong> pour les noms de fonctions\n   - Spécifie clairement ce que la fonction doit retourner\n   - Mentionne les cas limites (fichier inexistant, vide, etc.)\n\nRÉPONDS UNIQUEMENT AVEC LE JSON DE L'EXERCICE, SANS TEXTE AVANT OU APRÈS."
+    },
+
+    "wc-vrai-faux": {
+      "system_prompt": "Tu es un générateur d'exercices Vrai/Faux pour Platon. Tu crées 50 affirmations basées sur un énoncé.",
+      "user_prompt": "Transforme cet énoncé en exercice Vrai/Faux:\n\nÉNONCÉ:\n- Titre: {title}\n- Description: {description}\n- Objectifs: {objectifs}\n- Difficulté: {difficulte}\n- Concepts: {concepts_cles}\n\nThème: {theme}\n\nCRÉE UN JSON avec:\n- type: \"wc-vrai-faux\"\n- theme: \"{theme}\"\n- title: \"{title}\"\n- assignement: énoncé HTML/Markdown de l'exercice\n- listofvalues: tableau de 50 objets {{\"content\": \"...\", \"correct\": true/false, \"explication\": \"...\"}}\n- nbq: 5\n- coeff: 2\n- timer: false\n- mode: \"unique\"\n- stop_on_fail: false\n- media: []\n\nRÈGLES:\n1. Le champ s'appelle 'assignement' (UN seul 's')\n2. Exactement 50 affirmations dans listofvalues\n3. Équilibre entre vrai et faux (~50/50)\n\nRÉPONDS UNIQUEMENT AVEC LE JSON."
+    },
+
+    "wc-checkbox-group": {
+      "system_prompt": "Tu es un générateur de QCM pour Platon. Tu crées des questions à choix multiples.",
+      "user_prompt": "Transforme cet énoncé en QCM Multiple:\n\nÉNONCÉ:\n- Titre: {title}\n- Description: {description}\n- Objectifs: {objectifs}\n\nThème: {theme}\n\nCRÉE UN JSON avec:\n- type: \"wc-checkbox-group\"\n- theme, title, assignement\n- answers: 8+ objets {{\"content\": \"...\", \"correct\": true/false, \"alafin\": false}}\n- minimum 2 réponses correctes\n- nbq: 4, coeff: 2\n- mode: \"multiple\"\n\nRÉPONDS UNIQUEMENT AVEC LE JSON."
+    },
+
+    "wc-radio-group": {
+      "system_prompt": "Tu es un générateur de QCM simple pour Platon. Questions à choix unique.",
+      "user_prompt": "Transforme cet énoncé en QCM Simple:\n\nÉNONCÉ:\n- Titre: {title}\n- Description: {description}\n- Objectifs: {objectifs}\n\nThème: {theme}\n\nCRÉE UN JSON avec:\n- type: \"wc-radio-group\"\n- theme, title, assignement\n- answers: 4 objets {\"content\": \"...\", \"correct\": true/false, \"alafin\": false}, exactement 1 correct\n- autoValidation: true\n- nbq: 4, coeff: 1\n- mode: \"unique\"\n\nRÉPONDS UNIQUEMENT AVEC LE JSON."
+    },
+
+    "wc-binded-bubbles": {
+      "system_prompt": "Tu es un générateur d'exercices d'appariement pour Platon.",
+      "user_prompt": "Transforme cet énoncé en exercice d'appariement:\n\nÉNONCÉ:\n- Titre: {title}\n- Description: {description}\n- Objectifs: {objectifs}\n\nThème: {theme}\n\nCRÉE UN JSON avec:\n- type: \"wc-binded-bubbles\"\n- theme, title, assignement: \"Reliez les éléments...\"\n- questions_reponses: [[\"question\", \"réponse\"]] minimum 10 paires\n- nbPair: 5, nbq: 5\n- coeff: 2\n\nRÉPONDS UNIQUEMENT AVEC LE JSON."
+    },
+
+    "wc-input-box": {
+      "system_prompt": "Tu es un générateur d'exercices à réponse libre pour Platon.",
+      "user_prompt": "Transforme cet énoncé en exercice Réponse Libre:\n\nÉNONCÉ:\n- Titre: {title}\n- Description: {description}\n- Objectifs: {objectifs}\n\nThème: {theme}\n\nCRÉE UN JSON avec:\n- type: \"wc-input-box\"\n- theme, title, assignement\n- evaluator: code Python \"def evaluate(response): return 100 if ... else 0\"\n- coeff: 1 ou 2\n- mode: \"unique\"\n\nRÉPONDS UNIQUEMENT AVEC LE JSON."
+    },
+
+    "wc-crossword": {
+      "system_prompt": "Tu es un générateur de mots croisés pour Platon. Tu crées des grilles avec définitions et solutions.",
+      "user_prompt": "Transforme cet énoncé en exercice de mots croisés:\n\nÉNONCÉ:\n- Titre: {title}\n- Description: {description}\n- Objectifs: {objectifs}\n\nThème: {theme}\n\nCRÉE UN JSON avec:\n- type: \"wc-crossword\"\n- theme, title, assignement\n- listofvalues: tableau de 10+ objets {{\"content\": \"définition\", \"correct\": \"RÉPONSE\", \"explication\": \"...\"}}\n- nbq: 5\n- appearance: \"outline\"\n- cellSize: 40\n- coeff: 2\n\nRÉPONDS UNIQUEMENT AVEC LE JSON."
+    },
+
+    "wc-drag-drop": {
+      "system_prompt": "Tu es un générateur d'exercices de glisser-déposer pour Platon.",
+      "user_prompt": "Transforme cet énoncé en exercice Glisser-Déposer:\n\nÉNONCÉ:\n- Titre: {title}\n- Description: {description}\n- Objectifs: {objectifs}\n\nThème: {theme}\n\nCRÉE UN JSON avec:\n- type: \"wc-drag-drop\"\n- theme, title, assignement: \"Associez les éléments...\"\n- listofvalues: tableau de 6+ paires {{\"content\": \"source\", \"correct\": \"cible\"}}\n- nbq: 5\n- coeff: 2\n\nRÉPONDS UNIQUEMENT AVEC LE JSON."
+    },
+
+    "wc-sort-list": {
+      "system_prompt": "Tu es un générateur d'exercices de tri pour Platon.",
+      "user_prompt": "Transforme cet énoncé en exercice de tri:\n\nÉNONCÉ:\n- Titre: {title}\n- Description: {description}\n- Objectifs: {objectifs}\n\nThème: {theme}\n\nCRÉE UN JSON avec:\n- type: \"wc-sort-list\"\n- theme, title, assignement: \"Mettez les éléments dans l'ordre...\"\n- listofvalues: tableau de 6+ objets {{\"content\": \"...\", \"correct\": position_numérique}}\n- nbq: 5\n- coeff: 2\n\nRÉPONDS UNIQUEMENT AVEC LE JSON."
+    },
+
+    "wc-picker": {
+      "system_prompt": "Tu es un générateur d'exercices de sélection unique pour Platon.",
+      "user_prompt": "Transforme cet énoncé en exercice Picker:\n\nÉNONCÉ:\n- Titre: {title}\n- Description: {description}\n- Objectifs: {objectifs}\n\nThème: {theme}\n\nCRÉE UN JSON avec:\n- type: \"wc-picker\"\n- theme, title, assignement\n- listofvalues: tableau de 5 objets {{\"content\": \"...\", \"correct\": true/false}} (exactement 1 true)\n- nbq: 5\n- coeff: 1\n\nRÉPONDS UNIQUEMENT AVEC LE JSON."
+    },
+
+    "wc-word-selector": {
+      "system_prompt": "Tu es un générateur d'exercices de sélection de mots pour Platon.",
+      "user_prompt": "Transforme cet énoncé en exercice Word Selector:\n\nÉNONCÉ:\n- Titre: {title}\n- Description: {description}\n- Objectifs: {objectifs}\n\nThème: {theme}\n\nCRÉE UN JSON avec:\n- type: \"wc-word-selector\"\n- theme, title, assignement: \"Sélectionnez les mots...\"\n- words: liste de 8-10 mots affichés\n- selectedWords: sous-liste des mots à sélectionner (réponses)\n- coeff: 2\n\nRÉPONDS UNIQUEMENT AVEC LE JSON."
+    },
+
+    "wc-text-select": {
+      "system_prompt": "Tu es un générateur d'exercices de sélection de texte pour Platon.",
+      "user_prompt": "Transforme cet énoncé en exercice Text Select:\n\nÉNONCÉ:\n- Titre: {title}\n- Description: {description}\n- Objectifs: {objectifs}\n\nThème: {theme}\n\nCRÉE UN JSON avec:\n- type: \"wc-text-select\"\n- theme, title, assignement\n- text: texte dans lequel sélectionner\n- mode: \"free\" ou \"regex\"\n- regex: expression régulière (si mode=regex)\n- selections: positions des sélections correctes\n- coeff: 2\n\nRÉPONDS UNIQUEMENT AVEC LE JSON."
+    },
+
+    "wc-math-live": {
+      "system_prompt": "Tu es un générateur d'exercices mathématiques pour Platon.",
+      "user_prompt": "Transforme cet énoncé en exercice Math Live:\n\nÉNONCÉ:\n- Titre: {title}\n- Description: {description}\n- Objectifs: {objectifs}\n\nThème: {theme}\n\nCRÉE UN JSON avec:\n- type: \"wc-math-live\"\n- theme, title, assignement\n- value: \"\" (chaîne vide)\n- correct: réponse en LaTeX (ex: \"x^2 + 1\")\n- virtualKeyboardMode: \"auto\"\n- coeff: 1\n\nRÉPONDS UNIQUEMENT AVEC LE JSON."
+    },
+
+    "wc-matrix": {
+      "system_prompt": "Tu es un générateur d'exercices de matrices pour Platon.",
+      "user_prompt": "Transforme cet énoncé en exercice Matrix:\n\nÉNONCÉ:\n- Titre: {title}\n- Description: {description}\n- Objectifs: {objectifs}\n\nThème: {theme}\n\nCRÉE UN JSON avec:\n- type: \"wc-matrix\"\n- theme, title, assignement\n- rows: nombre de lignes\n- cols: nombre de colonnes\n- cells: liste des valeurs initiales (vide ou partielles)\n- correct: liste des valeurs correctes\n- coeff: 2\n\nRÉPONDS UNIQUEMENT AVEC LE JSON."
+    },
+
+    "wc-image-clicker": {
+      "system_prompt": "Tu es un générateur d'exercices de clic sur image pour Platon.",
+      "user_prompt": "Transforme cet énoncé en exercice Image Clicker:\n\nÉNONCÉ:\n- Titre: {title}\n- Description: {description}\n- Objectifs: {objectifs}\n\nThème: {theme}\n\nCRÉE UN JSON avec:\n- type: \"wc-image-clicker\"\n- theme, title, assignement: \"Cliquez sur...\"\n- imageUrl: URL de l'image\n- clickPoints: [{{\"x\": 100, \"y\": 200}}] coordonnées à cliquer\n- clickDisplayMode: \"last-only\"\n- pointSize: 20\n- coeff: 2\n\nRÉPONDS UNIQUEMENT AVEC LE JSON."
+    },
+
+    "wc-jsx": {
+      "system_prompt": "Tu es un générateur de composants JSX interactifs pour Platon.",
+      "user_prompt": "Transforme cet énoncé en composant JSX:\n\nÉNONCÉ:\n- Titre: {title}\n- Description: {description}\n- Objectifs: {objectifs}\n\nThème: {theme}\n\nCRÉE UN JSON avec:\n- type: \"wc-jsx\"\n- theme, title, assignement\n- script: code JSX du composant\n- points: {{}} points interactifs pour l'élève\n- correctPoints: {{}} points de référence corrects\n- attributes: attributs supplémentaires\n- coeff: 3\n\nRÉPONDS UNIQUEMENT AVEC LE JSON."
+    },
+
+    "wc-automaton-editor": {
+      "system_prompt": "Tu es un générateur d'exercices d'automates pour Platon.",
+      "user_prompt": "Transforme cet énoncé en exercice Automaton Editor:\n\nÉNONCÉ:\n- Titre: {title}\n- Description: {description}\n- Objectifs: {objectifs}\n\nThème: {theme}\n\nCRÉE UN JSON avec:\n- type: \"wc-automaton-editor\"\n- theme, title, assignement\n- automaton: {{\"states\": [], \"initialStates\": [], \"acceptingStates\": [], \"alphabet\": [], \"transitions\": [], \"position\": {{}}}}\n- solution: même structure que automaton avec la solution\n- coeff: 3\n\nRÉPONDS UNIQUEMENT AVEC LE JSON."
+    },
+
+    "wc-evaluator": {
+      "system_prompt": "Tu es un générateur d'exercices d'évaluation pour Platon.",
+      "user_prompt": "Transforme cet énoncé en exercice Evaluator:\n\nÉNONCÉ:\n- Titre: {title}\n- Description: {description}\n- Objectifs: {objectifs}\n\nThème: {theme}\n\nCRÉE UN JSON avec:\n- type: \"wc-evaluator\"\n- theme, title: \"Évaluez votre compréhension\"\n- assignement: \"Évaluez votre niveau de maîtrise...\"\n- allowHalf: false\n- icons: \"star\"\n- count: 5\n- value: 0\n- coeff: 1\n\nRÉPONDS UNIQUEMENT AVEC LE JSON."
+    },
+
+    "wc-match-list": {
+      "system_prompt": "Tu es un générateur d'exercices de correspondance pour Platon.",
+      "user_prompt": "Transforme cet énoncé en exercice Match List:\n\nÉNONCÉ:\n- Titre: {title}\n- Description: {description}\n- Objectifs: {objectifs}\n\nThème: {theme}\n\nCRÉE UN JSON avec:\n- type: \"wc-match-list\"\n- theme, title, assignement: \"Faites correspondre...\"\n- nodes: [] liste des éléments à relier\n- links: [] liens corrects\n- coeff: 2\n\nRÉPONDS UNIQUEMENT AVEC LE JSON."
+    }
+  },
+
+  "supported_types": [
+    {"id": "wc-code-python", "name": "Code Python", "description": "Éditeur Python avec tests"},
+    {"id": "wc-vrai-faux", "name": "Vrai/Faux", "description": "50 affirmations"},
+    {"id": "wc-checkbox-group", "name": "QCM Multiple", "description": "Choix multiples"},
+    {"id": "wc-radio-group", "name": "QCM Simple", "description": "Choix unique"},
+    {"id": "wc-binded-bubbles", "name": "Appariement", "description": "Relier des paires"},
+    {"id": "wc-input-box", "name": "Réponse libre", "description": "Champ de saisie"},
+    {"id": "wc-crossword", "name": "Mots croisés", "description": "Grille avec définitions"},
+    {"id": "wc-drag-drop", "name": "Glisser-déposer", "description": "Associer par drag and drop"},
+    {"id": "wc-sort-list", "name": "Tri de liste", "description": "Mettre dans l'ordre"},
+    {"id": "wc-picker", "name": "Picker", "description": "Sélection unique dans liste"},
+    {"id": "wc-word-selector", "name": "Sélecteur de mots", "description": "Sélectionner les bons mots"},
+    {"id": "wc-text-select", "name": "Sélection de texte", "description": "Sélectionner dans un texte"},
+    {"id": "wc-math-live", "name": "Math Live", "description": "Saisie d'expressions mathématiques"},
+    {"id": "wc-matrix", "name": "Matrice", "description": "Remplir une matrice"},
+    {"id": "wc-image-clicker", "name": "Image Clicker", "description": "Cliquer sur une image"},
+    {"id": "wc-jsx", "name": "JSX", "description": "Composant interactif JSX"},
+    {"id": "wc-automaton-editor", "name": "Éditeur d'automates", "description": "Créer des automates"},
+    {"id": "wc-evaluator", "name": "Évaluateur", "description": "Évaluation par étoiles"},
+    {"id": "wc-match-list", "name": "Correspondance", "description": "Faire correspondre des éléments"}
+  ],
+
+  "model_config": {
+    "temperature": 0.7,
+    "max_tokens": 8000
+  }
+}
