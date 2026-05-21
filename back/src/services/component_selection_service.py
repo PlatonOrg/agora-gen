@@ -47,38 +47,52 @@ def _load_component_metadata() -> List[Dict[str, Any]]:
         return json.load(f)
 
 
-def _build_component_docs_block(tags: List[str], metadata: List[Dict[str, Any]], full: bool = False) -> str:
+def _load_component_mdx(entry: Dict[str, Any], max_chars: int = 500) -> str:
+    """Load the MDX documentation file for a component, truncated to max_chars."""
+    doc_path = entry.get("doc_path")
+    if not doc_path:
+        return entry.get("description", "")
+    full_path = path_constants.PLATON_DOCS_DIR.parent / doc_path
+    try:
+        content = full_path.read_text(encoding="utf-8")
+        # Strip frontmatter and MDX imports to keep only useful content.
+        lines = [l for l in content.splitlines() if not l.startswith("import ")]
+        cleaned = "\n".join(lines).strip()
+        return cleaned[:max_chars]
+    except Exception:
+        return entry.get("description", "")
+
+
+def _build_component_docs_block(
+    tags: List[str],
+    metadata: List[Dict[str, Any]],
+    full: bool = False,
+    name_only: bool = False,
+) -> str:
+    """Build a component listing for the selection prompt.
+
+    - name_only=True : one line per tag (tag + name). Used for the full available list.
+    - full=False     : tag + name + short description from metadata.
+    - full=True      : tag + name + content from the dedicated .mdx file.
+    """
     blocks: List[str] = []
     for tag in tags:
         entry = next((c for c in metadata if c.get("tag") == tag), None)
         if not entry:
             continue
+
+        if name_only:
+            blocks.append(f"`{entry['tag']}` — {entry['name']}")
+            continue
+
         lines: List[str] = []
         lines.append(f"### `{entry['tag']}` — {entry['name']} ({entry['category']})")
-        description = entry.get("description", "")
-        if description:
-            lines.append(description)
-
         if full:
-            documentation = entry.get("documentation", "")
-            if documentation:
-                lines.append("")
-                lines.append(documentation.strip())
-            properties: Dict[str, Any] = entry.get("properties", {})
-            if properties:
-                lines.append("")
-                lines.append("**Properties:**")
-                for prop_name, prop_schema in properties.items():
-                    raw_type = prop_schema.get("type", "")
-                    prop_type = " | ".join(raw_type) if isinstance(raw_type, list) else raw_type
-                    prop_desc = prop_schema.get("description", "")
-                    prop_default = prop_schema.get("default")
-                    prop_line = f"- `{prop_name}` ({prop_type})"
-                    if prop_default is not None:
-                        prop_line += f", default: `{json.dumps(prop_default)}`"
-                    if prop_desc:
-                        prop_line += f" — {prop_desc}"
-                    lines.append(prop_line)
+            lines.append(_load_component_mdx(entry))
+        else:
+            description = entry.get("description", "")
+            if description:
+                lines.append(description)
 
         blocks.append("\n".join(lines))
     return "\n\n---\n\n".join(blocks)
@@ -94,9 +108,10 @@ def _build_selection_user_prompt(
 ) -> str:
     parts: List[str] = []
 
-    # Available components — short description only
+    # Available components — tag + name only to keep the prompt light.
+    # Full docs are only loaded for priority components below.
     parts.append("## Composants disponibles")
-    parts.append(_build_component_docs_block(available_tags, metadata, full=False))
+    parts.append(_build_component_docs_block(available_tags, metadata, name_only=True))
     parts.append("")
 
     # User request

@@ -241,9 +241,9 @@ export class WorkspacePageComponent implements OnInit, OnDestroy {
       this.facade.updateExercise(response.exercise_data);
       this.cdr.markForCheck();
     }
-    if (response.url) {
-      window.location.href = response.url;
-    }
+    // if (response.url) {
+    //   window.location.href = response.url;
+    // }
   }
 
   protected onPreviewCompleted(event: { success: boolean; error?: string; url?: string }): void {

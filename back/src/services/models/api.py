@@ -105,6 +105,24 @@ class ChatMessage(BaseModel):
     content: str
     components: List[str] = Field(default_factory=list)
 
+class GenerationContext(BaseModel):
+    """Structured parameters collected in Step-1 (landing form).
+    Sent once alongside the first agent request so the backend can
+    distribute work across parallel agents (RAG search, template
+    matching, metadata generation, exercise generation…).
+    """
+    cercle: Optional[str] = None
+    niveaux: List[str] = Field(default_factory=list)
+    domaines: List[str] = Field(default_factory=list)
+    concept: str = ""
+    selected_component: List[str] = Field(default_factory=list)
+    difficulte: Optional[str] = None          # 'facile' | 'moyen' | 'difficile'
+    objectifs_pedagogiques: Optional[str] = None
+    public_vise: Optional[str] = None
+    prerequis: Optional[str] = None
+    mode: str = "agent"                       # 'ask' | 'agent'
+
+
 class ChatRequest(BaseModel):
     exercise_state: ExerciseData
     user_request: str
@@ -118,6 +136,15 @@ class ChatRequest(BaseModel):
     conversation_mode: Optional[str] = None
     force_pure_exercise: bool = False
     conversation_id: Optional[str] = None
+    generation_context: Optional[GenerationContext] = None
+
+class ExerciseVariant(BaseModel):
+    component_tag: str
+    component_name: str
+    exercise_data: ExerciseData
+    url: str
+    error: Optional[str] = None
+
 
 class ChatResponse(BaseModel):
     exercise_data: Optional[ExerciseData] = None
@@ -127,6 +154,7 @@ class ChatResponse(BaseModel):
     retry_count: Optional[int] = None
     retry_errors: Optional[List[str]] = None
     conversation_mode: Optional[str] = None
+    variants: Optional[List["ExerciseVariant"]] = None
 
 
 class GeneratedExercise(BaseModel):

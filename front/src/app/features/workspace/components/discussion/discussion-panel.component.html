@@ -110,7 +110,14 @@
     }
 
     @for (message of messages(); track message.id) {
-      <app-message-bubble [message]="message" />
+      @if (message.variants && message.variants.length > 0) {
+        <app-exercise-variants-picker
+          [variants]="message.variants"
+          (variantSelected)="onVariantSelected($event)"
+        />
+      } @else {
+        <app-message-bubble [message]="message" />
+      }
     }
   </div>
 
@@ -134,8 +141,8 @@
         @if (ctx.domaines.length > 0) {
           <span class="context-bar__chip">{{ ctx.domaines.join(', ') }}</span>
         }
-        @if (ctx.selectedComponent && ctx.selectedComponent.length > 0) {
-          <span class="context-bar__chip context-bar__chip--component">{{ ctx.selectedComponent.join(', ') }}</span>
+        @if (ctx.selected_component && ctx.selected_component.length > 0) {
+          <span class="context-bar__chip context-bar__chip--component">{{ ctx.selected_component.join(', ') }}</span>
         }
         <span class="context-bar__chip context-bar__chip--diff" [attr.data-diff]="ctx.difficulte">{{ ctx.difficulte }}</span>
       </div>

@@ -98,10 +98,10 @@ export class WorkspaceLandingComponent implements OnInit {
     this.selectedNiveaux.set([...ctx.niveaux]);
     this.selectedDomaines.set([...ctx.domaines]);
     this.concept.set(ctx.concept);
-    if (ctx.selectedComponent?.length) this.selectedComponent.set([...ctx.selectedComponent]);
+    if (ctx.selected_component?.length) this.selectedComponent.set([...ctx.selected_component]);
     this.difficulte.set(ctx.difficulte);
-    if (ctx.objectifsPedagogiques) { this.objectifsPedagogiques.set(ctx.objectifsPedagogiques); this.showObjectifs.set(true); }
-    if (ctx.publicVise) { this.publicVise.set(ctx.publicVise); this.showObjectifs.set(true); }
+    if (ctx.objectifs_pedagogiques) { this.objectifsPedagogiques.set(ctx.objectifs_pedagogiques); this.showObjectifs.set(true); }
+    if (ctx.public_vise) { this.publicVise.set(ctx.public_vise); this.showObjectifs.set(true); }
     if (ctx.prerequis) { this.prerequis.set(ctx.prerequis); this.showObjectifs.set(true); }
   }
 
@@ -193,10 +193,10 @@ export class WorkspaceLandingComponent implements OnInit {
       niveaux:                this.selectedNiveaux(),
       domaines:               this.selectedDomaines(),
       concept:                this.concept(),
-      selectedComponent:      this.selectedComponent()       || undefined,
-      difficulte:             this.difficulte(),
-      objectifsPedagogiques:  this.objectifsPedagogiques()   || undefined,
-      publicVise:             this.publicVise()               || undefined,
+      selected_component:      this.selectedComponent().length ? this.selectedComponent() : undefined,
+      difficulte:              this.difficulte(),
+      objectifs_pedagogiques:  this.objectifsPedagogiques()   || undefined,
+      public_vise:             this.publicVise()               || undefined,
       prerequis:              this.prerequis()                || undefined,
       mode,
     });

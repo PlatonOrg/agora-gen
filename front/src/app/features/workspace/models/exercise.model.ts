@@ -5,10 +5,10 @@ export interface ExerciseGenerationContext {
   niveaux: string[];
   domaines: string[];
   concept: string;
-  selectedComponent?: string[];
+  selected_component?: string[];
   difficulte: DifficultyLevel;
-  objectifsPedagogiques?: string;
-  publicVise?: string;
+  objectifs_pedagogiques?: string;
+  public_vise?: string;
   prerequis?: string;
   mode: 'ask' | 'agent';
 }
@@ -68,10 +68,19 @@ export interface ChatRequest {
   generation_context?: ExerciseGenerationContext;
 }
 
+export interface ExerciseVariant {
+  component_tag: string;
+  component_name: string;
+  exercise_data: ExerciseData;
+  url: string;
+  error?: string | null;
+}
+
 export interface ChatResponse {
   exercise_data?: ExerciseData;
   url?: string;
   message?: string;
   error?: string;
   conversation_mode?: string;
+  variants?: ExerciseVariant[];
 }

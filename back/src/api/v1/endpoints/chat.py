@@ -517,6 +517,27 @@ async def chat_endpoint(
                 if response.conversation_mode:
                     error_payload["conversation_mode"] = response.conversation_mode
                 yield f"event: error\ndata: {json.dumps(error_payload)}\n\n"
+            elif response.variants:
+                logger.info(
+                    "[SSE] Variants generation completed for session=%s: %d variant(s).",
+                    session_id, len(response.variants),
+                )
+                variants_payload: dict = {
+                    'variants': [
+                        {
+                            'component_tag': v.component_tag,
+                            'component_name': v.component_name,
+                            'exercise_data': v.exercise_data.model_dump(),
+                            'url': v.url,
+                            'error': v.error,
+                        }
+                        for v in response.variants
+                    ],
+                    'message': response.message,
+                }
+                if response.conversation_mode:
+                    variants_payload['conversation_mode'] = response.conversation_mode
+                yield f"event: variants_generated\ndata: {json.dumps(variants_payload)}\n\n"
             else:
                 logger.info("[SSE] Generation completed successfully for session=%s.", session_id)
                 final_data: dict = {

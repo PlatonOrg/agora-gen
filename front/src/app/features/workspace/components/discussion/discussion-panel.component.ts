@@ -6,7 +6,7 @@
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { ChatService } from '../../services/chat.service';
 import { ComponentsMetadataService } from '../../services/components-metadata.service';
-import { ChatResponse, ExerciseGenerationContext } from '../../models/exercise.model';
+import { ChatResponse, ExerciseGenerationContext, ExerciseVariant } from '../../models/exercise.model';
 import { ExerciseService } from '../../services/exercise.service';
 import { LlmCapabilitiesService } from '../../../../core/llm/llm-capabilities.service';
 import { Message, ComponentBadge, AssistantMode, GenerationDetailStatus } from './discussion.models';
@@ -16,13 +16,14 @@ import { HelpPopupComponent } from '../../../../shared/ui/help-popup/help-popup.
 import { MessageBubbleComponent } from './message-bubble/message-bubble.component';
 import { ChatInputComponent } from './chat-input/chat-input.component';
 import { ConfirmDialogComponent } from '../../../../shared/ui/confirm-dialog/confirm-dialog.component';
+import { ExerciseVariantsPickerComponent } from './exercise-variants-picker/exercise-variants-picker.component';
 import { DISCUSSION_HELP_CONTENT } from '../../models/help-content.constants';
 import { WorkspaceStore } from '../../state/workspace.store';
 
 @Component({
   selector: 'app-discussion-panel',
   standalone: true,
-  imports: [CommonModule, HelpPopupComponent, MessageBubbleComponent, ChatInputComponent, ConfirmDialogComponent],
+  imports: [CommonModule, HelpPopupComponent, MessageBubbleComponent, ChatInputComponent, ConfirmDialogComponent, ExerciseVariantsPickerComponent],
   templateUrl: './discussion-panel.component.html',
   styleUrls: ['../workspace.shared.scss', './discussion-panel.component.scss'],
 })
@@ -487,6 +488,34 @@ export class DiscussionPanelComponent implements AfterViewInit, OnDestroy {
         this.refreshTimeline();
         return;
       }
+      case 'variants_generated': {
+        if (generationId !== this._activeGenerationId) {
+          return;
+        }
+        const vdata = event.data as { variants: ExerciseVariant[]; conversation_mode?: string };
+        if (vdata.conversation_mode) this.conversationMode.set(vdata.conversation_mode);
+        this.timeline.markStep('analysis', 'completed');
+        this.timeline.markStep('generation', 'completed');
+        this.timeline.markStep('sandbox', 'completed');
+        this.finishTimeline('completed');
+        const variantsMsg: Message = {
+          id: `variants-${Date.now()}`,
+          role: 'ai',
+          content: '',
+          components: [],
+          timestamp: new Date(),
+          state: 'completed',
+          variants: vdata.variants,
+        };
+        this.messages.update((msgs: Message[]) => [...msgs, variantsMsg]);
+        this.saveCache();
+        this.scrollToBottom();
+        setTimeout(() => {
+          this.isProcessing.set(false);
+          this.cdr.markForCheck();
+        }, 0);
+        return;
+      }
       case 'complete': {
         if (generationId !== this._activeGenerationId) {
           return;
@@ -678,10 +707,9 @@ export class DiscussionPanelComponent implements AfterViewInit, OnDestroy {
       if (isFirstEntry) {
         // First time: auto-send immediately so generation starts
         setTimeout(() => void this.handleSendMessage(msg), 150);
-      } else {
-        // Reconfiguration: pre-fill the input, user reviews before sending
+      } /*else {
         setTimeout(() => this.chatInputRef?.setTextFromSignal(msg), 0);
-      }
+      }*/
     } else if (context.mode === 'ask' && context.concept.trim()) {
       // Always pre-fill the chat input with the concept text
       setTimeout(() => this.chatInputRef?.setTextFromSignal(context.concept.trim()), 0);
@@ -698,10 +726,10 @@ export class DiscussionPanelComponent implements AfterViewInit, OnDestroy {
     if (context.niveaux.length)        details.push(`- **Niveau** : ${context.niveaux.join(', ')}`);
     if (context.domaines.length)       details.push(`- **Domaine** : ${context.domaines.join(', ')}`);
     details.push(`- **Difficulté** : ${diffLabels[context.difficulte] ?? context.difficulte}`);
-    if (context.selectedComponent)     details.push(`- **Composant souhaité** : ${context.selectedComponent.join(', ')}`);
+    if (context.selected_component)     details.push(`- **Composant souhaité** : ${context.selected_component.join(', ')}`);
     if (context.cercle)                details.push(`- **Cercle** : ${context.cercle}`);
-    if (context.objectifsPedagogiques) details.push(`- **Objectifs pédagogiques** : ${context.objectifsPedagogiques}`);
-    if (context.publicVise)            details.push(`- **Public visé** : ${context.publicVise}`);
+    if (context.objectifs_pedagogiques) details.push(`- **Objectifs pédagogiques** : ${context.objectifs_pedagogiques}`);
+    if (context.public_vise)            details.push(`- **Public visé** : ${context.public_vise}`);
     if (context.prerequis)             details.push(`- **Prérequis** : ${context.prerequis}`);
     if (details.length) lines.push('', ...details);
     return lines.join('\n');
@@ -809,6 +837,12 @@ export class DiscussionPanelComponent implements AfterViewInit, OnDestroy {
       forcePureExercise: this.forcePureExercise(),
       conversationId: this.conversationId(),
     });
+  }
+
+  onVariantSelected(variant: ExerciseVariant): void {
+    this.exerciseService.exerciseData.set(variant.exercise_data as Parameters<typeof this.exerciseService.exerciseData.set>[0]);
+    //if (variant.url) window.open(variant.url, '_blank');
+    this.chatResponse.emit({ exercise_data: variant.exercise_data, url: variant.url, conversation_mode: 'template' });
   }
 
   private scrollToBottom(force = false): void {

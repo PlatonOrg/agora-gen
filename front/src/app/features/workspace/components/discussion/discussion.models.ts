@@ -1,3 +1,5 @@
+import { ExerciseVariant } from '../../models/exercise.model';
+
 export type GenerationStepState = 'pending' | 'in_progress' | 'completed' | 'error' | 'stopped';
 export type GenerationDetailStatus = 'info' | 'start' | 'done' | 'error' | 'warning';
 
@@ -42,6 +44,7 @@ export interface Message {
   attachedFileNames?: string[];
   generationTimeline?: GenerationTimelineData;
   source?: 'generation' | 'discussion';
+  variants?: ExerciseVariant[];
 }
 
 export interface CachedMessage {

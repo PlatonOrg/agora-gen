@@ -1,0 +1,49 @@
+<div class="variants-picker">
+  <div class="variants-picker__header">
+    <span class="variants-picker__title">
+      {{ successfulVariants().length }} variante{{ successfulVariants().length > 1 ? 's' : '' }} générée{{ successfulVariants().length > 1 ? 's' : '' }}
+    </span>
+    <span class="variants-picker__hint">Choisissez celle qui vous convient</span>
+  </div>
+
+  <div class="variants-picker__scroll">
+    @for (variant of successfulVariants(); track variant.component_tag) {
+      <div class="variant-card">
+        <div class="variant-card__badge">{{ variant.component_name }}</div>
+        <div class="variant-card__tag">{{ variant.component_tag }}</div>
+
+        @if (variant.exercise_data.titre) {
+          <p class="variant-card__title">{{ variant.exercise_data.titre }}</p>
+        }
+        @if (variant.exercise_data.enonce) {
+          <p class="variant-card__enonce">{{ truncate(variant.exercise_data.enonce) }}</p>
+        }
+
+        <div class="variant-card__actions">
+          @if (variant.url) {
+            <button class="variant-card__btn variant-card__btn--preview" type="button" (click)="preview(variant)">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                <circle cx="12" cy="12" r="3"/>
+              </svg>
+              Prévisualiser
+            </button>
+          }
+          <button class="variant-card__btn variant-card__btn--select" type="button" (click)="select(variant)">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <polyline points="20 6 9 17 4 12"/>
+            </svg>
+            Sélectionner
+          </button>
+        </div>
+      </div>
+    }
+  </div>
+
+  @if (failedVariants().length > 0) {
+    <p class="variants-picker__failed">
+      {{ failedVariants().length }} variante{{ failedVariants().length > 1 ? 's ont' : ' a' }} échoué
+      ({{ failedNames() }})
+    </p>
+  }
+</div>

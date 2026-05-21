@@ -4,7 +4,7 @@ import {
   TemplatePreviewRequest,
   TemplatePreviewResponse
 } from '../models/template.model';
-import { ChatRequest, ChatResponse, ExerciseData } from '../models/exercise.model';
+import { ChatRequest, ChatResponse, ExerciseData, ExerciseVariant } from '../models/exercise.model';
 import { PublishExerciseRequest, PublishExerciseResponse } from '../models/publish.model';
 
 export interface PlatonDocsSource {
@@ -69,10 +69,17 @@ export interface GenerationError {
   error?: string;
 }
 
+export interface GenerationVariants {
+  variants: ExerciseVariant[];
+  message?: string;
+  conversation_mode?: string;
+}
+
 export type GenerationEvent =
   | { type: 'step'; data: GenerationStep }
   | { type: 'progress'; data: GenerationProgress }
   | { type: 'complete'; data: GenerationComplete }
+  | { type: 'variants_generated'; data: GenerationVariants }
   | { type: 'error'; data: GenerationError };
 
 /**
