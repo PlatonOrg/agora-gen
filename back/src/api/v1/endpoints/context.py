@@ -11,7 +11,7 @@ from src.services.template_service import filter_templates
 from src.infra.db.redis import get_redis
 from src.core.sqlalchemy import AsyncSessionLocal
 from src.infra.db.components_repo import list_component_for_form
-from typing import List, Optional
+from typing import List, Optional, Dict, Any
 from src.services.models.api import (
     FilterTemplatesRequest,
     TemplateResponse,
@@ -359,5 +359,47 @@ async def get_current_user_profile(
     except SandboxError as e:
         logger.error("Failed to fetch user profile for %s: %s", username, e)
         raise HTTPException(status_code=502, detail=f"Could not fetch user profile from PLaTon: {e}")
+
+
+@router.get("/univ_template_jsons/{filename}")
+async def get_univ_template_json(
+    filename: str,
+    user_token: Optional[str] = Depends(get_user_token),
+) -> str:
+    """
+    Retrieve a Markdown template file from PLaTon.
+    
+    :param filename: Name of the Markdown file (without .md extension)
+    :param user_token: User's PLaTon authentication token (optional)
+    :return: Raw Markdown content from PLaTon
+    :raises HTTPException: 404 if file not found, 500 on retrieval error
+    """
+    try:
+        ZAMC_ID = "6624579d-d3f6-4b5f-9432-ee36e3e47959"
+        
+        # Construct complete filename :
+        full_filename = f"Template_universel/{filename}.md"
+        
+        # Fetch the Markdown file content from PLaTon
+        markdown_content = await platon_service.get_file_content(
+            resource_id=ZAMC_ID,
+            filename=full_filename,
+            version="latest",
+            token=user_token,
+        )
+        
+        logger.info(f"Successfully loaded Markdown template from PLaTon: {filename}")
+        return markdown_content
+        
+    except HTTPException:
+        raise
+    except SandboxError as e:
+        logger.error(f"PLaTon API error while fetching '{filename}': {e}")
+        raise HTTPException(status_code=502, detail=f"Error fetching from PLaTon: {str(e)}")
+    except Exception as e:
+        logger.error(f"Error loading Markdown template '{filename}' from PLaTon: {e}")
+        raise HTTPException(status_code=500, detail=f"Error loading Markdown template: {str(e)}")
+
+
 
 
