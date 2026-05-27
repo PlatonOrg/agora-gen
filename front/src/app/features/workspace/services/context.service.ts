@@ -392,6 +392,34 @@ export class ContextService {
   }
 
   /**
+   * Get list of universal template filenames
+   */
+  async getUnivTemplateList(): Promise<string[]> {
+    try {
+      const filenames = await this.apiService.get<string[]>('/context/univ_template_jsons');
+      console.log('[ContextService] Universal template list loaded:', filenames.length);
+      return filenames;
+    } catch (error: any) {
+      console.error('[ContextService] Error loading universal template list:', error);
+      return [];
+    }
+  }
+
+  /**
+   * Get content of a universal template file
+   */
+  async getUnivTemplateContent(filename: string): Promise<string> {
+    try {
+      const content = await this.apiService.get<string>(`/context/univ_template_jsons/${encodeURIComponent(filename)}`);
+      console.log('[ContextService] Universal template content loaded:', filename);
+      return content;
+    } catch (error: any) {
+      console.error('[ContextService] Error loading universal template content for', filename, ':', error);
+      return '';
+    }
+  }
+
+  /**
    * Clear all loaded data
    */
   clear(): void {
