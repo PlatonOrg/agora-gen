@@ -401,5 +401,51 @@ async def get_univ_template_json(
         raise HTTPException(status_code=500, detail=f"Error loading Markdown template: {str(e)}")
 
 
+@router.get("/univ_template_jsons")
+async def get_univ_template_list(
+    user_token: Optional[str] = Depends(get_user_token),
+) -> List[str]:
+    """
+    Retrieve the list of Markdown template files in the Template_universel directory.
+    
+    :param user_token: User's PLaTon authentication token (optional)
+    :return: List of filenames (with .md extension)
+    :raises HTTPException: 404 if directory not found, 500 on retrieval error
+    """
+    try:
+        ZAMC_ID = "6624579d-d3f6-4b5f-9432-ee36e3e47959"
+        directory_path = "Template_universel"
+        
+        # Fetch the directory contents from PLaTon
+        dir_content = await platon_service.get_directory_content(
+            resource_id=ZAMC_ID,
+            directory_path=directory_path,
+            version="latest",
+            token=user_token,
+        )
+        
+        # Extract filenames from children
+        filenames = []
+        children = dir_content.get("children", [])
+        for child in children:
+            if isinstance(child, dict) and "path" in child:
+                path = child["path"]
+                # Extract filename from path (e.g., "Template_universel/filename.md" -> "filename.md")
+                filename = path.split('/')[-1]
+                filenames.append(filename)
+        
+        logger.info(f"Successfully retrieved {len(filenames)} template files from PLaTon")
+        return filenames
+        
+    except HTTPException:
+        raise
+    except SandboxError as e:
+        logger.error(f"PLaTon API error while fetching template list: {e}")
+        raise HTTPException(status_code=502, detail=f"Error fetching from PLaTon: {str(e)}")
+    except Exception as e:
+        logger.error(f"Error loading template list from PLaTon: {e}")
+        raise HTTPException(status_code=500, detail=f"Error loading template list: {str(e)}")
+
+
 
 

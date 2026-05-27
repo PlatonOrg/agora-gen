@@ -321,6 +321,40 @@ class PlatonService:
             response.raise_for_status()
             return response.text
 
+    async def get_directory_content(
+        self,
+        resource_id: str,
+        directory_path: str,
+        version: str = "latest",
+        token: Optional[str] = None,
+    ) -> Dict[str, Any]:
+        """
+        Retrieve the contents of a directory from PLaTon.
+        
+        :param resource_id: The resource ID on PLaTon
+        :param directory_path: Path to the directory (relative to resource root)
+        :param version: Version of the resource (default: "latest")
+        :param token: User's PLaTon authentication token (optional)
+        :return: JSON object describing the directory contents
+        :raises SandboxError: On API errors
+        """
+        auth_token = token or self.token
+        headers = {"Content-Type": "application/json"}
+        if auth_token:
+            headers["Authorization"] = f"Bearer {auth_token}"
+
+        async with httpx.AsyncClient(
+            base_url=self._base_url,
+            headers=headers,
+            timeout=self._timeout,
+        ) as client:
+            response = await client.get(
+                f"/files/{resource_id}/{directory_path}",
+                params={"version": version},
+            )
+            response.raise_for_status()
+            return response.json()
+
     async def compile_resource_json(
         self,
         resource_id: str,
