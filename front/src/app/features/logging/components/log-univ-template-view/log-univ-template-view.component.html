@@ -1,0 +1,49 @@
+<div class="univ-template-view">
+  <div class="univ-template-view__header">
+    <h2 class="univ-template-view__title">Templates universels</h2>
+    <span class="univ-template-view__count" *ngIf="state() === 'success'">
+      {{ templates().length }} template{{ templates().length !== 1 ? 's' : '' }}
+    </span>
+  </div>
+
+  <app-log-status-view
+    [state]="state()"
+    [empty]="templates().length === 0"
+    [errorMessage]="errorMessage()"
+    emptyMessage="Aucun template trouvé."
+  />
+
+  @if (state() === 'success' && templates().length > 0) {
+    <div class="univ-template-view__list">
+      @for (template of templates(); track template.filename) {
+        <article
+          class="template-card"
+          [class.template-card--expanded]="expandedFilename() === template.filename"
+        >
+          <button
+            class="template-card__header"
+            type="button"
+            (click)="toggleExpand(template.filename)"
+            [attr.aria-expanded]="expandedFilename() === template.filename"
+          >
+            <span class="template-card__name">{{ getDisplayName(template.filename) }}</span>
+            <svg
+              class="template-card__chevron"
+              [class.template-card__chevron--open]="expandedFilename() === template.filename"
+              xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
+              fill="none" stroke="currentColor" stroke-width="2"
+            >
+              <polyline points="6 9 12 15 18 9"/>
+            </svg>
+          </button>
+
+          @if (expandedFilename() === template.filename) {
+            <div class="template-card__content">
+              <div class="template-card__markdown">{{ template.content }}</div>
+            </div>
+          }
+        </article>
+      }
+    </div>
+  }
+</div>

@@ -8,8 +8,9 @@ import { UserProfileService } from '../../../../core/auth/user-profile.service';
 import { AuthService } from '../../../../core/auth/auth.service';
 import { UserChipComponent } from '../../../../shared/ui/user-chip/user-chip.component';
 import { LogPromptsViewComponent } from '../log-prompts-view/log-prompts-view.component';
+import { LogUnivTemplateViewComponent } from '../log-univ-template-view/log-univ-template-view.component';
 
-export type LogTab = 'conversations' | 'config' | 'statistics' | 'prompts';
+export type LogTab = 'conversations' | 'config' | 'statistics' | 'prompts' | 'univ-templates';
 
 interface NavItem { tab: LogTab; label: string; icon: string; }
 
@@ -23,6 +24,7 @@ interface NavItem { tab: LogTab; label: string; icon: string; }
     AdminDashboardPageComponent,
     UserChipComponent,
     LogPromptsViewComponent,
+    LogUnivTemplateViewComponent,
   ],
   templateUrl: './logging-page.component.html',
   styleUrl: './logging-page.component.scss',
@@ -55,6 +57,11 @@ export class LoggingPageComponent {
       tab: 'prompts',
       label: 'Prompts',
       icon: `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>`,
+    },
+    {
+      tab: 'univ-templates',
+      label: 'Templates universels',
+      icon: `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L2 7v10c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V7l-10-5z"/><path d="M10 12l2 2 4-4"/></svg>`,
     },
   ];
 
