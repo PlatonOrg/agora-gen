@@ -369,7 +369,7 @@ async def get_univ_template_json(
     """
     Retrieve a Markdown template file from PLaTon.
     
-    :param filename: Name of the Markdown file (without .md extension)
+    :param filename: Name of the Markdown file (with or without .md extension)
     :param user_token: User's PLaTon authentication token (optional)
     :return: Raw Markdown content from PLaTon
     :raises HTTPException: 404 if file not found, 500 on retrieval error
@@ -377,8 +377,9 @@ async def get_univ_template_json(
     try:
         ZAMC_ID = "6624579d-d3f6-4b5f-9432-ee36e3e47959"
         
-        # Construct complete filename :
-        full_filename = f"Template_universel/{filename}.md"
+        # Ensure filename has .md extension (add it only if not already present)
+        md_filename = filename if filename.endswith('.md') else f"{filename}.md"
+        full_filename = f"Template_universel/{md_filename}"
         
         # Fetch the Markdown file content from PLaTon
         markdown_content = await platon_service.get_file_content(
